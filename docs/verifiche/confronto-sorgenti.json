@@ -1,0 +1,49 @@
+{
+  "modificati": [
+    "README.md",
+    "index.html",
+    "src/App.vue",
+    "src/stili/design-system.css",
+    "src/stili/layout-globale.css",
+    "src/views/DashboardView.vue"
+  ],
+  "aggiunti": [
+    "src/assets/ui/crooked-realms-r4/README.md",
+    "src/assets/ui/crooked-realms-r4/cornice-ardesia.webp",
+    "src/assets/ui/crooked-realms-r4/placca-ambra.webp",
+    "src/assets/ui/crooked-realms-r4/placca-ardesia.webp",
+    "src/assets/ui/crooked-realms-r4/traversa-ardesia.svg",
+    "src/components/ui/CardAvventura.vue",
+    "src/components/ui/IconaDirezione.vue",
+    "src/components/ui/IconaStrumento.vue",
+    "src/components/ui/PlaccaAzione.vue",
+    "src/stili/dashboard.css"
+  ],
+  "fileCoreIdentici": [
+    "src/dati/modelloCreatura.js",
+    "src/dati/modelliLegacy.js",
+    "src/dati/sezioniCampagna.js",
+    "src/dati/compatibilitaSRD.js",
+    "src/dati/catalogoSRD.js",
+    "src/stato/statoCampagne.js",
+    "src/stato/usaModale.js",
+    "src/stato/statoBestiario.js",
+    "src/stato/archivioCreature.js",
+    "src/stato/stickyBattaglia.js",
+    "src/stato/archiviazioneLocale.js",
+    "src/stato/statoDatiCampagna.js",
+    "src/stato/archivioDMC.js",
+    "src/router/index.js"
+  ],
+  "assetOriginaliIdentici": [
+    "src/assets/logo/dmc-logo-originale-trasparente (1).png",
+    "src/assets/logo/dmc-logo-header.png",
+    "src/assets/illustrazioni/dmc-esplora-campagne.webp",
+    "src/assets/illustrazioni/dmc-le-mie-campagne.webp",
+    "src/assets/illustrazioni/dmc-nuova-campagna.webp",
+    "public/immagini/crooked-sfondo-home.webp",
+    "public/immagini/crooked-pietra-texture.svg"
+  ],
+  "packageLockIdentico": true,
+  "fileOriginaliConservati": 57
+}

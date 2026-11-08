@@ -1,0 +1,93 @@
+{
+  "risultati": [
+    "Battaglia: pannelli illustrati caricati",
+    "Danno: 17 → 14 PF",
+    "Cura: 14 → 17 PF",
+    "Rimozione condizione esistente",
+    "Aggiunta condizione dalla tendina",
+    "Avanzamento turno funzionante",
+    "Menu iniziativa espanso",
+    "Axe Battaglia desktop: nessuna violazione rilevata",
+    "Bottino: valore aggiornato",
+    "Axe Note desktop: nessuna violazione rilevata",
+    "Passaggio preparazione → conduzione",
+    "Consultazione non lineare della seconda scena",
+    "Scena corrente e visitata aggiornate",
+    "Axe Conduzione desktop: nessuna violazione rilevata",
+    "Responsive Panoramica 320px",
+    "Responsive Battaglia 320px",
+    "Responsive Note 320px",
+    "Responsive Sessioni 320px",
+    "Responsive Panoramica 390px",
+    "Responsive Battaglia 390px",
+    "Responsive Note 390px",
+    "Responsive Sessioni 390px",
+    "Responsive Panoramica 768px",
+    "Responsive Battaglia 768px",
+    "Responsive Note 768px",
+    "Responsive Sessioni 768px",
+    "Responsive Panoramica 1024px",
+    "Responsive Battaglia 1024px",
+    "Responsive Note 1024px",
+    "Responsive Sessioni 1024px",
+    "Responsive Panoramica 1440px",
+    "Responsive Battaglia 1440px",
+    "Responsive Note 1440px",
+    "Responsive Sessioni 1440px",
+    "Battaglia mobile: barre sticky senza sovrapposizione",
+    "Strumenti mobili dentro la fascia della barra globale",
+    "Pannello dadi mobile interamente nel viewport",
+    "Modale impostazioni mobile visibile",
+    "Escape chiude le impostazioni",
+    "Note e bottino persistiti",
+    "Sessione e condizioni persistite",
+    "Ricerca SRD funzionante",
+    "Scheda SRD leggibile e aperta",
+    "Axe Scheda SRD mobile: nessuna violazione rilevata",
+    "Scelta creazione: dialogo nel viewport",
+    "Axe Editor creatura mobile: nessuna violazione rilevata",
+    "Salvataggio homebrew tramite editor",
+    "Nessun errore JavaScript o HTTP nelle schermate operative"
+  ],
+  "errori": [],
+  "accessibilita": [
+    {
+      "nome": "Battaglia desktop",
+      "violations": [],
+      "incomplete": [
+        "aria-prohibited-attr",
+        "color-contrast"
+      ]
+    },
+    {
+      "nome": "Note desktop",
+      "violations": [],
+      "incomplete": [
+        "color-contrast"
+      ]
+    },
+    {
+      "nome": "Conduzione desktop",
+      "violations": [],
+      "incomplete": [
+        "color-contrast"
+      ]
+    },
+    {
+      "nome": "Scheda SRD mobile",
+      "violations": [],
+      "incomplete": [
+        "aria-prohibited-attr",
+        "color-contrast"
+      ]
+    },
+    {
+      "nome": "Editor creatura mobile",
+      "violations": [],
+      "incomplete": [
+        "aria-prohibited-attr",
+        "color-contrast"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,378 @@
+/*
+ * DMC — Layout globale
+ *
+ * Responsabilità:
+ * - top bar dell'applicazione
+ * - altezza condivisa della top bar
+ * - strumenti flottanti
+ * - cronometro e lanciadadi
+ *
+ * Navigazione della campagna:
+ * navigazione-campagna.css
+ *
+ * Barra dei turni:
+ * sticky-battaglia.css
+ */
+
+:root {
+  --dmc-topbar-height: 58px;
+}
+
+.dmc-app {
+  min-height: 100vh;
+}
+
+/* TOP BAR GLOBALE */
+
+.barra-globale {
+  position: sticky;
+  top: 0;
+  z-index: 1050;
+  display: flex;
+  align-items: center;
+  gap: var(--dmc-space-5);
+  height: var(--dmc-topbar-height);
+  padding: 0 var(--dmc-space-5);
+  border-bottom: 1px solid var(--dmc-border-soft);
+  background: linear-gradient(180deg, rgb(63 73 82 / 28%), transparent 70%), var(--dmc-ink-deep);
+  box-shadow: 0 3px 9px rgb(0 0 0 / 24%);
+  color: var(--dmc-cream);
+}
+
+/* MARCHIO */
+
+.marchio-globale {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--dmc-space-3);
+  flex-shrink: 0;
+  min-width: 0;
+  color: var(--dmc-cream);
+  font-family: var(--dmc-font-display);
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.2;
+  text-decoration: none;
+}
+
+.marchio-globale img {
+  display: block;
+  width: 38px;
+  height: 38px;
+  object-fit: contain;
+}
+
+/* NAVIGAZIONE GLOBALE */
+
+.navigazione-globale {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  gap: var(--dmc-space-2);
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.navigazione-globale a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  min-height: 38px;
+  padding: 8px 14px;
+  border-radius: var(--dmc-radius-sm);
+  color: var(--dmc-muted-light);
+  font-family: var(--dmc-font-body);
+  font-size: 15px;
+  font-weight: 700;
+  white-space: nowrap;
+  text-decoration: none;
+
+  transition:
+    background-color var(--dmc-transition),
+    color var(--dmc-transition);
+}
+
+.navigazione-globale a:hover,
+.navigazione-globale a.attivo {
+  background: var(--dmc-surface);
+  color: var(--dmc-amber-light);
+}
+
+/* Placca discreta: la barra conserva altezza, struttura e tab R3. */
+.navigazione-globale a.attivo {
+  background: var(--dmc-amber);
+  color: var(--dmc-ink);
+  box-shadow:
+    inset 0 1px 0 rgb(242 229 206 / 45%),
+    0 2px 0 #080c12;
+  border-radius: 8px 5px 9px 5px;
+}
+
+.campagna-corrente {
+  flex: 0 1 auto;
+  max-width: 170px;
+  overflow: hidden;
+  color: var(--dmc-amber-light);
+  font-size: 13px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* STRUMENTI FLOTTANTI */
+
+.strumenti-flottanti {
+  position: fixed;
+  bottom: 18px;
+  right: var(--dmc-space-3);
+  z-index: 1090;
+  display: grid;
+  gap: var(--dmc-space-2);
+}
+
+.strumenti-flottanti > button {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  padding: 0;
+  border: 2px solid var(--dmc-outline);
+  border-radius: 50%;
+  background: var(--dmc-surface-raised);
+  color: var(--dmc-amber-light);
+  box-shadow: var(--dmc-shadow-small);
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.strumenti-flottanti > button:hover,
+.strumenti-flottanti > button[aria-expanded='true'] {
+  background: var(--dmc-amber);
+  color: var(--dmc-ink);
+}
+
+/* PANNELLI DEGLI STRUMENTI */
+
+.pannello-strumento {
+  position: fixed;
+  bottom: 80px;
+  right: 12px;
+  z-index: 1100;
+  display: grid;
+  gap: var(--dmc-space-3);
+  width: min(320px, calc(100vw - 24px));
+  max-height: min(70vh, calc(100dvh - 150px));
+  padding: var(--dmc-space-4);
+  overflow-y: auto;
+  color: var(--dmc-cream);
+}
+
+.testata-strumento {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--dmc-space-3);
+}
+
+.testata-strumento h2 {
+  margin: 0;
+  color: var(--dmc-amber);
+  font: 800 18px var(--dmc-font-display);
+}
+
+.testata-strumento button {
+  border: 0;
+  background: transparent;
+  color: var(--dmc-cream);
+  font-size: 25px;
+  cursor: pointer;
+}
+
+.pannello-strumento p {
+  margin: 0;
+  color: var(--dmc-muted-light);
+  font-size: 12px;
+}
+
+/* CRONOMETRO */
+
+.tempo-display {
+  text-align: center;
+  font-size: 29px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 1px;
+}
+
+/* LANCIADADI */
+
+.azioni-strumento,
+.scelta-dado {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--dmc-space-2);
+}
+
+.azioni-strumento button,
+.scelta-dado button,
+.lancia {
+  min-height: 38px;
+  padding: 8px 12px;
+  border: 2px solid var(--dmc-outline);
+  border-radius: var(--dmc-radius-sm);
+  background: var(--dmc-surface-raised);
+  color: var(--dmc-cream);
+  box-shadow: var(--dmc-shadow-small);
+  font: 700 13px var(--dmc-font-body);
+  cursor: pointer;
+}
+
+.scelta-dado button.selezionato,
+.lancia {
+  background: var(--dmc-amber);
+  color: var(--dmc-ink);
+}
+
+.parametri-dado {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--dmc-space-3);
+}
+
+.parametri-dado label {
+  display: grid;
+  gap: 6px;
+  color: var(--dmc-muted-light);
+  font-size: 12px;
+}
+
+.parametri-dado input {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 9px;
+  border: 1px solid var(--dmc-border);
+  border-radius: var(--dmc-radius-xs);
+  background: var(--dmc-ink);
+  color: var(--dmc-cream);
+}
+
+/* RISULTATO DEI DADI */
+
+.esito-dadi {
+  display: grid;
+  gap: 5px;
+  padding-top: 10px;
+  overflow-wrap: anywhere;
+  border-top: 1px solid var(--dmc-border-soft);
+}
+
+.esito-dadi strong {
+  color: var(--dmc-amber-light);
+  font-size: 20px;
+}
+
+.esito-dadi span {
+  font-size: 12px;
+}
+
+/* ACCESSIBILITÀ */
+
+.barra-globale :focus-visible,
+.strumenti-flottanti :focus-visible,
+.pannello-strumento :focus-visible {
+  outline: 3px solid var(--dmc-blue);
+  outline-offset: 3px;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 700px) {
+  :root {
+    --dmc-topbar-height: 54px;
+  }
+
+  .barra-globale {
+    gap: 9px;
+    padding: 0 92px 0 10px;
+  }
+
+  .marchio-globale {
+    font-size: 13px;
+  }
+
+  .marchio-globale img {
+    width: 30px;
+    height: 30px;
+  }
+
+  .campagna-corrente {
+    display: none;
+  }
+
+  .navigazione-globale {
+    gap: 3px;
+  }
+
+  .navigazione-globale a {
+    padding: 7px 9px;
+    font-size: 13px;
+  }
+
+  .strumenti-flottanti {
+    display: flex;
+    top: 8px;
+    right: 8px;
+    bottom: auto;
+    gap: 6px;
+  }
+
+  .strumenti-flottanti > button {
+    width: 38px;
+    height: 38px;
+    font-size: 21px;
+  }
+
+  .pannello-strumento {
+    top: calc(var(--dmc-topbar-height) + 8px);
+    right: 8px;
+    bottom: auto;
+    width: min(320px, calc(100vw - 20px));
+  }
+}
+
+/* Il marchio accessibile resta nel link; sui telefoni si mostra il logo. */
+@media (max-width: 620px) {
+  .marchio-globale strong {
+    display: none;
+  }
+
+  .navigazione-globale a {
+    padding-inline: 4px;
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 360px) {
+  .barra-globale {
+    gap: 4px;
+    padding-left: 6px;
+    padding-right: 82px;
+  }
+
+  .marchio-globale img {
+    width: 24px;
+    height: 24px;
+  }
+
+  .strumenti-flottanti {
+    top: 10px;
+    right: 4px;
+  }
+
+  .strumenti-flottanti > button {
+    width: 34px;
+    height: 34px;
+  }
+}

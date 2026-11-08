@@ -1,0 +1,330 @@
+/*
+ * DMC — Design system
+ *
+ * Responsabilità:
+ * - token di colore e tipografia
+ * - spaziature, raggi e ombre
+ * - componenti condivisi
+ * - accessibilità e preferenze di movimento
+ *
+ * Le intestazioni delle pagine e gli strumenti globali
+ * sono gestiti da layout-globale.css.
+ */
+
+/* TOKEN */
+
+:root {
+  --dmc-ink: #141923;
+  --dmc-ink-deep: #0e121a;
+
+  --dmc-surface: #242d38;
+  --dmc-surface-raised: #303b48;
+  --dmc-surface-soft: #1d2530;
+
+  --dmc-amber: #e5a65c;
+  --dmc-amber-light: #f1c487;
+  --dmc-amber-dark: #9e6435;
+
+  --dmc-cream: #f2e5ce;
+  --dmc-muted: #b7b7b1;
+  --dmc-muted-light: #bac0c2;
+
+  --dmc-moss: #76a58a;
+  --dmc-moss-text: #a6d3b6;
+  --dmc-rust: #c66d66;
+  --dmc-rust-text: #efaba2;
+  --dmc-blue: #7da5c0;
+
+  --dmc-outline: #10141c;
+  --dmc-border: #53606b;
+  --dmc-border-soft: #414b57;
+
+  --dmc-shadow-small: 0 3px 0 var(--dmc-outline);
+
+  --dmc-shadow-medium: 0 5px 0 var(--dmc-outline);
+
+  --dmc-radius-xs: 6px;
+  --dmc-radius-sm: 9px;
+  --dmc-radius-md: 13px;
+  --dmc-radius-lg: 18px;
+
+  --dmc-space-1: 4px;
+  --dmc-space-2: 8px;
+  --dmc-space-3: 12px;
+  --dmc-space-4: 16px;
+  --dmc-space-5: 24px;
+  --dmc-space-6: 32px;
+
+  --dmc-font-display: var(--dmc-font-illustrated);
+
+  /* Titoli narrativi; dati e controlli densi mantengono --dmc-font-body. */
+  --dmc-font-illustrated: Georgia, 'Times New Roman', serif;
+
+  --dmc-art-ambra: url('../assets/ui/crooked-realms-r4/placca-ambra.webp');
+  --dmc-art-ardesia: url('../assets/ui/crooked-realms-r4/placca-ardesia.webp');
+  --dmc-art-pannello: url('../assets/ui/crooked-realms-r4/pannello-operativo.svg');
+
+  --dmc-font-body: system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  --dmc-transition: 140ms ease;
+
+  font-family: var(--dmc-font-body);
+}
+
+/* LAYOUT CONDIVISO */
+
+.dmc {
+  color: var(--dmc-cream);
+}
+
+.dmc :is(h1, h2, h3) {
+  font-family: var(--dmc-font-illustrated);
+}
+
+.dmc-pagina {
+  min-height: 100vh;
+  padding: 0 22px 30px;
+  background:
+    radial-gradient(ellipse at 10% 0, rgb(229 166 92 / 4%), transparent 45%), var(--dmc-ink);
+}
+
+.dmc-contenitore {
+  width: 100%;
+  max-width: 1450px;
+  min-width: 0;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* SUPERFICI OPERATIVE — bordi illustrati, centro uniforme e leggibile.
+ * Nessun overflow o contesto di sovrapposizione sui pannelli: menu e modali
+ * conservano il proprio comportamento. I layout restano nei componenti Vue.
+ */
+
+.dmc-pannello {
+  border: 1px solid transparent;
+  border-image: var(--dmc-art-pannello) 17 / 11px / 0 stretch;
+  border-radius: 8px 12px 7px 10px;
+  background:
+    linear-gradient(145deg, rgb(242 229 206 / 2%), transparent 35%),
+    var(--dmc-panel-bg, var(--dmc-surface));
+  background-clip: padding-box;
+  box-shadow: 0 3px 10px rgb(0 0 0 / 18%);
+}
+
+.dmc-pannello--rilievo {
+  border-image: url('../assets/ui/crooked-realms-r4/cornice-ardesia.webp') 190 / 25px / 0 stretch;
+  border-radius: 14px 19px 13px 16px;
+}
+
+.dmc-carta:hover {
+  box-shadow:
+    inset 3px 0 0 var(--dmc-amber),
+    0 4px 12px rgb(0 0 0 / 28%);
+}
+
+/* PULSANTI CONDIVISI — le stesse placche della Dashboard, in formato compatto.
+ * Le azioni pericolose/positive hanno superfici piane e colori semantici.
+ */
+
+.dmc-btn {
+  --dmc-button-art: var(--dmc-art-ambra);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-width: 0;
+  min-height: 42px;
+  padding: 10px 17px;
+  border: 1px solid transparent;
+  border-image: var(--dmc-button-art) 32 130 36 130 fill / 7px 21px 8px 21px / 0 stretch;
+  border-radius: 5px;
+  background: var(--dmc-amber);
+  background-clip: content-box;
+  color: var(--dmc-ink);
+  font-family: var(--dmc-font-body);
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.35;
+  text-align: center;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+  box-shadow: 0 2px 0 rgb(8 12 18 / 45%);
+  cursor: pointer;
+}
+
+.dmc-btn--secondary {
+  --dmc-button-art: var(--dmc-art-ardesia);
+  background-color: var(--dmc-surface);
+  color: var(--dmc-cream);
+}
+
+.dmc-btn:is([aria-pressed='true'], [aria-expanded='true']) {
+  --dmc-button-art: var(--dmc-art-ambra);
+  background-color: var(--dmc-amber);
+  color: var(--dmc-ink);
+}
+
+.dmc-btn--danger,
+.dmc-btn--positive {
+  border-image: none;
+  background-clip: padding-box;
+  border: 1px solid #a45f60;
+  border-radius: 5px 8px 4px 7px;
+  background: #412b32;
+  color: #ffd0c8;
+}
+
+.dmc-btn--positive {
+  border-color: #5c8d76;
+  background: #263b34;
+  color: #c4e9d6;
+}
+
+.dmc-btn--icona {
+  min-width: 34px;
+  min-height: 34px;
+  padding: 6px;
+}
+.dmc-btn:hover:not(:disabled) {
+  filter: brightness(1.12);
+}
+.dmc-btn:disabled {
+  opacity: 0.48;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+.dmc-btn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+/* CAMPI — nessuna texture sotto testo o numeri. */
+.dmc-campo {
+  min-width: 0;
+  min-height: 38px;
+  border: 1px solid var(--dmc-border);
+  border-radius: 4px 7px 3px 5px;
+  background: var(--dmc-ink);
+  color: var(--dmc-cream);
+  font-family: var(--dmc-font-body);
+  line-height: 1.45;
+  font-variant-numeric: tabular-nums;
+  color-scheme: dark;
+}
+
+.dmc :is(input[type='checkbox'], input[type='radio']) {
+  accent-color: var(--dmc-amber);
+}
+
+/* MODALI CONDIVISE */
+
+.dmc-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1400;
+
+  display: grid;
+  place-items: center;
+
+  padding: 15px;
+  background: rgb(0 0 0 / 80%);
+}
+
+.dmc-modale {
+  display: grid;
+  gap: 17px;
+
+  width: min(580px, 100%);
+  max-height: 90vh;
+  overflow-y: auto;
+
+  padding: 24px;
+  border: 1px solid transparent;
+  border-image: var(--dmc-art-pannello) 17 / 12px / 0 stretch;
+  border-radius: 9px 15px 8px 12px;
+  background: var(--dmc-surface);
+  box-shadow: 0 18px 65px rgb(0 0 0 / 50%);
+}
+
+.dmc-modale h2 {
+  margin: 0;
+  color: var(--dmc-amber);
+  font-family: var(--dmc-font-illustrated);
+}
+
+.dmc-modale p {
+  margin: 0;
+  color: var(--dmc-muted-light);
+  line-height: 1.6;
+}
+
+.dmc-modale label {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+
+  color: var(--dmc-cream);
+  font-size: 13px;
+}
+
+.dmc-modale :is(input, textarea, select) {
+  display: block;
+  width: 100%;
+  min-width: 0;
+
+  padding: 10px;
+
+  border: 1px solid var(--dmc-border);
+  border-radius: var(--dmc-radius-xs);
+
+  background: var(--dmc-ink);
+  color: var(--dmc-cream);
+}
+
+.dmc-azioni {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* ACCESSIBILITÀ E INTERAZIONI */
+
+.dmc :is(button, a, input, select, textarea) {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.dmc :is(button, a, input, select, textarea):focus-visible {
+  outline: 3px solid var(--dmc-blue);
+  outline-offset: 3px;
+}
+
+.dmc button {
+  transition:
+    border-color var(--dmc-transition),
+    background-color var(--dmc-transition),
+    transform var(--dmc-transition),
+    box-shadow var(--dmc-transition);
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 620px) {
+  .dmc-pagina {
+    padding: 0 12px 25px;
+  }
+}
+
+/* MOVIMENTO RIDOTTO */
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .dmc *,
+  .dmc *::before,
+  .dmc *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

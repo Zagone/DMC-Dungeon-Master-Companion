@@ -1,0 +1,56 @@
+{
+  "R3": {
+    "dashboardCSS": {
+      "file": "DashboardView-C7fs82Ry.css",
+      "bytes": 17561,
+      "gzip": 4037
+    },
+    "dashboardJS": {
+      "file": "DashboardView-BAOLOv1m.js",
+      "bytes": 5450,
+      "gzip": 2457
+    },
+    "entryCSS": {
+      "file": "index-Ka9ARtrm.css",
+      "bytes": 17043,
+      "gzip": 3700
+    },
+    "entryJS": {
+      "file": "index-D8cIYiUt.js",
+      "bytes": 106596,
+      "gzip": 40474
+    },
+    "catalogoSRD": {
+      "file": "statoBestiario-fmaXkBLD.js",
+      "bytes": 986729,
+      "gzip": 100513
+    }
+  },
+  "R4": {
+    "dashboardCSS": {
+      "file": "DashboardView-Dd31Zt20.css",
+      "bytes": 10391,
+      "gzip": 2890
+    },
+    "dashboardJS": {
+      "file": "DashboardView-DD4Y6Jkx.js",
+      "bytes": 6627,
+      "gzip": 2995
+    },
+    "entryCSS": {
+      "file": "index-CsO6Wwxj.css",
+      "bytes": 17462,
+      "gzip": 3856
+    },
+    "entryJS": {
+      "file": "index-oarmAfAZ.js",
+      "bytes": 108396,
+      "gzip": 41256
+    },
+    "catalogoSRD": {
+      "file": "statoBestiario-B6YN_OLI.js",
+      "bytes": 986729,
+      "gzip": 100514
+    }
+  }
+}

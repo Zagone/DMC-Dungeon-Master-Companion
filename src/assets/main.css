@@ -1,0 +1,56 @@
+
+/*
+ * DMC — Stili di base
+ *
+ * Contiene esclusivamente il reset e le regole globali
+ * necessarie a tutti i moduli.
+ *
+ * Token e componenti condivisi: design-system.css
+ * Stili della Battaglia: sticky-battaglia.css
+ */
+
+:root {
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-width: 320px;
+  margin: 0;
+  background: var(--dmc-ink);
+  color: var(--dmc-cream);
+  font-family: var(--dmc-font-body);
+}
+
+#app {
+  width: 100%;
+  min-height: 100vh;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}

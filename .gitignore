@@ -1,0 +1,38 @@
+
+# Dipendenze
+node_modules/
+
+# Build
+dist/
+dist-ssr/
+
+# Variabili d'ambiente e credenziali
+.env
+.env.*
+!.env.example
+
+# Log
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# File di sistema
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# File temporanei
+*.tmp
+*.temp
+*.bak
+
+# Configurazioni locali degli editor
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# Cache
+.cache/
+.vite/

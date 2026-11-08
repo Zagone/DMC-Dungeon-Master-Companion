@@ -1,0 +1,313 @@
+
+/*
+ * DMC — Barra sticky della Battaglia
+ *
+ * Responsabilità:
+ * - posizionamento sotto la navigazione della campagna
+ * - transizione alla modalità compatta
+ * - adattamenti visivi dei combattenti
+ *
+ * L'altezza della top bar è definita in layout-globale.css.
+ * L'altezza della navigazione della campagna è misurata
+ * dinamicamente da CampagnaView.vue.
+ *
+ * Il posizionamento della navigazione superiore resta
+ * responsabilità di navigazione-campagna.css.
+ */
+
+.campagna-view {
+  --dmc-durata-sticky: 260ms;
+  --dmc-curva-sticky: cubic-bezier(.22, 1, .36, 1);
+
+  /*
+   * Compensazione visiva verificata nel layout corrente.
+   * +3px equivale al precedente "- -3px".
+   */
+  --dmc-compensazione-battaglia: 3px;
+
+  --dmc-offset-battaglia: calc(
+    var(--dmc-topbar-height, 58px) +
+    var(--dmc-altezza-navigazione-campagna, 70px) +
+    var(--dmc-compensazione-battaglia)
+  );
+}
+
+/* BARRA DEI COMANDI */
+
+.campagna-view .battaglia-dmc .barra-comando {
+  position: sticky;
+  top: var(--dmc-offset-battaglia);
+  z-index: 30;
+  scroll-margin-top: var(--dmc-offset-battaglia);
+  border-radius: var(--dmc-radius-md);
+
+  transition:
+    padding var(--dmc-durata-sticky)
+      var(--dmc-curva-sticky),
+    gap var(--dmc-durata-sticky)
+      var(--dmc-curva-sticky),
+    border-radius var(--dmc-durata-sticky) ease,
+    box-shadow var(--dmc-durata-sticky) ease;
+}
+
+/* INTESTAZIONE BATTAGLIA */
+
+.campagna-view .battaglia-dmc .barra-superiore {
+  position: static;
+  width: auto;
+  margin: 0;
+  max-height: 100px;
+  opacity: 1;
+  visibility: visible;
+
+  transition:
+    max-height var(--dmc-durata-sticky)
+      var(--dmc-curva-sticky),
+    opacity 160ms ease,
+    visibility 0s linear 0s;
+}
+
+.campagna-view .battaglia-dmc .barra-superiore h2 {
+  max-height: 60px;
+  opacity: 1;
+  overflow: hidden;
+
+  transition:
+    max-height var(--dmc-durata-sticky)
+      var(--dmc-curva-sticky),
+    opacity 160ms ease,
+    margin var(--dmc-durata-sticky) ease;
+}
+
+.campagna-view
+.battaglia-dmc
+.barra-superiore .azioni {
+  max-height: 70px;
+  overflow: hidden;
+
+  transition:
+    max-height var(--dmc-durata-sticky)
+      var(--dmc-curva-sticky),
+    opacity 160ms ease;
+}
+
+.campagna-view .battaglia-dmc .ordine-compatto {
+  max-height: 400px;
+  opacity: 1;
+  overflow: hidden;
+  visibility: visible;
+
+  transition:
+    max-height 340ms var(--dmc-curva-sticky),
+    opacity 190ms ease,
+    padding 260ms ease,
+    border-color 260ms ease,
+    visibility 0s linear 0s;
+}
+
+/* MODALITÀ COMPATTA */
+
+.campagna-view.dmc-battaglia-compatta
+.battaglia-dmc .barra-comando {
+  padding: 8px 10px;
+  gap: 0;
+  box-shadow: var(--dmc-shadow-medium);
+}
+
+.campagna-view.dmc-battaglia-compatta
+.battaglia-dmc .barra-superiore {
+  max-height: 0;
+  min-height: 0;
+  padding: 0;
+  margin: 0;
+  gap: 0;
+  opacity: 0;
+  overflow: hidden;
+  visibility: hidden;
+  pointer-events: none;
+
+  transition:
+    max-height var(--dmc-durata-sticky)
+      var(--dmc-curva-sticky),
+    opacity 150ms ease,
+    visibility 0s linear var(--dmc-durata-sticky);
+}
+
+/* TURNO ATTIVO */
+
+.campagna-view.dmc-battaglia-compatta
+.battaglia-dmc .barra-navigazione {
+  gap: 7px;
+  padding-top: 0;
+  border-top-color: transparent;
+}
+
+.campagna-view.dmc-battaglia-compatta
+.battaglia-dmc .gruppo-attivo {
+  flex: 1 1 auto;
+  min-width: 0;
+  gap: 5px;
+  padding-right: 0;
+}
+
+.campagna-view.dmc-battaglia-compatta
+.battaglia-dmc .gruppo-attivo strong {
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+.campagna-view.dmc-battaglia-compatta
+.battaglia-dmc .etichetta {
+  font-size: 9px;
+}
+
+/* COMANDI DEL TURNO */
+
+.campagna-view.dmc-battaglia-compatta
+.battaglia-dmc .controlli-turno {
+  gap: 5px;
+}
+
+.campagna-view.dmc-battaglia-compatta
+.battaglia-dmc .controlli-turno .pulsante {
+  min-height: 30px;
+  padding: 5px 8px;
+  font-size: 11px;
+}
+
+/* ORDINE DEI TURNI */
+
+.campagna-view.dmc-battaglia-compatta
+.battaglia-dmc .ordine-compatto {
+  max-height: 0;
+  opacity: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  border-color: transparent;
+  visibility: hidden;
+  pointer-events: none;
+
+  transition:
+    max-height 340ms var(--dmc-curva-sticky),
+    opacity 150ms ease,
+    padding 260ms ease,
+    border-color 260ms ease,
+    visibility 0s linear 340ms;
+}
+
+/* MENU INIZIATIVA */
+
+.campagna-view.dmc-battaglia-compatta
+.battaglia-dmc .menu-aperto {
+  max-height: min(55vh, 440px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* SCHEDE DEI COMBATTENTI */
+
+.dmc .sezione .combattente {
+  align-content: start;
+}
+
+.dmc .sezione .combattente h4 {
+  font-size: 16px;
+  line-height: 1.35;
+}
+
+.dmc .sezione .combattente small {
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.dmc .sezione .combattente .barra-pf > div {
+  border-radius: inherit;
+  transition: width 180ms ease;
+}
+
+.dmc .sezione .combattente input,
+.dmc .sezione .combattente select {
+  min-height: 39px;
+}
+
+.dmc .sezione .combattente .etichette {
+  align-items: center;
+}
+
+.dmc .sezione .combattente .condizione {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 100%;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+.dmc .sezione .combattente details {
+  min-width: 0;
+}
+
+.dmc .sezione .combattente summary {
+  line-height: 1.4;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 800px) {
+  .dmc .sezione .combattente {
+    padding: 13px;
+  }
+}
+
+@media (max-width: 650px) {
+  .campagna-view.dmc-battaglia-compatta
+  .battaglia-dmc .barra-navigazione {
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .campagna-view.dmc-battaglia-compatta
+  .battaglia-dmc .gruppo-attivo {
+    flex: 1 1 100%;
+  }
+
+  .campagna-view.dmc-battaglia-compatta
+  .battaglia-dmc .controlli-turno {
+    flex: 1 1 auto;
+    justify-content: flex-start;
+  }
+
+  .campagna-view.dmc-battaglia-compatta
+  .battaglia-dmc .controlli-turno .pulsante {
+    white-space: nowrap;
+  }
+}
+
+/* ACCESSIBILITÀ */
+
+.campagna-view .battaglia-dmc
+.barra-comando button:focus-visible {
+  outline: 3px solid var(--dmc-blue);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .campagna-view {
+    --dmc-durata-sticky: 0ms;
+  }
+
+  .campagna-view .battaglia-dmc
+  :is(
+    .barra-comando,
+    .barra-superiore,
+    .barra-superiore h2,
+    .barra-superiore .azioni,
+    .ordine-compatto
+  ) {
+    transition: none !important;
+  }
+
+  .dmc .sezione .combattente .barra-pf > div {
+    transition: none;
+  }
+}

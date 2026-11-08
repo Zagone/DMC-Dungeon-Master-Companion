@@ -1,0 +1,61 @@
+{
+  "schermate": [
+    {
+      "nome": "libreria",
+      "overflow": false
+    },
+    {
+      "nome": "panoramica",
+      "overflow": false
+    },
+    {
+      "nome": "sessioni",
+      "overflow": false
+    },
+    {
+      "nome": "conduzione",
+      "overflow": false
+    },
+    {
+      "nome": "battaglia",
+      "overflow": false
+    },
+    {
+      "nome": "note",
+      "overflow": false
+    },
+    {
+      "nome": "bestiario",
+      "overflow": false
+    },
+    {
+      "nome": "scheda-creatura",
+      "overflow": false
+    },
+    {
+      "nome": "scelta-creatura",
+      "overflow": false
+    },
+    {
+      "nome": "editor-creatura",
+      "overflow": false
+    },
+    {
+      "nome": "editor-mobile",
+      "overflow": false
+    },
+    {
+      "nome": "panoramica-mobile",
+      "overflow": false
+    },
+    {
+      "nome": "battaglia-mobile",
+      "overflow": false
+    },
+    {
+      "nome": "conduzione-mobile",
+      "overflow": false
+    }
+  ],
+  "errori": []
+}

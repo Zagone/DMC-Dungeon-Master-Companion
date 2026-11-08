@@ -1,0 +1,262 @@
+/*
+ * DMC — Navigazione della campagna
+ *
+ * Responsabilità:
+ * - intestazione contestuale della campagna
+ * - schede Panoramica / Sessioni / Battaglia / Note
+ * - aspetto della navigazione sticky
+ *
+ * L'altezza della top bar è definita esclusivamente
+ * in layout-globale.css.
+ */
+
+/* INTESTAZIONE DELLA CAMPAGNA */
+
+.campagna-view .testata-campagna {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--dmc-space-3);
+  margin-top: var(--dmc-space-3);
+  padding: var(--dmc-space-5) 0;
+  border-bottom: 1px solid var(--dmc-border-soft);
+}
+
+.campagna-view .testata-campagna::after {
+  display: none;
+}
+
+.campagna-view .testata-campagna h1 {
+  max-width: 900px;
+  margin: 0;
+  color: var(--dmc-cream);
+  font-family: var(--dmc-font-display);
+  font-size: clamp(25px, 3vw, 36px);
+  font-weight: 850;
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+  overflow-wrap: anywhere;
+}
+
+.campagna-view .testata-campagna .sopratitolo {
+  color: var(--dmc-amber-light);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.campagna-view .testata-campagna p {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--dmc-space-2);
+  margin: var(--dmc-space-2) 0 0;
+  color: var(--dmc-muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.campagna-view .testata-campagna p::before {
+  content: '';
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--dmc-moss);
+}
+
+/* NAVIGAZIONE STICKY */
+
+.campagna-view .navigazione-persistente {
+  position: sticky;
+  top: var(--dmc-topbar-height);
+  z-index: 100;
+  margin: var(--dmc-space-3) 0;
+  padding: var(--dmc-space-2) var(--dmc-space-3);
+  border: 1px solid var(--dmc-border-soft);
+  border-radius: var(--dmc-radius-md);
+  background: var(--dmc-surface-soft);
+  box-shadow: var(--dmc-shadow-small);
+}
+
+.campagna-view .navigazione-persistente.compatta {
+  padding-top: var(--dmc-space-1);
+  padding-bottom: var(--dmc-space-1);
+  box-shadow:
+    var(--dmc-shadow-small),
+    0 8px 20px rgb(0 0 0 / 18%);
+}
+
+/* CONTESTO DELLA CAMPAGNA */
+
+.campagna-view .navigazione-contesto {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--dmc-space-3);
+  min-width: 0;
+  padding: var(--dmc-space-1) 0;
+}
+
+.campagna-view .nome-campagna-compatto {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--dmc-amber-light);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+/* SCHEDE DELLA CAMPAGNA */
+
+.campagna-view .navigazione-persistente .tabs {
+  display: flex;
+  align-items: center;
+  gap: var(--dmc-space-2);
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: var(--dmc-space-2);
+  overflow-x: auto;
+  overflow-y: hidden;
+  border: 0;
+  scrollbar-width: thin;
+  scrollbar-color: var(--dmc-border) transparent;
+  -webkit-overflow-scrolling: touch;
+}
+
+.campagna-view .navigazione-persistente .tab-dmc {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  min-height: 42px;
+  padding: 9px 16px;
+  appearance: none;
+  color: var(--dmc-cream);
+  font-family: var(--dmc-font-body);
+  font-size: 14px;
+  font-weight: 750;
+  line-height: 1.25;
+  letter-spacing: 0;
+  white-space: nowrap;
+  text-decoration: none;
+  transition:
+    background-color var(--dmc-transition),
+    color var(--dmc-transition),
+    transform var(--dmc-transition),
+    box-shadow var(--dmc-transition);
+  border: 1px solid transparent;
+  border-image: var(--dmc-art-ardesia) 32 130 36 130 fill / 7px 21px 8px 21px / 0 stretch;
+  border-radius: 5px;
+  background: var(--dmc-surface);
+  background-clip: content-box;
+}
+
+.campagna-view .navigazione-persistente .tab-dmc:hover:not(.selezionata) {
+  color: var(--dmc-amber-light);
+  transform: translateY(-1px);
+}
+
+.campagna-view .navigazione-persistente .tab-dmc:active {
+  transform: translateY(1px);
+}
+
+.campagna-view .navigazione-persistente .tab-dmc.selezionata {
+  color: var(--dmc-ink);
+  font-weight: 850;
+  border-image-source: var(--dmc-art-ambra);
+  background-color: var(--dmc-amber);
+}
+
+.campagna-view .navigazione-persistente .tab-dmc.selezionata::after {
+  display: none;
+}
+
+/* NAVIGAZIONE COMPATTA */
+
+.campagna-view .navigazione-persistente.compatta .tab-dmc {
+  min-height: 38px;
+  padding: 7px 14px;
+}
+
+/* USCITA DALLA CAMPAGNA */
+
+.campagna-view .uscita-campagna,
+.campagna-view .testata-campagna > .bottone.neutro {
+  flex: 0 0 auto;
+  min-height: 38px;
+  padding: 8px 12px;
+  font-family: var(--dmc-font-body);
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.campagna-view .uscita-normale {
+  margin-left: auto;
+}
+
+/* ACCESSIBILITÀ */
+
+.campagna-view .navigazione-persistente :is(button, a):focus-visible,
+.campagna-view .testata-campagna > .bottone.neutro:focus-visible {
+  outline: 3px solid var(--dmc-blue);
+  outline-offset: 3px;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 700px) {
+  .campagna-view .navigazione-persistente {
+    padding: var(--dmc-space-1) var(--dmc-space-2);
+  }
+
+  .campagna-view .navigazione-persistente .tabs {
+    gap: var(--dmc-space-1);
+  }
+
+  .campagna-view .navigazione-persistente .tab-dmc {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+
+  .campagna-view .navigazione-persistente.compatta .tab-dmc {
+    min-height: 36px;
+    padding: 7px 11px;
+  }
+}
+
+@media (max-width: 620px) {
+  .campagna-view .testata-campagna {
+    padding: var(--dmc-space-4) 0;
+  }
+
+  .campagna-view .testata-campagna h1 {
+    font-size: 25px;
+  }
+
+  .campagna-view .nome-campagna-compatto {
+    font-size: 12px;
+  }
+
+  .campagna-view .uscita-campagna {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 390px) {
+  .campagna-view .testata-campagna {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .campagna-view .tab-dmc {
+    transition: none;
+  }
+}

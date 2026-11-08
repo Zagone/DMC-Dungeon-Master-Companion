@@ -1,0 +1,4 @@
+[
+  "src/views/DashboardView.vue: AST della logica identico alla R3, esclusi gli import dei componenti grafici",
+  "src/App.vue: AST della logica identico alla R3, esclusi gli import dei componenti grafici"
+]

@@ -1,0 +1,7 @@
+[
+  "320px: card e placca crescono con titolo, descrizione e CTA lunghi",
+  "Gli angoli illustrati rimangono di 45px anche sulla card più alta",
+  "Nessun testo troncato, sovrapposto o fuori dalla cornice",
+  "320px: modale di creazione interamente nel viewport",
+  "320px: Escape funziona e chiude la modale"
+]

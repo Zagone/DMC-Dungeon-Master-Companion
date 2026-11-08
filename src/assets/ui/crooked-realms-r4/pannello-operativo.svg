@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="none">
+  <path d="m3 11 9-8 37 1 14-2 43 2 11 9-1 33 2 21-2 40-10 11-40-2-19 2-36-2-9-10 2-39-2-20z" fill="#10151d"/>
+  <path d="m5 12 8-7 35 1 16-2 41 2 9 8-1 33 3 21-2 38-9 9-39-2-19 3-35-2-7-9 2-38-3-20z" fill="#3d4650"/>
+  <path d="m10 17 9-7 27 1 18-3 36 3 9 9-2 28 4 20-3 33-9 8-33-2-19 4-29-4-8-9 2-31-3-20z" fill="#242d38"/>
+  <path d="m5 12 8-7 15 1-13 4-4 8zM81 6l23 1 9 8-7-3-6-4zM6 87l2 18 7 9-4-11zM87 113l17 1 10-9-9 4z" fill="#697078"/>
+  <path d="m14 6 13 1-10 3-5 4zM103 112l8-6-4 7z" fill="#b88c58"/>
+  <path d="m6 29 4-4M105 13l3 5M109 84l3 8M19 110l5 3" stroke="#151c25" stroke-width="2" stroke-linecap="round"/>
+  <!-- Il centro resta trasparente: la superficie leggibile è un colore CSS. -->
+</svg>
