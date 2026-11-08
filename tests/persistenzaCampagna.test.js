@@ -69,3 +69,13 @@ test('errore di scrittura impedisce la chiusura e conserva le modifiche in memor
   assert.equal(chiudiDatiCampagna(), true)
   assert.equal(JSON.parse(valori.get(chiave('prima'))).note, 'Non ancora salvata')
 })
+
+test('dati corrotti: apertura rifiutata senza sovrascrivere il contenuto originale', async () => {
+  const originale = '{"sessioni": "formato-non-valido"}'
+  valori.set(chiave('corrotta'), originale)
+  assert.equal(apriDatiCampagna('corrotta'), false)
+  await nextTick()
+  assert.equal(valori.get(chiave('corrotta')), originale)
+  assert.equal(chiudiDatiCampagna(), true)
+  assert.equal(valori.get(chiave('corrotta')), originale)
+})
