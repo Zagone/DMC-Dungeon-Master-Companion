@@ -39,6 +39,22 @@ export function aggiornaCampagna(id, modifiche) {
   return !!aggiornata && salva(elenco.value.map(v => v.id === id ? aggiornata : v))
 }
 export function eliminaCampagna(id) { return !!trovaCampagna(id) && salva(elenco.value.filter(c => c.id !== id)) }
+
+// Elimina metadati e contenuti nella stessa operazione con rollback.
+// Chiamare soltanto dopo aver chiuso e salvato la campagna attiva.
+export function eliminaCampagnaConDati(id) {
+  if (letturaFallita || !trovaCampagna(id)) return false
+
+  const lista = elenco.value.filter(c => c.id !== id)
+  const risultato = scriviTransazione([
+    [CHIAVE_CAMPAGNE, JSON.stringify(lista)],
+    [`dmc_dati_campagna_v1_${id}`, null]
+  ])
+
+  if (!risultato.successo) return false
+  elenco.value = congela(lista)
+  return true
+}
 export function preparaCampagneImportate(voci) {
   if (letturaFallita) throw new Error('L’archivio campagne locale non è leggibile: importazione sospesa.')
   const adesso = new Date().toISOString()
