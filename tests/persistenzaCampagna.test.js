@@ -28,10 +28,12 @@ const {
 
 test('apertura, modifiche raggruppate e salvataggio su chiusura', async () => {
   assert.equal(apriDatiCampagna('prima'), true)
+  await nextTick()
+  const scritturePrimaDelleModifiche = scritture
   datiCampagna.value.note = 'Prima nota'
   datiCampagna.value.sessioni.push({ id: 's1', nome: 'Sessione 1', scene: [] })
   await nextTick()
-  assert.equal(scritture, 1)
+  assert.equal(scritture - scritturePrimaDelleModifiche, 1)
   assert.equal(JSON.parse(valori.get(chiave('prima'))).note, 'Prima nota')
   assert.equal(chiudiDatiCampagna(), true)
   assert.equal(campagnaDatiId.value, null)
