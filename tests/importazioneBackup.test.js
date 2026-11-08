@@ -12,7 +12,7 @@ globalThis.localStorage = {
   removeItem(k) { valori.delete(k) },
 }
 const { campagne } = await import('../src/stato/statoCampagne.js')
-const { creaturePersonali, CHIAVE_BESTIARIO } = await import('../src/stato/statoBestiario.js')
+const { creaturePersonali } = await import('../src/stato/statoBestiario.js')
 const { creaBackup, importaBackup, FORMATO_ARCHIVIO } = await import('../src/stato/archivioDMC.js')
 
 function archivioValido(versione = 2) {
