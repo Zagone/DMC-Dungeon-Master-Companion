@@ -31,7 +31,6 @@ import {
 import {
   trovaCampagna,
   aggiornaCampagna,
-  eliminaCampagna,
   eliminaCampagnaConDati,
 } from '../stato/statoCampagne.js'
 
