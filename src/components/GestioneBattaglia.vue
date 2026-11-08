@@ -231,7 +231,7 @@ function decrementaCondizioni(c) {
   if (!elemento || !Array.isArray(elemento.condizioni)) return
   if (!elemento.durateCondizioni || typeof elemento.durateCondizioni !== 'object') return
 
-  for (const nome of [...elemento.condizioni]) {
+  for (const nome of elemento.condizioni) {
     const rimanenti = Number(elemento.durateCondizioni[nome])
     if (!Number.isInteger(rimanenti) || rimanenti <= 0) continue
 
