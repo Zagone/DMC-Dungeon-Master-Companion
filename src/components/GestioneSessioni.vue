@@ -1020,15 +1020,15 @@ function caricaIncontro(scena) {
 
   dati.value.nemici = istanze
 
-  if (
-    dati.value.iniziativa &&
-    !dati.value.personaggi.some(
-      personaggio =>
-        personaggio.id ===
-        dati.value.iniziativa.turnoAttivo
-    )
-  ) {
-    dati.value.iniziativa.turnoAttivo = null
+  // Il caricamento da una scena avvia un nuovo combattimento:
+  // azzera il round e le iniziative, ma conserva PF e condizioni dei PG.
+  dati.value.iniziativa = {
+    round: 1,
+    turnoAttivo: null,
+  }
+
+  for (const personaggio of dati.value.personaggi) {
+    personaggio.iniziativa = null
   }
 
   conferma.value = null
@@ -1822,8 +1822,9 @@ function caricaIncontro(scena) {
               class="conferma"
             >
               <p>
-                Sostituire i nemici presenti nella Battaglia?
-                I PF dei PG resteranno invariati.
+                Avviare un nuovo combattimento sostituendo i nemici presenti?
+                Il round e le iniziative saranno azzerati.
+                I PF e le condizioni dei PG resteranno invariati.
               </p>
 
               <div class="azioni">
