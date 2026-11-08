@@ -24,6 +24,8 @@ jobs:
           cache: npm
       - name: Installa dipendenze
         run: npm ci
+      - name: Test di regressione della persistenza
+        run: node --test tests/*.test.js
       - name: Build di produzione
         run: npm run build
       - name: Verifica statica senza modificare i file
