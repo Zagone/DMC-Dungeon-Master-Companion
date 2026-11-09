@@ -1,6 +1,7 @@
 
 <script setup>
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
+import ImportaSessioniJSON from './ImportaSessioniJSON.vue'
 
 import {
   datiCampagna,
@@ -1962,6 +1963,8 @@ function caricaIncontro(scena) {
           + Crea sessione
         </button>
       </form>
+
+      <ImportaSessioniJSON />
 
       <!-- REGISTRO PNG COMPRIMIBILE -->
 
