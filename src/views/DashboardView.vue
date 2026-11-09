@@ -5,7 +5,6 @@ import { useRouter } from 'vue-router'
 import { usaModale } from '../stato/usaModale.js'
 
 import GestioneArchivioDMC from '../components/GestioneArchivioDMC.vue'
-import CompendioSRD from '../components/CompendioSRD.vue'
 import CardAvventura from '../components/ui/CardAvventura.vue'
 import IconaDirezione from '../components/ui/IconaDirezione.vue'
 
@@ -247,16 +246,7 @@ function nuovaCampagna() {
         </details>
       </section>
 
-      <section class="dv-gestione-dati" aria-label="Consultazione delle regole">
-        <details class="dv-gestione-dati-dettagli">
-          <summary class="dv-gestione-dati-attivatore">
-            <span class="dv-gestione-dati-icona" aria-hidden="true">✧</span>
-            <span class="dv-gestione-dati-testo"><strong>Compendio SRD</strong><small>Consulta le condizioni e le regole di D&D.</small></span>
-            <span class="dv-gestione-dati-freccia" aria-hidden="true">⌄</span>
-          </summary>
-          <div class="dv-gestione-dati-contenuto"><CompendioSRD /></div>
-        </details>
-      </section>
+
     </main>
 
     <footer class="dv-footer dmc-contenitore">
