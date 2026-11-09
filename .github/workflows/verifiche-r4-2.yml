@@ -1,0 +1,37 @@
+name: DMC R4.2 - Verifiche complete
+
+on:
+  push:
+    branches:
+      - test/r4-2-persistenza-casi-limite
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  verifica:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Installa dipendenze
+        run: npm ci
+
+      - name: Test automatici
+        run: node --test tests/*.test.js
+
+      - name: ESLint senza modificare i file
+        run: npx eslint .
+
+      - name: Oxlint senza modificare i file
+        run: npx oxlint .
+
+      - name: Build di produzione
+        run: npm run build
