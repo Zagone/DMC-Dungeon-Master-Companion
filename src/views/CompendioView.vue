@@ -1,10 +1,15 @@
 <script setup>
-import { computed, ref } from 'vue'
-import { REGOLE_SRD, cercaRegole } from '../dati/compendioSRD.js'
+import { computed, ref, watch } from 'vue'
+import { REGOLE_SRD, SCUOLE_SRD, cercaRegole } from '../dati/compendioSRD.js'
 
 const ricerca = ref('')
 const categoria = ref('')
 const ordinamento = ref('az')
+const livello = ref('')
+const scuola = ref('')
+const pagina = ref(1)
+const perPagina = 35
+const filtriMagia = computed(() => categoria.value === 'Incantesimi')
 const aperta = ref(null)
 
 const categorie = [
@@ -18,20 +23,29 @@ const categorie = [
   { id: 'Oggetti magici', titolo: 'Oggetti magici', descrizione: 'Oggetti e artefatti.' }
 ]
 const risultati = computed(() => {
-  const voci = cercaRegole(ricerca.value, categoria.value)
+  const voci = cercaRegole(ricerca.value, categoria.value, { livello: livello.value === '' ? null : Number(livello.value), scuola: scuola.value })
   return [...voci].sort((a,b) => ordinamento.value === 'za'
     ? b.nome.localeCompare(a.nome,'it') : a.nome.localeCompare(b.nome,'it'))
 })
+const pagineTotali = computed(() => Math.max(1, Math.ceil(risultati.value.length / perPagina)))
+const risultatiPagina = computed(() => risultati.value.slice((pagina.value - 1) * perPagina, pagina.value * perPagina))
 function scegliCategoria(id) {
   categoria.value = id
+  livello.value = ''
+  scuola.value = ''
+  pagina.value = 1
   aperta.value = null
 }
 function pulisci() {
   ricerca.value = ''
   categoria.value = ''
   ordinamento.value = 'az'
+  livello.value = ''
+  scuola.value = ''
+  pagina.value = 1
   aperta.value = null
 }
+watch([ricerca, categoria, livello, scuola, ordinamento], () => { pagina.value = 1; aperta.value = null })
 </script>
 
 <template>
@@ -39,7 +53,7 @@ function pulisci() {
     <header class="compendio-eroe">
       <small class="compendio-sopratitolo">DUNGEON MASTER COMPANION · SRD 5.2.1</small>
       <h1>Compendio</h1>
-      <p>Le regole di D&D in un unico spazio di consultazione. Cerca una voce oppure esplora le categorie.</p>
+      <p>Consulta le condizioni, le regole e l'indice degli incantesimi dell'SRD 5.2.1. Cerca una voce oppure esplora le categorie.</p>
       <label class="compendio-ricerca">
         <span class="sr-only">Cerca nel compendio</span>
         <input v-model="ricerca" type="search" placeholder="Cerca nel compendio..." />
@@ -64,7 +78,17 @@ function pulisci() {
             {{ voce.titolo }} <small>({{ REGOLE_SRD.filter(r => r.categoria === voce.id).length }})</small>
           </label>
         </fieldset>
-        <p class="compendio-nota">Altri filtri, come livello e scuola degli incantesimi, saranno disponibili quando i relativi contenuti verranno integrati.</p>
+        <fieldset v-if="filtriMagia">
+          <legend>Livello</legend>
+          <label><input v-model="livello" type="radio" value="" /> Tutti i livelli</label>
+          <label v-for="n in 10" :key="n"><input v-model="livello" type="radio" :value="String(n - 1)" /> {{ n === 1 ? 'Trucchetto' : 'Livello ' + (n - 1) }}</label>
+        </fieldset>
+        <fieldset v-if="filtriMagia">
+          <legend>Scuola</legend>
+          <label><input v-model="scuola" type="radio" value="" /> Tutte le scuole</label>
+          <label v-for="s in SCUOLE_SRD" :key="s"><input v-model="scuola" type="radio" :value="s" /> {{ s }}</label>
+        </fieldset>
+        <p class="compendio-nota">Gli incantesimi riportano nome, scuola, livello e pagina SRD. Il testo integrale e i dettagli di lancio non sono ancora integrati.</p>
       </aside>
 
       <section class="compendio-risultati" aria-label="Risultati del compendio">
@@ -78,13 +102,15 @@ function pulisci() {
           </label>
         </div>
         <div class="compendio-elenco">
-          <details v-for="regola in risultati" :key="regola.id" class="compendio-voce dmc-pannello" :open="aperta === regola.id" @toggle="e => { if (e.target.open) aperta = regola.id; else if (aperta === regola.id) aperta = null }">
-            <summary><span><strong>{{ regola.nome }}</strong><small>{{ regola.categoria }}</small></span><span aria-hidden="true">⌄</span></summary>
+          <details v-for="regola in risultatiPagina" :key="regola.id" class="compendio-voce dmc-pannello" :open="aperta === regola.id" @toggle="e => { if (e.target.open) aperta = regola.id; else if (aperta === regola.id) aperta = null }">
+            <summary><span><strong>{{ regola.nome }}</strong><small>{{ regola.categoria === "Incantesimi" ? (regola.livello === 0 ? "Trucchetto" : "Livello " + regola.livello) + " · " + regola.scuola : regola.categoria }}</small></span><span aria-hidden="true">⌄</span></summary>
             <div class="compendio-testo">
               <p>{{ regola.sintesi }}</p>
+              <p v-if="regola.categoria === 'Incantesimi'" class="compendio-metadata"><strong>Scuola:</strong> {{ regola.scuola }} · <strong>Livello:</strong> {{ regola.livello === 0 ? 'Trucchetto' : regola.livello }}</p>
               <small>SRD 5.2.1 italiano · riferimento PDF: pagina {{ regola.pagina }}</small>
             </div>
           </details>
+          <nav v-if="pagineTotali > 1" class="compendio-paginazione" aria-label="Pagine dei risultati"><button type="button" :disabled="pagina === 1" @click="pagina--">Precedente</button><span>Pagina {{ pagina }} di {{ pagineTotali }}</span><button type="button" :disabled="pagina === pagineTotali" @click="pagina++">Successiva</button></nav>
           <p v-if="!risultati.length" class="compendio-vuoto">Nessuna voce corrispondente. Le categorie con zero voci non sono ancora state popolate.</p>
         </div>
       </section>
@@ -135,4 +161,8 @@ function pulisci() {
 @media (max-width: 1000px) { .compendio-categorie { grid-template-columns: repeat(2,minmax(0,1fr)); } }
 @media (max-width: 680px) { .compendio-layout { grid-template-columns: 1fr; } .compendio-categorie { grid-template-columns: 1fr 1fr; } .compendio-pagina { padding-top: 24px; } }
 @media (max-width: 430px) { .compendio-categorie { grid-template-columns: 1fr; } }
+.compendio-metadata { font-size: 13px; color: #c8d1d8; }
+.compendio-paginazione { display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap; padding: 18px; }
+.compendio-paginazione button { padding: 9px 14px; background: #242d38; border: 1px solid #64727c; border-radius: 8px; color: #f6eee2; cursor: pointer; }
+.compendio-paginazione button:disabled { opacity: .45; cursor: not-allowed; }
 </style>
