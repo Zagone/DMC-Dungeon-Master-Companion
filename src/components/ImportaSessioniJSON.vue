@@ -52,10 +52,8 @@ async function leggiFile(e) {
   }
 }
 function preparaSessione(s) {
-  const ids = new Map()
   const scene = s.scene.map(sc => {
     const nuovoId = idUnivoco()
-    if (testo(sc.id)) ids.set(sc.id, nuovoId)
     return {
       id: nuovoId, titolo: sc.titolo.trim(), orario: testo(sc.orario) ? sc.orario : '',
       descrizione: sc.descrizione, note: testo(sc.note) ? sc.note : '',
