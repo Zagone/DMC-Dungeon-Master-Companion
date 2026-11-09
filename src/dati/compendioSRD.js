@@ -53,12 +53,49 @@ const REGOLE = [
 function slug(nome) {
  return nome.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('it-IT').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')
 }
+// Indici sintetici delle sezioni introduttive. Le schede complete sono in preparazione.
+const CLASSI = [
+ ['Barbaro',32],['Bardo',35],['Chierico',41],['Druido',46],['Guerriero',53],
+ ['Ladro',55],['Mago',59],['Monaco',66],['Paladino',70],['Ranger',75],
+ ['Stregone',79],['Warlock',85]
+]
+const SPECIE = [
+ ['Dragonide',94],['Elfo',94],['Gnomo',95],['Goliath',95],['Halfling',96],
+ ['Nano',96],['Orco',96],['Tiefling',96],['Umano',97]
+]
+const ORIGINI = [['Accolito',93],['Criminale',93],['Sapiente',93],['Soldato',93]]
+const EQUIPAGGIAMENTO = [
+ ['Armi',101],['Proprietà delle armi',101],['Proprietà di padronanza',102],
+ ['Armature',104],['Strumenti',105],["Equipaggiamento d'avventura",107],
+ ['Cavalcature e veicoli',113],['Spese dello stile di vita',114],['Vitto e alloggio',115]
+]
+const OGGETTI_MAGICI = [
+ ['Categorie di oggetti magici',232],['Rarità degli oggetti magici',233],
+ ['Attivare un oggetto magico',234],['Oggetti maledetti',234],
+ ['Creare oggetti magici',235],['Oggetti magici senzienti',236]
+]
+const TALENTI = [
+ ['Talenti Origini',98],['Talenti Generali',98],['Talenti Stile di combattimento',99],
+ ['Talenti Dono epico',99]
+]
+function indiceCategoria(categoria, voci) {
+ return voci.map(([nome,pagina]) => Object.freeze({
+  id:slug(categoria)+'-'+slug(nome),nome,categoria,pagina,
+  sintesi:'Voce dell’indice SRD. Consulta il documento ufficiale per le regole e le caratteristiche complete.',
+  dettagliCompleti:false
+ }))
+}
+export const INDICI_SRD = Object.freeze([
+ ...indiceCategoria('Classi',CLASSI),...indiceCategoria('Specie',SPECIE),
+ ...indiceCategoria('Origini',ORIGINI),...indiceCategoria('Equipaggiamento',EQUIPAGGIAMENTO),
+ ...indiceCategoria('Oggetti magici',OGGETTI_MAGICI),...indiceCategoria('Talenti',TALENTI)
+])
 export const CONDIZIONI_SRD = Object.freeze(CONDIZIONI.map(([nome,pagina,sintesi]) =>
  Object.freeze({id:'condizione-'+slug(nome),nome,categoria:'Condizioni',pagina,sintesi,dettagliCompleti:false})))
 export const REGOLE_BASE_SRD = Object.freeze(REGOLE.map(([nome,pagina,sintesi]) =>
  Object.freeze({id:'regola-'+slug(nome),nome,categoria:'Regole',pagina,sintesi,dettagliCompleti:false})))
-export const REGOLE_SRD = Object.freeze([...CONDIZIONI_SRD,...REGOLE_BASE_SRD,...INCANTESIMI_SRD])
-export const CATEGORIE_SRD = Object.freeze(['Condizioni','Incantesimi','Regole','Classi','Specie','Talenti','Equipaggiamento','Oggetti magici'])
+export const REGOLE_SRD = Object.freeze([...CONDIZIONI_SRD,...REGOLE_BASE_SRD,...INCANTESIMI_SRD,...INDICI_SRD])
+export const CATEGORIE_SRD = Object.freeze(['Condizioni','Incantesimi','Regole','Origini','Classi','Specie','Talenti','Equipaggiamento','Oggetti magici'])
 export const SCUOLE_SRD = Object.freeze([...new Set(INCANTESIMI_SRD.map(r=>r.scuola))].sort((a,b)=>a.localeCompare(b,'it')))
 export function cercaRegole(testo='', categoria='', filtri={}) {
  const q=String(testo).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('it-IT').trim()
