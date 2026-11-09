@@ -16,6 +16,19 @@ async function caricaArchivio() {
 let componenteAttivo = true
 onBeforeUnmount(() => { componenteAttivo = false })
 
+const PROMPT_CAMPAGNA = `Genera una campagna D&D in italiano come un solo file JSON valido, senza Markdown. Usa il formato DMC: {"formato":"dmc-archivio-campagne","versione":2,"creaturePersonali":[],"campagne":[...]}. Ogni campagna deve contenere nome, descrizione, stato:"preparazione", dati:{versione:1,personaggi:[],nemici:[],iniziativa:{round:1,turnoAttivo:null},sessioni:[],pngNarrativi:[],conduzione:null,note:"",bottino:[]}. Ogni sessione deve contenere id univoco, titolo, data:"", stato:"preparazione", obiettivi, resoconto:"", pgPrevisti:4, livelloPrevisto:2, scenaAttivaId:null, sceneVisitateIds:[], risorseNarrative:[], rituale:{descrizione:"",partecipanti:[]}, scene:[]. Ogni scena deve contenere id univoco, titolo, orario:"", descrizione, note:"", alternativa:"", personaggi:"", guida:[], indizi:[], pngIds:[], mostraRituale:false, incontro:{nemici:[],opzionale:false,richiedeCreature:[],suggerimentiPF:[],noteBilanciamento:""}. Non inventare ID di creature SRD. Il file sarà importato come NUOVA campagna, non aggiunto a una campagna esistente. Tema: [INSERISCI TEMA]. Numero sessioni: [NUMERO]. Rispondi solo con JSON.`
+const promptCopiato = ref(false)
+async function copiaPromptCampagna() {
+  pulisciFeedback()
+  try {
+    await navigator.clipboard.writeText(PROMPT_CAMPAGNA)
+    promptCopiato.value = true
+    messaggio.value = 'Prompt copiato. Incollalo in ChatGPT, personalizza tema e numero di sessioni e salva il JSON ottenuto.'
+  } catch {
+    errore.value = 'Copia non disponibile. Usa il prompt documentato in docs/GENERAZIONE_CAMPAGNE_CHATGPT.md.'
+  }
+}
+
 const DIMENSIONE_MAX = 50 * 1024 * 1024
 
 const selettoreFile = ref(null)
@@ -379,6 +392,16 @@ async function importaCampagne() {
         </p>
       </article>
     </div>
+
+    <section class="archivio-generazione" aria-labelledby="archivio-generazione-titolo">
+      <div>
+        <h3 id="archivio-generazione-titolo">Crea una campagna con ChatGPT</h3>
+        <p>Usa un prompt compatibile con DMC, salva il JSON generato e importalo con «Seleziona backup». Le campagne vengono aggiunte come copie indipendenti.</p>
+      </div>
+      <button type="button" class="archivio-btn secondario dmc-btn dmc-btn--secondary" :disabled="occupato" @click="copiaPromptCampagna">
+        {{ promptCopiato ? 'Copia nuovamente il prompt' : 'Copia prompt per ChatGPT' }}
+      </button>
+    </section>
 
     <!-- ANTEPRIMA -->
 
@@ -885,4 +908,13 @@ async function importaCampagne() {
     width: 100%;
   }
 }
+</style>
+
+<style scoped>
+.archivio-generazione { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; padding: 16px 18px; border: 1px solid var(--dmc-border-soft); border-radius: var(--dmc-radius-sm); background: var(--dmc-surface-soft); }
+.archivio-generazione > div { flex: 1 1 320px; }
+.archivio-generazione h3 { margin: 0 0 6px; color: var(--dmc-amber); font-size: 17px; }
+.archivio-generazione p { margin: 0; max-width: 640px; color: var(--dmc-muted-light); font-size: 13px; line-height: 1.6; }
+.archivio-generazione .archivio-btn { flex: 0 1 240px; width: auto; min-width: 200px; justify-content: center; }
+@media (max-width: 600px) { .archivio-generazione .archivio-btn { flex: 1 1 100%; } }
 </style>
