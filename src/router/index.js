@@ -34,6 +34,9 @@ const CampagnaView = () =>
 const BestiarioView = () =>
   import('../views/BestiarioView.vue')
 
+const CompendioView = () =>
+  import('../views/CompendioView.vue')
+
 const router = createRouter({
   history: createWebHashHistory(),
 
@@ -47,6 +50,11 @@ const router = createRouter({
       path: '/campagne',
       name: 'libreria',
       component: LibreriaView,
+    },
+    {
+      path: '/compendio',
+      name: 'compendio',
+      component: CompendioView,
     },
     {
       path: '/bestiario',
