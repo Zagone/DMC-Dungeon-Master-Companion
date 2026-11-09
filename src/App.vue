@@ -94,6 +94,7 @@ function tiraDadi() {
       <nav class="navigazione-globale" aria-label="Navigazione principale">
         <RouterLink :to="{ name: 'dashboard' }" :class="{ attivo: route.name === 'dashboard' }">Home</RouterLink>
         <RouterLink :to="{ name: 'libreria' }" :class="{ attivo: route.name === 'libreria' }">Campagne</RouterLink>
+        <RouterLink :to="{ name: 'compendio' }" :class="{ attivo: route.name === 'compendio' }">Compendio</RouterLink>
         <RouterLink :to="{ name: 'bestiario-globale' }" :class="{ attivo: route.name === 'bestiario-globale' }">Bestiario</RouterLink>
       </nav>
 
