@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - test/r4-2-persistenza-casi-limite
+      - feature/r4-2-gestione-dati-integrazione
   pull_request:
   workflow_dispatch:
 
