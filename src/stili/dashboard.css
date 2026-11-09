@@ -136,3 +136,52 @@
   .dv-recenti { margin-top: 30px; }
 }
 @media (prefers-reduced-motion: reduce) { .dv-riga { transition: none; } }
+
+
+/* Strumenti secondari: disponibili dalla Dashboard senza competere con le card principali. */
+.dv-gestione-dati { margin: 0 10px 28px; }
+.dv-gestione-dati-dettagli {
+  overflow: hidden;
+  border: 1px solid var(--dmc-border);
+  border-radius: var(--dmc-radius-sm);
+  background: var(--dmc-surface-soft);
+}
+.dv-gestione-dati-attivatore {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  min-height: 76px;
+  padding: 15px 20px;
+  color: var(--dmc-cream);
+  cursor: pointer;
+  list-style: none;
+}
+.dv-gestione-dati-attivatore::-webkit-details-marker { display: none; }
+.dv-gestione-dati-attivatore:hover { background: var(--dmc-surface-raised); }
+.dv-gestione-dati-attivatore:focus-visible { outline: 3px solid var(--dmc-blue); outline-offset: -4px; }
+.dv-gestione-dati-icona {
+  display: grid;
+  place-items: center;
+  flex: 0 0 42px;
+  width: 42px;
+  height: 42px;
+  border: 1px solid var(--dmc-border);
+  border-radius: var(--dmc-radius-xs);
+  color: var(--dmc-amber);
+  font-size: 25px;
+}
+.dv-gestione-dati-testo { display: grid; gap: 5px; min-width: 0; flex: 1; }
+.dv-gestione-dati-testo strong { color: var(--dmc-amber); font: 700 19px/1.2 var(--dmc-font-illustrated); }
+.dv-gestione-dati-testo small { color: var(--dmc-muted-light); font: 400 13px/1.5 var(--dmc-font-body); }
+.dv-gestione-dati-freccia { color: var(--dmc-amber); font-size: 26px; transition: transform .18s ease; }
+.dv-gestione-dati-dettagli[open] .dv-gestione-dati-freccia { transform: rotate(180deg); }
+.dv-gestione-dati-contenuto { padding: 0 14px 10px; border-top: 1px solid var(--dmc-border-soft); }
+.dv-gestione-dati-contenuto :deep(.archivio-dmc) { margin: 12px 0 0; }
+@media (max-width: 800px) { .dv-gestione-dati { margin-inline: 5px; } }
+@media (max-width: 480px) {
+  .dv-gestione-dati-attivatore { padding: 12px; gap: 10px; }
+  .dv-gestione-dati-contenuto { padding: 0 5px 8px; }
+  .dv-gestione-dati-testo strong { font-size: 17px; }
+  .dv-gestione-dati-testo small { font-size: 12px; }
+}
+@media (prefers-reduced-motion: reduce) { .dv-gestione-dati-freccia { transition: none; } }
