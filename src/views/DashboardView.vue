@@ -230,7 +230,21 @@ function nuovaCampagna() {
         </div>
       </section>
 
-      <GestioneArchivioDMC />
+      <section class="dv-gestione-dati" aria-labelledby="dv-gestione-dati-titolo">
+        <details class="dv-gestione-dati-dettagli">
+          <summary class="dv-gestione-dati-attivatore">
+            <span class="dv-gestione-dati-icona" aria-hidden="true">⇄</span>
+            <span class="dv-gestione-dati-testo">
+              <strong id="dv-gestione-dati-titolo">Gestione dati</strong>
+              <small>Importa, esporta e conserva le tue campagne.</small>
+            </span>
+            <span class="dv-gestione-dati-freccia" aria-hidden="true">⌄</span>
+          </summary>
+          <div class="dv-gestione-dati-contenuto">
+            <GestioneArchivioDMC />
+          </div>
+        </details>
+      </section>
     </main>
 
     <footer class="dv-footer dmc-contenitore">
