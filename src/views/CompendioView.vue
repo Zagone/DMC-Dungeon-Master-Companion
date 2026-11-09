@@ -16,6 +16,7 @@ const categorie = [
   { id: 'Condizioni', titolo: 'Condizioni', descrizione: 'Stati e conseguenze sul personaggio.' },
   { id: 'Incantesimi', titolo: 'Incantesimi', descrizione: 'Magia, scuole, livelli e componenti.' },
   { id: 'Regole', titolo: 'Regole', descrizione: 'Azioni, prove, combattimento e riposi.' },
+  { id: 'Origini', titolo: 'Origini', descrizione: 'Background e dotazioni iniziali.' },
   { id: 'Classi', titolo: 'Classi', descrizione: 'Progressione e capacità dei personaggi.' },
   { id: 'Specie', titolo: 'Specie', descrizione: 'Tratti e capacità delle specie giocabili.' },
   { id: 'Talenti', titolo: 'Talenti', descrizione: 'Opzioni di personalizzazione.' },
@@ -115,7 +116,7 @@ watch([ricerca, categoria, livello, scuola, ordinamento], () => { pagina.value =
         </div>
       </section>
     </div>
-    <footer class="compendio-attribuzione">Contenuti derivati dal System Reference Document 5.2.1 in italiano · CC BY 4.0. Le sintesi non sostituiscono il testo originale.</footer>
+    <footer class="compendio-attribuzione">Quest’opera include materiale tratto dal System Reference Document 5.2.1 (“SRD 5.2.1”) di Wizards of the Coast LLC, disponibile all’indirizzo https://www.dndbeyond.com/srd. Il SRD 5.2.1 è concesso in licenza ai sensi della licenza di attribuzione 4.0 Internazionale di Creative Commons, disponibile all’indirizzo https://creativecommons.org/licenses/by/4.0/legalcode. Le sintesi non sostituiscono il testo originale.</footer>
   </main>
 </template>
 
