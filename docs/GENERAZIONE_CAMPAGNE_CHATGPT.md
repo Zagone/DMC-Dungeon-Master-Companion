@@ -76,9 +76,39 @@ Il parser attuale accetta `formato: "dmc-archivio-campagne"`, `versione: 2`, `cr
 }
 ```
 
-## Sessioni per una campagna già esistente
+## Importare sessioni in una campagna esistente
 
-**Limite attuale:** l'importazione standard crea una nuova campagna e non aggiunge sessioni a una campagna esistente. Non chiedere a ChatGPT di produrre un backup che sembri aggiornare una campagna: l'app lo importerà come copia. L'inserimento di sessioni in una campagna esistente richiede un'azione dedicata con controllo degli ID e anteprima, da implementare separatamente.
+Dalla scheda **Sessioni** della campagna, in modalità preparazione, aprire **Importa sessioni da ChatGPT**. Questa operazione usa un file distinto dal backup: `formato: "dmc-sessioni"`, `versione: 1`, `sessioni: [...]`. Il pannello mostra un'anteprima, consente di scegliere le sessioni e richiede conferma. Le sessioni e le scene importate ricevono nuovi identificativi. Le sessioni preesistenti non sono sostituite.
+
+**Prompt da copiare in ChatGPT:**
+
+> Genera un JSON valido senza Markdown nel formato `{"formato":"dmc-sessioni","versione":1,"sessioni":[...]}`. Ogni sessione deve avere titolo (stringa non vuota, massimo 150 caratteri), obiettivi (stringa), pgPrevisti (intero 1–20), livelloPrevisto (intero 1–20), scene (array). Ogni scena deve avere titolo e descrizione come stringhe e, facoltativamente, orario, note, alternativa e personaggi come stringhe. Non includere incontri con creature, identificativi SRD, PNG o altre strutture complesse: verranno aggiunti nell'editor. Tema: [TEMA]. Numero sessioni: [NUMERO]. Rispondi solo con JSON.
+
+Esempio minimo:
+
+```json
+{
+  "formato": "dmc-sessioni",
+  "versione": 1,
+  "sessioni": [
+    {
+      "titolo": "Il primo rintocco",
+      "obiettivi": "Indagare sull'origine del suono.",
+      "pgPrevisti": 4,
+      "livelloPrevisto": 2,
+      "scene": [
+        {
+          "titolo": "La piazza",
+          "descrizione": "Il rintocco interrompe il mercato.",
+          "note": "Un testimone conosce la torre."
+        }
+      ]
+    }
+  ]
+}
+```
+
+**Limitazioni:** vengono importati i contenuti narrativi di base. Non sono importati automaticamente incontri, risorse narrative, indizi strutturati o associazioni a PNG. Non usare questo formato per un backup completo della campagna.
 
 ## Verifiche prima del salvataggio
 
