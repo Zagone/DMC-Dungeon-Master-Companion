@@ -80,3 +80,15 @@ test('backup: selezione vuota non modifica dati', () => {
   assert.throws(() => importaBackup(archivioValido(), []))
   assert.deepEqual(valori, prima)
 })
+
+test('importazione: indici di selezione non validi non modificano i dati', () => {
+  for (const indici of [null, '0', [-1], [1], [0.5], [NaN]]) {
+    const prima = new Map(valori)
+    const numeroCampagne = campagne.value.length
+    const numeroCreature = creaturePersonali.value.length
+    assert.throws(() => importaBackup(archivioValido(), indici), Error)
+    assert.deepEqual(valori, prima)
+    assert.equal(campagne.value.length, numeroCampagne)
+    assert.equal(creaturePersonali.value.length, numeroCreature)
+  }
+})
