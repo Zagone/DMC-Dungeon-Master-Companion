@@ -3,27 +3,47 @@ import { computed, onMounted, ref, watch } from 'vue'
 import { REGOLE_SRD, SCUOLE_SRD } from '../dati/compendioSRD.js'
 import { validaArchivioIncantesimi } from '../dati/archivioIncantesimiCompleti.js'
 import { caricaSezioneSRD, estrattoVoceSRD } from '../dati/caricamentoSezioniSRD.js'
+import { estraiSchedeSpecieSRD } from '../dati/estrazioneSpecieSRD.js'
 
 const ricerca = ref('')
 const archivioCompleto = ref(null)
+const schedeSpecie = ref(new Map())
 const testoFonte = ref('')
 const voceFonte = ref(null)
 const erroreFonte = ref('')
 const caricamentoFonte = ref(false)
 onMounted(async () => {
-  try {
-    archivioCompleto.value = validaArchivioIncantesimi(await caricaSezioneSRD('Incantesimi'))
-  } catch (errore) {
-    console.warn('Archivio incantesimi non disponibile; viene mostrato l’indice SRD.', errore)
+  const risultati = await Promise.allSettled([
+    caricaSezioneSRD('Incantesimi'),
+    caricaSezioneSRD('Specie')
+  ])
+  if (risultati[0].status === 'fulfilled') {
+    try {
+      archivioCompleto.value = validaArchivioIncantesimi(risultati[0].value)
+    } catch (errore) {
+      console.warn('Schede incantesimi non valide; viene mostrato l’indice SRD.', errore)
+    }
+  }
+  if (risultati[1].status === 'fulfilled') {
+    try {
+      schedeSpecie.value = new Map(estraiSchedeSpecieSRD(risultati[1].value).map(v => [v.nome, v]))
+    } catch (errore) {
+      console.warn('Segmentazione specie non disponibile; rimane consultabile il testo per pagina.', errore)
+    }
   }
 })
 const vociCompendio = computed(() => {
-  if (!archivioCompleto.value) return REGOLE_SRD
-  const nuove = new Map(archivioCompleto.value.map(v => [v.nome, v]))
+  const nuove = new Map((archivioCompleto.value || []).map(v => [v.nome, v]))
   return REGOLE_SRD.map(v => {
-    if (v.categoria !== 'Incantesimi') return v
-    const dettagli = nuove.get(v.nome)
-    return dettagli ? { ...v, ...dettagli, id: v.id, categoria: v.categoria, sintesi: dettagli.descrizione || v.sintesi } : v
+    if (v.categoria === 'Incantesimi') {
+      const dettagli = nuove.get(v.nome)
+      return dettagli ? { ...v, ...dettagli, id: v.id, categoria: v.categoria, sintesi: dettagli.descrizione || v.sintesi } : v
+    }
+    if (v.categoria === 'Specie') {
+      const dettagli = schedeSpecie.value.get(v.nome)
+      return dettagli ? { ...v, estrattoSpecie: dettagli.descrizione, pagineFonte: dettagli.pagine } : v
+    }
+    return v
   })
 })
 const categoria = ref('')
@@ -188,6 +208,7 @@ watch([ricerca, categoria, livello, scuola, tempo, componente, soloDettagli, ord
             <div class="compendio-testo">
               <p v-if="regola.dettagliCompleti" class="compendio-descrizione">{{ regola.descrizione }}</p>
               <p v-else>{{ regola.sintesi }}</p>
+              <div v-if="regola.estrattoSpecie" class="compendio-estratto-specie"><small>Estratto SRD suddiviso automaticamente per specie · non ancora revisionato</small><pre>{{ regola.estrattoSpecie }}</pre></div>
               <dl v-if="regola.verificato || regola.dettagliCompleti" class="compendio-scheda-incantesimo">
                 <div><dt>Tempo di lancio</dt><dd>{{ regola.tempoLancio }}</dd></div>
                 <div><dt>Gittata</dt><dd>{{ regola.gittata }}</dd></div>
@@ -268,4 +289,6 @@ watch([ricerca, categoria, livello, scuola, tempo, componente, soloDettagli, ord
 .compendio-fonte { margin-top: 12px; }
 .compendio-fonte button { background: none; border: 1px solid #64727c; color: #e5a65c; border-radius: 8px; padding: 8px 12px; cursor: pointer; }
 .compendio-fonte pre { white-space: pre-wrap; overflow-wrap: anywhere; font: inherit; font-size: 13px; line-height: 1.65; padding: 14px; background: #101e2a; border: 1px solid #53616c; border-radius: 9px; max-height: 500px; overflow: auto; }
+.compendio-estratto-specie { margin: 12px 0 16px; }
+.compendio-estratto-specie pre { white-space: pre-wrap; overflow-wrap: anywhere; font: inherit; font-size: 13px; line-height: 1.65; padding: 14px; background: #101e2a; border: 1px solid #53616c; border-radius: 9px; max-height: 560px; overflow: auto; }
 </style>
