@@ -100,3 +100,7 @@ Sono state introdotte le tabelle normalizzate `src/dati/armiSempliciSRD.js` (14 
 ## Strumenti SRD — novembre 2026
 
 Aggiunte 25 schede individuali in `src/dati/strumentiSRD.js`: 17 strumenti da artigiano e 8 altri strumenti (SRD italiano pp. 105–107). Ogni scheda include nome, categoria, caratteristica, prezzo, peso e pagina. La vista compendio include un filtro «Strumenti» e conserva l'ordinamento per gruppi nell'equipaggiamento. I dettagli normativi su utilizzi, creazioni e varianti **non sono ancora trascritti**: le schede sono esplicitamente marcate `dettagliCompleti:false`. Test automatici in `tests/strumenti-srd.test.js`.
+
+## Equipaggiamento d'avventura — novembre 2026
+
+Prima tranche: 14 oggetti (da Abiti da viaggiatore a Borsa per componenti), dati di peso e costo confrontati con la tabella p. 108 e sintesi derivate dalla p. 107. Le schede individuali sono in `src/dati/equipaggiamentoAvventuraSRD.js`, integrate nel filtro Equipaggiamento d’avventura; test in `tests/equipaggiamento-avventura-srd.test.js`. Le sintesi non sostituiscono le descrizioni normative e l'elenco complessivo della tabella non è ancora esaurito.
