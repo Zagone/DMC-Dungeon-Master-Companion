@@ -49,10 +49,15 @@ Il file `tests/compendio-srd.test.js` controlla: 339 incantesimi e ID univoci, 1
 
 Quest'opera include materiale tratto dal System Reference Document 5.2.1 ("SRD 5.2.1") di Wizards of the Coast LLC, disponibile all'indirizzo https://www.dndbeyond.com/srd. Il SRD 5.2.1 è concesso in licenza ai sensi della licenza di attribuzione 4.0 Internazionale di Creative Commons, disponibile all'indirizzo https://creativecommons.org/licenses/by/4.0/legalcode.
 
-## Distribuzione delle 339 descrizioni integrali
+## Archivi statici delle nove categorie (novembre 2026)
 
-Il compendio carica automaticamente l'asset statico `public/compendio_incantesimi_SRD_5_2_1_completo.json` **solo all'apertura della pagina**. Non compare più alcun riquadro per importare file e non si utilizza il `localStorage` per il corpus SRD.
+È stato prodotto `DMC_compendio_tutte_categorie.zip` con `public/compendio/manifest.json` e nove file JSON:
+`incantesimi.json`, `classi.json`, `specie.json`, `origini.json`, `talenti.json`, `equipaggiamento.json`, `oggetti-magici.json`, `regole.json`, `condizioni.json`.
 
-**Passaggio di integrazione ancora necessario:** il corpus JSON è stato consegnato separatamente come ZIP contenente la cartella `public`; va copiato nella radice del progetto prima della distribuzione. Il file non è ancora stato aggiunto al repository remoto. Se manca, la pagina resta utilizzabile con le 339 voci dell'indice e le 20 schede sintetiche.
+Gli **incantesimi** contengono 339 schede strutturate con descrizioni estratte dal PDF; le altre otto categorie contengono **testi integrali per pagina PDF**, con lettura per colonne, e **non** schede individuali già normalizzate. Le categorie regole e condizioni condividono intenzionalmente alcune pagine del glossario.
 
-La validazione automatica richiede esattamente 339 nomi univoci e la corrispondenza con livello, scuola e pagina dell'indice SRD. L'estrazione è completa sul piano strutturale, ma la revisione editoriale dei testi non è conclusa.
+L'app ora carica gli incantesimi automaticamente da `public/compendio/incantesimi.json` e permette di aprire il testo della pagina SRD per le altre categorie, tramite `src/dati/caricamentoSezioniSRD.js`. Il loader usa fetch on demand e cache delle richieste. In mancanza dell'asset, le voci sintetiche già presenti continuano a essere visualizzate.
+
+**Azione indispensabile:** estrarre lo ZIP nella radice del progetto e committare la cartella `public/compendio` sul branch `feature/r4-2-gestione-dati-integrazione`. Gli asset JSON **non sono ancora nel repository remoto**. Non usare il vecchio ZIP che conteneva soltanto il file degli incantesimi nella radice di `public`.
+
+**Lavoro residuo:** normalizzare e verificare le singole voci delle otto categorie, estrarre le tabelle in dati strutturati, correggere eventuali errori di estrazione e aggiungere test di corrispondenza testuale al PDF. Non dichiarare il compendio completo sulla sola base della presenza dei file.
