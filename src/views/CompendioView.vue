@@ -218,6 +218,19 @@ watch([ricerca, categoria, livello, scuola, tempo, componente, soloDettagli, ord
                 </dl>
                 <strong>Tratti della specie</strong>
                 <ul><li v-for="tratto in regola.schedaSpecie.tratti" :key="tratto">{{ tratto }}</li></ul>
+                <div v-if="regola.schedaSpecie.opzioni.length" class="compendio-opzioni-specie">
+                  <strong>Opzioni di lignaggio e discendenza</strong>
+                  <ul>
+                    <li v-for="opzione in regola.schedaSpecie.opzioni" :key="opzione.nome">
+                      <strong>{{ opzione.nome }}</strong>
+                      <span v-if="opzione.danno"> · Danno: {{ opzione.danno }}</span>
+                      <span v-if="opzione.origine"> · {{ opzione.origine }}</span>
+                      <span v-if="opzione.livello1"> · Livello 1: {{ opzione.livello1 }}</span>
+                      <span v-if="opzione.livello3"> · Livello 3: {{ opzione.livello3 }}</span>
+                      <span v-if="opzione.livello5"> · Livello 5: {{ opzione.livello5 }}</span>
+                    </li>
+                  </ul>
+                </div>
               </div>
               <dl v-if="regola.verificato || regola.dettagliCompleti" class="compendio-scheda-incantesimo">
                 <div><dt>Tempo di lancio</dt><dd>{{ regola.tempoLancio }}</dd></div>
