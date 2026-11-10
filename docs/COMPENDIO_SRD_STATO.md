@@ -61,3 +61,13 @@ L'app ora carica gli incantesimi automaticamente da `public/compendio/incantesim
 **Azione indispensabile:** estrarre lo ZIP nella radice del progetto e committare la cartella `public/compendio` sul branch `feature/r4-2-gestione-dati-integrazione`. Gli asset JSON **non sono ancora nel repository remoto**. Non usare il vecchio ZIP che conteneva soltanto il file degli incantesimi nella radice di `public`.
 
 **Lavoro residuo:** normalizzare e verificare le singole voci delle otto categorie, estrarre le tabelle in dati strutturati, correggere eventuali errori di estrazione e aggiungere test di corrispondenza testuale al PDF. Non dichiarare il compendio completo sulla sola base della presenza dei file.
+
+## Verifiche e miglioramenti successivi all'integrazione
+
+- Verificata sul repository la presenza dei nove JSON e del manifest sotto `public/compendio/`.
+- Corretto il merge dei 339 incantesimi: vengono preservati `id`, `categoria` e `sintesi` dell'indice, necessari a ricerca e apertura delle schede.
+- La consultazione delle classi include ora tutte le pagine pertinenti alla classe selezionata, fino all'inizio della classe successiva; il testo è identificato con il numero di pagina originale.
+- Isolata la visualizzazione del testo fonte per la singola voce selezionata.
+- Aggiunti test automatici per intervalli delle classi.
+
+**Non ancora concluso:** il testo delle classi è un estratto pluripagina, non una scheda normalizzata per singola capacità; specie, origini, talenti, equipaggiamento, oggetti magici, condizioni e regole sono ancora consultabili prevalentemente per pagina. Il PDF contiene tabelle e impaginazione a colonne che richiedono verifiche prima di trasformarle in dati puntuali. Non usare la presenza degli archivi come indicatore di completezza editoriale.
