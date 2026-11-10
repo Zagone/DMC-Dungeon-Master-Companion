@@ -81,3 +81,18 @@ Aggiunto `src/dati/estrazioneSpecieSRD.js`: suddivide il testo estratto da `spec
 ## Correzione verifica specie su PDF originale
 
 La precedente suddivisione automatica del testo per titoli è stata **ritirata dalla UI**: l'estrazione della pagina mescolava le colonne e poteva attribuire parti di una specie a un'altra. Il PDF italiano SRD 5.2.1, pp. 94–97, è stato ricontrollato con estrazione a layout di colonne. Ora `estrazioneSpecieSRD.js` fornisce per tutte e nove le specie: tipo di creatura, taglia, velocità, indice dei tratti e pagine. La vista espone questi campi invece del testo contaminato. I nomi dei tratti sono un indice; **non** equivalgono a una verifica del contenuto normativo di ciascun tratto, delle sottoscelte e delle tabelle.
+
+## Equipaggiamento strutturato — novembre 2026
+
+Sono state introdotte le tabelle normalizzate `src/dati/armiSempliciSRD.js` (14 armi semplici, p. 103) e `src/dati/armiArmatureSRD.js` (24 armi da guerra, pp. 103–104; 12 armature e 1 scudo, p. 104). La vista `CompendioView.vue` espone ora **51 schede individuali** (38 armi, 13 armature/scudi), oltre alla tabella monetaria. Le righe sono state confrontate con il testo del PDF originale e coperte da test di integrità; la verifica automatica non sostituisce il controllo visivo di ogni tabella.
+
+### Attività non ancora concluse
+
+- Equipaggiamento: strumenti, equipaggiamento d'avventura, cavalcature, veicoli e spese.
+- Oggetti magici: identificazione e trascrizione delle singole voci (l'archivio corrente è per pagina).
+- Classi: progressioni, privilegi, sottoclassi e tabelle non ancora normalizzati.
+- Regole e condizioni: trascrizione integrale e verifica dei testi.
+- Specie e talenti: controllo editoriale delle descrizioni normative e delle tabelle.
+- Revisione dell'interfaccia e test end-to-end sul browser.
+
+**Nota:** il superamento della CI attesta il funzionamento tecnico dei test e della build, non la completezza né la correttezza editoriale dell'intero compendio.
