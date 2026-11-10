@@ -9,6 +9,7 @@ import { estraiTalentiSRD } from '../dati/estrazioneTalentiSRD.js'
 import { MONETE_SRD } from '../dati/moneteSRD.js'
 import { ARMI_SEMPLICI_SRD } from '../dati/armiSempliciSRD.js'
 import { ARMI_DA_GUERRA_SRD, ARMATURE_SRD } from '../dati/armiArmatureSRD.js'
+import { STRUMENTI_SRD } from '../dati/strumentiSRD.js'
 
 const ricerca = ref('')
 const archivioCompleto = ref(null)
@@ -69,6 +70,12 @@ const vociCompendio = computed(() => {
     nome: armatura.nome, categoria: 'Equipaggiamento', pagina: armatura.pagina,
     sintesi: armatura.classeArmatura, schedaArmatura: armatura, dettagliCompleti: true
   }))
+  const schedeStrumenti = STRUMENTI_SRD.map(strumento => ({
+    id: 'equip-strumento-' + strumento.nome.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-'),
+    nome: strumento.nome, categoria: 'Equipaggiamento', pagina: strumento.pagina,
+    sintesi: 'Strumento ' + strumento.tipologia.toLowerCase() + ' · ' + strumento.costo,
+    schedaStrumento: strumento, dettagliCompleti: false
+  }))
   const voceMonete = {
     id: 'equip-monete', nome: 'Monete', categoria: 'Equipaggiamento',
     pagina: 101, sintesi: 'Valori delle cinque denominazioni monetarie SRD.',
@@ -92,7 +99,7 @@ const vociCompendio = computed(() => {
       return dettagli ? { ...v, schedaSpecie: dettagli, pagineFonte: dettagli.pagine } : v
     }
     return v
-  }), ...talentiAggiuntivi, ...schedeArmi, ...schedeArmature, voceMonete]
+  }), ...talentiAggiuntivi, ...schedeArmi, ...schedeArmature, ...schedeStrumenti, voceMonete]
 })
 const categoria = ref('')
 const ordinamento = ref('az')
@@ -113,9 +120,11 @@ const gruppiEquipaggiamento = Object.freeze([
   { id: 'medie', titolo: 'Armature medie' },
   { id: 'pesanti', titolo: 'Armature pesanti' },
   { id: 'scudi', titolo: 'Scudi' },
+  { id: 'strumenti', titolo: 'Strumenti' },
   { id: 'altro', titolo: 'Altro equipaggiamento' }
 ])
 function gruppoDiEquipaggiamento(voce) {
+  if (voce.schedaStrumento) return 'strumenti'
   if (voce.schedaArma) return voce.schedaArma.impiego === 'Mischia' ? 'mischia' : 'distanza'
   if (voce.schedaArmatura) {
     const categoriaArmatura = voce.schedaArmatura.categoria
@@ -298,6 +307,11 @@ watch([ricerca, categoria, gruppoEquipaggiamento, livello, scuola, tempo, compon
                 <p><strong>Danni:</strong> {{ regola.schedaArma.danno }} · <strong>Costo:</strong> {{ regola.schedaArma.costo }}</p>
                 <p><strong>Proprietà:</strong> {{ regola.schedaArma.proprieta }}</p>
                 <p><strong>Padronanza:</strong> {{ regola.schedaArma.padronanza }} · <strong>Peso:</strong> {{ regola.schedaArma.peso }}</p>
+              </div>
+              <div v-if="regola.schedaStrumento" class="compendio-strumento">
+                <p><strong>Tipologia:</strong> {{ regola.schedaStrumento.tipologia }} · <strong>Caratteristica:</strong> {{ regola.schedaStrumento.caratteristica }}</p>
+                <p><strong>Costo:</strong> {{ regola.schedaStrumento.costo }} · <strong>Peso:</strong> {{ regola.schedaStrumento.peso }}</p>
+                <p>Per utilizzi, creazioni e varianti, consulta la pagina SRD indicata.</p>
               </div>
               <div v-if="regola.schedaArmatura" class="compendio-armatura">
                 <p><strong>Categoria:</strong> {{ regola.schedaArmatura.categoria }} · <strong>CA:</strong> {{ regola.schedaArmatura.classeArmatura }}</p>
