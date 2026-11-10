@@ -237,6 +237,10 @@ function pulisci() {
   ricerca.value = ''
   categoria.value = ''
   gruppoEquipaggiamento.value = ''
+  raritaOggetto.value = ''
+  sintoniaOggetto.value = ''
+  tempo.value = ''
+  componente.value = ''
   ordinamento.value = 'az'
   livello.value = ''
   scuola.value = ''
@@ -345,6 +349,7 @@ watch([ricerca, categoria, gruppoEquipaggiamento, raritaOggetto, sintoniaOggetto
             </select>
           </label>
         </div>
+        <p v-if="caricamentoCategorie.size" class="compendio-nota" role="status" aria-live="polite">Caricamento delle schede SRD in corso… I risultati si aggiornano automaticamente.</p>
         <div class="compendio-elenco">
           <template v-for="(regola, indice) in risultatiPagina" :key="regola.id">
           <h3 v-if="filtriEquipaggiamento && (indice === 0 || gruppoDiEquipaggiamento(risultatiPagina[indice - 1]) !== gruppoDiEquipaggiamento(regola))" class="compendio-gruppo-titolo">{{ gruppiEquipaggiamento.find(g => g.id === gruppoDiEquipaggiamento(regola))?.titolo }}</h3>
