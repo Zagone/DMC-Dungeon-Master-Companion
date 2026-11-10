@@ -48,8 +48,8 @@ function etichette(regola) {
     </div>
 
     <div v-if="sezioniOperative.length" class="sezioni-operative">
-      <section v-for="gruppo in sezioniOperative" :key="gruppo.campo" class="gruppo">
-        <h5>{{ gruppo.titolo }} <small>{{ gruppo.voci.length }}</small></h5>
+      <details v-for="gruppo in sezioniOperative" :key="gruppo.campo" class="sezione-espandibile gruppo-operativo">
+        <summary>{{ gruppo.titolo }} <span>{{ gruppo.voci.length }}</span></summary>
         <p v-if="gruppo.campo === 'azioniLeggendarie' && creatura.regoleAzioniLeggendarie" class="nota">
           {{ creatura.regoleAzioniLeggendarie }}
         </p>
@@ -62,7 +62,7 @@ function etichette(regola) {
           </div>
           <p>{{ voce.descrizione }}</p>
         </article>
-      </section>
+      </details>
     </div>
     <p v-else class="nota">Nessuna azione presente nella scheda.</p>
 
@@ -132,7 +132,10 @@ function etichette(regola) {
 .sezione-espandibile summary {cursor:pointer;padding:11px 12px;color:var(--dmc-cream);font-weight:700;}
 .sezione-espandibile summary span {color:var(--dmc-muted-light);}
 .sezione-espandibile[open] {display:grid;gap:9px;padding-bottom:10px;}
-.sezione-espandibile > .azione,.sezione-espandibile > .tabella-scorribile,.sezione-espandibile > .extra {margin-inline:10px;}
+.sezione-espandibile > .azione,.sezione-espandibile > .tabella-scorribile,.sezione-espandibile > .extra,.sezione-espandibile > .nota {margin-inline:10px;}
+.gruppo-operativo > summary {color:var(--dmc-amber);}
+.gruppo-operativo > summary span {float:right;}
+.gruppo-operativo[open] > summary {border-bottom:1px solid var(--dmc-border-soft);}
 .tabella-scorribile {overflow-x:auto;}
 table {width:100%;border-collapse:collapse;min-width:330px;font-size:.79rem;text-align:center;}
 th,td {padding:7px 5px;border-bottom:1px solid var(--dmc-border-soft);}
