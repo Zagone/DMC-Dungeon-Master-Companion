@@ -7,6 +7,7 @@ import { estraiSchedeSpecieSRD } from '../dati/estrazioneSpecieSRD.js'
 import { BACKGROUND_SRD } from '../dati/backgroundSRD.js'
 import { estraiTalentiSRD } from '../dati/estrazioneTalentiSRD.js'
 import { MONETE_SRD } from '../dati/moneteSRD.js'
+import { ARMI_SEMPLICI_SRD } from '../dati/armiSempliciSRD.js'
 
 const ricerca = ref('')
 const archivioCompleto = ref(null)
@@ -234,6 +235,14 @@ watch([ricerca, categoria, livello, scuola, tempo, componente, soloDettagli, ord
             <div class="compendio-testo">
               <p v-if="regola.dettagliCompleti" class="compendio-descrizione">{{ regola.descrizione }}</p>
               <p v-else>{{ regola.sintesi }}</p>
+              <div v-if="regola.categoria === 'Equipaggiamento' && /arm/i.test(regola.nome)" class="compendio-armi">
+                <strong>Armi semplici — SRD 5.2.1, pagina 103</strong>
+                <div v-for="arma in ARMI_SEMPLICI_SRD" :key="arma.nome" class="compendio-arma">
+                  <strong>{{ arma.nome }}</strong>
+                  <p>{{ arma.categoria }} · {{ arma.impiego }} · {{ arma.dadiDanno }} {{ arma.tipoDanno }} · {{ arma.costo }}</p>
+                  <small>Proprietà: {{ arma.proprieta }} · Padronanza: {{ arma.padronanza }} · Peso: {{ arma.peso }}</small>
+                </div>
+              </div>
               <div v-if="regola.categoria === 'Equipaggiamento' && /monet/i.test(regola.nome)" class="compendio-monete">
                 <strong>Valore delle monete (espresso in monete d'oro)</strong>
                 <table>
