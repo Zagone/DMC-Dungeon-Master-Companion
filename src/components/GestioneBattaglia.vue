@@ -8,6 +8,7 @@ import {
   testoRicercaCreatura,
 } from '../dati/modelloCreatura.js'
 import SchedaCreatura from './SchedaCreatura.vue'
+import SchedaTatticaCreatura from './SchedaTatticaCreatura.vue'
 
 const dati = computed(() => datiCampagna.value)
 const personaggi = computed(() => dati.value?.personaggi || [])
@@ -1293,6 +1294,9 @@ function nuovoIncontro() {
           </button>
         </div>
 
+        <!-- RIEPILOGO TATTICO: azioni immediatamente accessibili durante il combattimento. -->
+        <SchedaTatticaCreatura :creatura="nemico" />
+
         <!-- CONDIZIONI NEMICO: PANNELLO ESPANDIBILE -->
 
         <details class="condizioni-dropdown">
@@ -1420,7 +1424,7 @@ function nuovoIncontro() {
         <!-- SCHEDA COMPLETA DEL NEMICO -->
 
         <details>
-          <summary>Scheda e regole complete</summary>
+          <summary>Consulta la scheda originale completa</summary>
 
           <SchedaCreatura
             :creatura="nemico"
