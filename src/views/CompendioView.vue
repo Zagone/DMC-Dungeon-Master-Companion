@@ -10,6 +10,7 @@ import { MONETE_SRD } from '../dati/moneteSRD.js'
 import { ARMI_SEMPLICI_SRD } from '../dati/armiSempliciSRD.js'
 import { ARMI_DA_GUERRA_SRD, ARMATURE_SRD } from '../dati/armiArmatureSRD.js'
 import { STRUMENTI_SRD } from '../dati/strumentiSRD.js'
+import { EQUIPAGGIAMENTO_AVVENTURA_SRD } from '../dati/equipaggiamentoAvventuraSRD.js'
 
 const ricerca = ref('')
 const archivioCompleto = ref(null)
@@ -76,6 +77,11 @@ const vociCompendio = computed(() => {
     sintesi: 'Strumento ' + strumento.tipologia.toLowerCase() + ' · ' + strumento.costo,
     schedaStrumento: strumento, dettagliCompleti: false
   }))
+  const schedeAvventura = EQUIPAGGIAMENTO_AVVENTURA_SRD.map(oggetto => ({
+    id: 'equip-avventura-' + oggetto.nome.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-'),
+    nome: oggetto.nome, categoria: 'Equipaggiamento', pagina: oggetto.pagina,
+    sintesi: oggetto.sintesi, schedaAvventura: oggetto, dettagliCompleti: false
+  }))
   const voceMonete = {
     id: 'equip-monete', nome: 'Monete', categoria: 'Equipaggiamento',
     pagina: 101, sintesi: 'Valori delle cinque denominazioni monetarie SRD.',
@@ -99,7 +105,7 @@ const vociCompendio = computed(() => {
       return dettagli ? { ...v, schedaSpecie: dettagli, pagineFonte: dettagli.pagine } : v
     }
     return v
-  }), ...talentiAggiuntivi, ...schedeArmi, ...schedeArmature, ...schedeStrumenti, voceMonete]
+  }), ...talentiAggiuntivi, ...schedeArmi, ...schedeArmature, ...schedeStrumenti, ...schedeAvventura, voceMonete]
 })
 const categoria = ref('')
 const ordinamento = ref('az')
@@ -121,9 +127,11 @@ const gruppiEquipaggiamento = Object.freeze([
   { id: 'pesanti', titolo: 'Armature pesanti' },
   { id: 'scudi', titolo: 'Scudi' },
   { id: 'strumenti', titolo: 'Strumenti' },
+  { id: 'avventura', titolo: 'Equipaggiamento d’avventura' },
   { id: 'altro', titolo: 'Altro equipaggiamento' }
 ])
 function gruppoDiEquipaggiamento(voce) {
+  if (voce.schedaAvventura) return 'avventura'
   if (voce.schedaStrumento) return 'strumenti'
   if (voce.schedaArma) return voce.schedaArma.impiego === 'Mischia' ? 'mischia' : 'distanza'
   if (voce.schedaArmatura) {
@@ -307,6 +315,10 @@ watch([ricerca, categoria, gruppoEquipaggiamento, livello, scuola, tempo, compon
                 <p><strong>Danni:</strong> {{ regola.schedaArma.danno }} · <strong>Costo:</strong> {{ regola.schedaArma.costo }}</p>
                 <p><strong>Proprietà:</strong> {{ regola.schedaArma.proprieta }}</p>
                 <p><strong>Padronanza:</strong> {{ regola.schedaArma.padronanza }} · <strong>Peso:</strong> {{ regola.schedaArma.peso }}</p>
+              </div>
+              <div v-if="regola.schedaAvventura" class="compendio-avventura">
+                <p><strong>Peso:</strong> {{ regola.schedaAvventura.peso }} · <strong>Costo:</strong> {{ regola.schedaAvventura.costo }}</p>
+                <p>Descrizione sintetica: consulta la fonte SRD per le regole complete.</p>
               </div>
               <div v-if="regola.schedaStrumento" class="compendio-strumento">
                 <p><strong>Tipologia:</strong> {{ regola.schedaStrumento.tipologia }} · <strong>Caratteristica:</strong> {{ regola.schedaStrumento.caratteristica }}</p>
