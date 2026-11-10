@@ -16,6 +16,8 @@ const categoria = ref('')
 const ordinamento = ref('az')
 const livello = ref('')
 const scuola = ref('')
+const tempo = ref('')
+const componente = ref('')
 const soloDettagli = ref(false)
 const pagina = ref(1)
 const perPagina = 35
@@ -39,6 +41,8 @@ const risultati = computed(() => {
     (!categoria.value || v.categoria === categoria.value) &&
     (livello.value === '' || v.livello === Number(livello.value)) &&
     (!scuola.value || v.scuola === scuola.value) &&
+    (!tempo.value || (v.tempoLancio || '').toLocaleLowerCase('it-IT').includes(tempo.value)) &&
+    (!componente.value || new RegExp('(^|[, ])' + componente.value + '(?=[, (]|$)').test(v.componenti || '')) &&
     (!q || [v.nome, v.sintesi || '', v.scuola || ''].some(t => t.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('it-IT').includes(q))))
   return voci.filter(v => !soloDettagli.value || v.categoria !== 'Incantesimi' || Boolean(v.verificato || v.dettagliCompleti)).sort((a,b) => ordinamento.value === 'za'
     ? b.nome.localeCompare(a.nome,'it') : a.nome.localeCompare(b.nome,'it'))
@@ -76,6 +80,8 @@ function scegliCategoria(id) {
   categoria.value = id
   livello.value = ''
   scuola.value = ''
+  tempo.value = ''
+  componente.value = ''
   soloDettagli.value = false
   pagina.value = 1
   aperta.value = null
@@ -90,7 +96,7 @@ function pulisci() {
   pagina.value = 1
   aperta.value = null
 }
-watch([ricerca, categoria, livello, scuola, soloDettagli, ordinamento], () => { pagina.value = 1; aperta.value = null })
+watch([ricerca, categoria, livello, scuola, tempo, componente, soloDettagli, ordinamento], () => { pagina.value = 1; aperta.value = null })
 </script>
 
 <template>
@@ -146,6 +152,21 @@ watch([ricerca, categoria, livello, scuola, soloDettagli, ordinamento], () => { 
           <legend>Scuola</legend>
           <label><input v-model="scuola" type="radio" value="" /> Tutte le scuole</label>
           <label v-for="s in SCUOLE_SRD" :key="s"><input v-model="scuola" type="radio" :value="s" /> {{ s }}</label>
+        </fieldset>
+        <fieldset v-if="filtriMagia">
+          <legend>Tempo di lancio</legend>
+          <label><input v-model="tempo" type="radio" value="" /> Tutti</label>
+          <label><input v-model="tempo" type="radio" value="azione bonus" /> Azione bonus</label>
+          <label><input v-model="tempo" type="radio" value="reazione" /> Reazione</label>
+          <label><input v-model="tempo" type="radio" value="rituale" /> Rituale</label>
+          <label><input v-model="tempo" type="radio" value="minuto" /> Minuti</label>
+        </fieldset>
+        <fieldset v-if="filtriMagia">
+          <legend>Componenti</legend>
+          <label><input v-model="componente" type="radio" value="" /> Tutte</label>
+          <label><input v-model="componente" type="radio" value="V" /> Verbali (V)</label>
+          <label><input v-model="componente" type="radio" value="S" /> Somatiche (S)</label>
+          <label><input v-model="componente" type="radio" value="M" /> Materiali (M)</label>
         </fieldset>
         <label v-if="filtriMagia" class="compendio-opzione-dettagli"><input v-model="soloDettagli" type="checkbox" /> Solo schede con dettagli disponibili</label>
         <p class="compendio-nota">Le schede complete importate provengono dall’estrazione del PDF e non sono ancora tutte revisionate manualmente.</p>
