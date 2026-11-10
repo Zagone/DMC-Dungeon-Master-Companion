@@ -1,10 +1,11 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
-import { join } from 'node:path'
+import { join, dirname } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { validaArchivioIncantesimi } from '../src/dati/archivioIncantesimiCompleti.js'
 
-const base = join(process.cwd(), 'public', 'compendio')
+const base = join(dirname(fileURLToPath(import.meta.url)), '..', 'public', 'compendio')
 const sezioni = ['classi','specie','origini','talenti','equipaggiamento','oggetti-magici','regole','condizioni']
 
 test('compendio distribuito: 339 incantesimi completi e nomi univoci', () => {
