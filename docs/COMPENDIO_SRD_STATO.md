@@ -108,3 +108,7 @@ Prima tranche: 14 oggetti (da Abiti da viaggiatore a Borsa per componenti), dati
 ## Indicizzazione oggetti magici — novembre 2026
 
 Introdotto `src/dati/indiceOggettiMagiciSRD.js`: riconoscimento automatico di titoli seguiti da una riga tipologica con rarità nel corpus di pagine 237–288. Le voci risultanti sono ricercabili nel compendio, con categoria, rarità, indicazione di sintonia e pagina. L'indice è **esplorativo e incompleto**: non garantisce copertura di tutti gli oggetti, può contenere errori di segmentazione e non include descrizioni normative verificate. I dettagli restano consultabili nell'archivio per pagina. Test: `tests/indice-oggetti-magici-srd.test.js`. La categoria non deve essere considerata editorialmente completa.
+
+## Caricamento differito — novembre 2026
+
+La vista `CompendioView.vue` ora carica gli archivi estesi di Incantesimi, Specie, Talenti e Oggetti magici solo alla selezione della rispettiva categoria oppure alla prima ricerca globale. Richieste concorrenti deduplicate, cache già presente nel servizio, indicatore di caricamento accessibile con `role=status`. Il pulsante Azzera ripristina anche filtri rarità, sintonia, tempo e componenti. L'ottimizzazione riduce il traffico iniziale, non cambia il formato dei dati né il grado di verifica delle schede.
