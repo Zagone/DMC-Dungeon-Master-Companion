@@ -48,5 +48,7 @@ test('metadati: schede incantesimi verificati e filtri coerenti', () => {
   assert.ok(palla[0].componenti.includes('guano'))
   assert.equal(cercaRegole('Passo velato','Incantesimi')[0].tempoLancio,'azione bonus')
   assert.equal(cercaRegole('Cura ferite','Incantesimi')[0].gittata,'contatto')
-  assert.ok(REGOLE_SRD.filter(v=>v.categoria==='Incantesimi' && v.verificato).length >= 12)
+  assert.equal(cercaRegole('Scurovisione','Incantesimi')[0].gittata,'contatto')
+  assert.equal(cercaRegole('Parola guaritrice','Incantesimi')[0].tempoLancio,'azione bonus')
+  assert.ok(REGOLE_SRD.filter(v=>v.categoria==='Incantesimi' && v.verificato).length >= 20)
 })
