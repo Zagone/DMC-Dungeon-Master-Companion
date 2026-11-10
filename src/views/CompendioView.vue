@@ -96,6 +96,7 @@ const vociCompendio = computed(() => {
 })
 const categoria = ref('')
 const ordinamento = ref('az')
+const gruppoEquipaggiamento = ref('')
 const livello = ref('')
 const scuola = ref('')
 const tempo = ref('')
@@ -104,6 +105,25 @@ const soloDettagli = ref(false)
 const pagina = ref(1)
 const perPagina = 35
 const filtriMagia = computed(() => categoria.value === 'Incantesimi')
+const filtriEquipaggiamento = computed(() => categoria.value === 'Equipaggiamento')
+const gruppiEquipaggiamento = Object.freeze([
+  { id: 'mischia', titolo: 'Armi da mischia' },
+  { id: 'distanza', titolo: 'Armi a distanza' },
+  { id: 'leggere', titolo: 'Armature leggere' },
+  { id: 'medie', titolo: 'Armature medie' },
+  { id: 'pesanti', titolo: 'Armature pesanti' },
+  { id: 'scudi', titolo: 'Scudi' },
+  { id: 'altro', titolo: 'Altro equipaggiamento' }
+])
+function gruppoDiEquipaggiamento(voce) {
+  if (voce.schedaArma) return voce.schedaArma.impiego === 'Mischia' ? 'mischia' : 'distanza'
+  if (voce.schedaArmatura) {
+    const categoriaArmatura = voce.schedaArmatura.categoria
+    return ({ Leggera: 'leggere', Media: 'medie', Pesante: 'pesanti', Scudo: 'scudi' })[categoriaArmatura] || 'altro'
+  }
+  return 'altro'
+}
+const ordineGruppi = Object.freeze(Object.fromEntries(gruppiEquipaggiamento.map((g, i) => [g.id, i])))
 const aperta = ref(null)
 
 const categorie = [
@@ -121,13 +141,19 @@ const risultati = computed(() => {
   const q = ricerca.value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('it-IT').trim()
   const voci = vociCompendio.value.filter(v =>
     (!categoria.value || v.categoria === categoria.value) &&
+    (!filtriEquipaggiamento.value || !gruppoEquipaggiamento.value || gruppoDiEquipaggiamento(v) === gruppoEquipaggiamento.value) &&
     (livello.value === '' || v.livello === Number(livello.value)) &&
     (!scuola.value || v.scuola === scuola.value) &&
     (!tempo.value || (v.tempoLancio || '').toLocaleLowerCase('it-IT').includes(tempo.value)) &&
     (!componente.value || new RegExp('(^|[, ])' + componente.value + '(?=[, (]|$)').test(v.componenti || '')) &&
     (!q || [v.nome, v.sintesi || '', v.scuola || ''].some(t => t.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('it-IT').includes(q))))
-  return voci.filter(v => !soloDettagli.value || v.categoria !== 'Incantesimi' || Boolean(v.verificato || v.dettagliCompleti)).sort((a,b) => ordinamento.value === 'za'
-    ? b.nome.localeCompare(a.nome,'it') : a.nome.localeCompare(b.nome,'it'))
+  return voci.filter(v => !soloDettagli.value || v.categoria !== 'Incantesimi' || Boolean(v.verificato || v.dettagliCompleti)).sort((a,b) => {
+    if (filtriEquipaggiamento.value) {
+      const differenza = ordineGruppi[gruppoDiEquipaggiamento(a)] - ordineGruppi[gruppoDiEquipaggiamento(b)]
+      if (differenza) return differenza
+    }
+    return ordinamento.value === 'za' ? b.nome.localeCompare(a.nome,'it') : a.nome.localeCompare(b.nome,'it')
+  })
 })
 const pagineTotali = computed(() => Math.max(1, Math.ceil(risultati.value.length / perPagina)))
 const risultatiPagina = computed(() => risultati.value.slice((pagina.value - 1) * perPagina, pagina.value * perPagina))
@@ -154,6 +180,7 @@ async function consultaFonte(regola) {
 }
 function scegliCategoria(id) {
   categoria.value = id
+  gruppoEquipaggiamento.value = ''
   livello.value = ''
   scuola.value = ''
   tempo.value = ''
@@ -168,6 +195,7 @@ function scegliCategoria(id) {
 function pulisci() {
   ricerca.value = ''
   categoria.value = ''
+  gruppoEquipaggiamento.value = ''
   ordinamento.value = 'az'
   livello.value = ''
   scuola.value = ''
@@ -178,7 +206,7 @@ function pulisci() {
   erroreFonte.value = ''
   voceFonte.value = null
 }
-watch([ricerca, categoria, livello, scuola, tempo, componente, soloDettagli, ordinamento], () => { pagina.value = 1; aperta.value = null; testoFonte.value = ''; erroreFonte.value = ''; voceFonte.value = null })
+watch([ricerca, categoria, gruppoEquipaggiamento, livello, scuola, tempo, componente, soloDettagli, ordinamento], () => { pagina.value = 1; aperta.value = null; testoFonte.value = ''; erroreFonte.value = ''; voceFonte.value = null })
 </script>
 
 <template>
@@ -208,7 +236,14 @@ watch([ricerca, categoria, livello, scuola, tempo, componente, soloDettagli, ord
           <label><input v-model="categoria" type="radio" value="" /> Tutte</label>
           <label v-for="voce in categorie" :key="voce.id">
             <input v-model="categoria" type="radio" :value="voce.id" />
-            {{ voce.titolo }} <small>({{ REGOLE_SRD.filter(r => r.categoria === voce.id).length }})</small>
+            {{ voce.titolo }} <small>({{ vociCompendio.filter(r => r.categoria === voce.id).length }})</small>
+          </label>
+        </fieldset>
+        <fieldset v-if="filtriEquipaggiamento">
+          <legend>Tipologia equipaggiamento</legend>
+          <label><input v-model="gruppoEquipaggiamento" type="radio" value="" /> Tutte le tipologie</label>
+          <label v-for="gruppo in gruppiEquipaggiamento" :key="gruppo.id">
+            <input v-model="gruppoEquipaggiamento" type="radio" :value="gruppo.id" /> {{ gruppo.titolo }}
           </label>
         </fieldset>
         <fieldset v-if="filtriMagia">
@@ -251,7 +286,9 @@ watch([ricerca, categoria, livello, scuola, tempo, componente, soloDettagli, ord
           </label>
         </div>
         <div class="compendio-elenco">
-          <details v-for="regola in risultatiPagina" :key="regola.id" class="compendio-voce dmc-pannello" :open="aperta === regola.id" @toggle="e => { if (e.target.open) { aperta = regola.id; testoFonte = ''; erroreFonte = ''; voceFonte = null } else if (aperta === regola.id) { aperta = null; testoFonte = ''; erroreFonte = '' } }">
+          <template v-for="(regola, indice) in risultatiPagina" :key="regola.id">
+          <h3 v-if="filtriEquipaggiamento && (indice === 0 || gruppoDiEquipaggiamento(risultatiPagina[indice - 1]) !== gruppoDiEquipaggiamento(regola))" class="compendio-gruppo-titolo">{{ gruppiEquipaggiamento.find(g => g.id === gruppoDiEquipaggiamento(regola))?.titolo }}</h3>
+          <details :key="regola.id" class="compendio-voce dmc-pannello" :open="aperta === regola.id" @toggle="e => { if (e.target.open) { aperta = regola.id; testoFonte = ''; erroreFonte = ''; voceFonte = null } else if (aperta === regola.id) { aperta = null; testoFonte = ''; erroreFonte = '' } }">
             <summary><span><strong>{{ regola.nome }}</strong><small>{{ regola.categoria === "Incantesimi" ? (regola.livello === 0 ? "Trucchetto" : "Livello " + regola.livello) + " · " + regola.scuola : regola.categoria }}</small></span><span aria-hidden="true">⌄</span></summary>
             <div class="compendio-testo">
               <p v-if="regola.dettagliCompleti" class="compendio-descrizione">{{ regola.descrizione }}</p>
@@ -332,6 +369,7 @@ watch([ricerca, categoria, livello, scuola, tempo, componente, soloDettagli, ord
               </div>
             </div>
           </details>
+          </template>
           <nav v-if="pagineTotali > 1" class="compendio-paginazione" aria-label="Pagine dei risultati"><button type="button" :disabled="pagina === 1" @click="pagina--">Precedente</button><span>Pagina {{ pagina }} di {{ pagineTotali }}</span><button type="button" :disabled="pagina === pagineTotali" @click="pagina++">Successiva</button></nav>
           <p v-if="!risultati.length" class="compendio-vuoto">Nessuna voce corrispondente. Le categorie con zero voci non sono ancora state popolate.</p>
         </div>
