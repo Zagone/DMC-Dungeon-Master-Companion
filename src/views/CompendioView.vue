@@ -6,6 +6,7 @@ import { caricaSezioneSRD, estrattoVoceSRD } from '../dati/caricamentoSezioniSRD
 import { estraiSchedeSpecieSRD } from '../dati/estrazioneSpecieSRD.js'
 import { BACKGROUND_SRD } from '../dati/backgroundSRD.js'
 import { estraiTalentiSRD } from '../dati/estrazioneTalentiSRD.js'
+import { MONETE_SRD } from '../dati/moneteSRD.js'
 
 const ricerca = ref('')
 const archivioCompleto = ref(null)
@@ -233,6 +234,18 @@ watch([ricerca, categoria, livello, scuola, tempo, componente, soloDettagli, ord
             <div class="compendio-testo">
               <p v-if="regola.dettagliCompleti" class="compendio-descrizione">{{ regola.descrizione }}</p>
               <p v-else>{{ regola.sintesi }}</p>
+              <div v-if="regola.categoria === 'Equipaggiamento' && /monet/i.test(regola.nome)" class="compendio-monete">
+                <strong>Valore delle monete (espresso in monete d'oro)</strong>
+                <table>
+                  <thead><tr><th>Moneta</th><th>Sigla</th><th>Valore in mo</th></tr></thead>
+                  <tbody>
+                    <tr v-for="moneta in MONETE_SRD" :key="moneta.sigla">
+                      <td>{{ moneta.nome }}</td><td>{{ moneta.sigla }}</td>
+                      <td>{{ moneta.denominatore === 1 ? moneta.numeratore : moneta.numeratore + '/' + moneta.denominatore }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
               <div v-if="regola.schedaTalento" class="compendio-estratto-specie">
                 <small>{{ regola.schedaTalento.categoriaTalento }} · Pagina SRD {{ regola.schedaTalento.pagine.join(', ') }} · Testo estratto, da revisionare</small>
                 <pre>{{ regola.schedaTalento.descrizione }}</pre>
