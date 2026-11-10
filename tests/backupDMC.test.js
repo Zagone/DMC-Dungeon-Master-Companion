@@ -49,3 +49,11 @@ test('backup: duplicati nel bestiario personale rifiutati', () => {
   ]
   assert.throws(() => verificaArchivio(archivio))
 })
+
+test('backup: sessione nulla o scena malformata rifiutata con errore controllato', () => {
+  for (const sessione of [null, 'testo', [], { scene: [null] }, { scene: [{ incontro: [] }] }]) {
+    const archivio = backup()
+    archivio.campagne[0].dati.sessioni = [sessione]
+    assert.throws(() => verificaArchivio(archivio), Error)
+  }
+})
