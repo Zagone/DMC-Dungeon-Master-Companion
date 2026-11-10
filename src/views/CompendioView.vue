@@ -2,7 +2,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { REGOLE_SRD, SCUOLE_SRD } from '../dati/compendioSRD.js'
 import { validaArchivioIncantesimi } from '../dati/archivioIncantesimiCompleti.js'
-import { caricaSezioneSRD, paginaSRD } from '../dati/caricamentoSezioniSRD.js'
+import { caricaSezioneSRD, estrattoVoceSRD } from '../dati/caricamentoSezioniSRD.js'
 
 const ricerca = ref('')
 const archivioCompleto = ref(null)
@@ -76,7 +76,7 @@ async function consultaFonte(regola) {
   try {
     const dati = await caricaSezioneSRD(regola.categoria)
     if (voceFonte.value !== regola.id) return
-    testoFonte.value = paginaSRD(dati, regola.pagina)
+    testoFonte.value = estrattoVoceSRD(dati, regola).testo
     if (!testoFonte.value) erroreFonte.value = 'La pagina non è presente in questo archivio.'
   } catch (errore) {
     if (voceFonte.value === regola.id) erroreFonte.value = errore.message
