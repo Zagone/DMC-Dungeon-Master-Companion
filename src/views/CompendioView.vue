@@ -40,7 +40,7 @@ const risultati = computed(() => {
     (livello.value === '' || v.livello === Number(livello.value)) &&
     (!scuola.value || v.scuola === scuola.value) &&
     (!q || [v.nome, v.sintesi || '', v.scuola || ''].some(t => t.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('it-IT').includes(q))))
-  return voci.filter(v => !soloDettagli.value || Boolean(v.verificato || v.dettagliCompleti)).sort((a,b) => ordinamento.value === 'za'
+  return voci.filter(v => !soloDettagli.value || v.categoria !== 'Incantesimi' || Boolean(v.verificato || v.dettagliCompleti)).sort((a,b) => ordinamento.value === 'za'
     ? b.nome.localeCompare(a.nome,'it') : a.nome.localeCompare(b.nome,'it'))
 })
 const pagineTotali = computed(() => Math.max(1, Math.ceil(risultati.value.length / perPagina)))
