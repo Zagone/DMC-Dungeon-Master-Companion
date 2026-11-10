@@ -13,9 +13,12 @@ export function verificaArchivio(a) {
   for (const v of a.campagne) {
     if (!v || typeof v.nome !== 'string' || !v.nome.trim() || !verificaDati(v.dati)) throw new Error('Una o più campagne contengono dati non validi.')
     for (const s of v.dati.sessioni) {
+      if (!s || typeof s !== 'object' || Array.isArray(s)) throw new Error('Sessione non valida nel backup.')
       if (s.scene != null && !Array.isArray(s.scene)) throw new Error('Scene non valide nel backup.')
       for (const scena of s.scene || []) {
-        if (!scena || (scena.incontro?.nemici != null && !Array.isArray(scena.incontro.nemici))) throw new Error('Incontro non valido nel backup.')
+        if (!scena || typeof scena !== 'object' || Array.isArray(scena) ||
+            (scena.incontro != null && (typeof scena.incontro !== 'object' || Array.isArray(scena.incontro))) ||
+            (scena.incontro?.nemici != null && !Array.isArray(scena.incontro.nemici))) throw new Error('Incontro non valido nel backup.')
         for (const n of scena.incontro?.nemici || []) {
           if (!n || typeof n.creaturaId !== 'string' || !Number.isInteger(Number(n.quantita)) || Number(n.quantita) < 1 || Number(n.quantita) > 30 || (n.istantanea != null && (typeof n.istantanea !== 'object' || Array.isArray(n.istantanea) || !n.istantanea.nome))) throw new Error('Creatura di un incontro non valida nel backup.')
         }
@@ -41,6 +44,7 @@ export function creaBackup(ids) {
 }
 export function importaBackup(archivio, indici) {
   verificaArchivio(archivio)
+  if (!Array.isArray(indici) || !indici.every(i => Number.isInteger(i) && i >= 0 && i < archivio.campagne.length)) throw new Error('Selezione delle campagne non valida.')
   const scelte = archivio.campagne.filter((_, i) => indici.includes(i)).map(copiaDati)
   if (!scelte.length) throw new Error('Seleziona almeno una campagna.')
   const p = preparaImportazionePersonali(archivio.creaturePersonali || [])
