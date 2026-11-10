@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref } from 'vue'
 import { datiCampagna, idUnivoco, salvaDatiCampagna } from '../stato/statoDatiCampagna.js'
+import { verificaArchivioSessioniChatGPT } from '../dati/validazioneSessioniChatGPT.js'
 
 const fileInput = ref(null)
 const anteprima = ref(null)
@@ -12,13 +13,7 @@ const selezionate = ref([])
 const sessioni = computed(() => anteprima.value?.sessioni || [])
 const MAX_FILE = 2 * 1024 * 1024
 
-function oggetto(v) { return !!v && typeof v === 'object' && !Array.isArray(v) }
 function testo(v) { return typeof v === 'string' }
-function validaSessione(s) {
-  if (!oggetto(s) || !testo(s.titolo) || !s.titolo.trim() || s.titolo.length > 150 || !Array.isArray(s.scene) || s.scene.length > 100) return false
-  return s.scene.every(sc => oggetto(sc) && testo(sc.titolo) && testo(sc.descrizione) &&
-    (!sc.incontro || (oggetto(sc.incontro) && Array.isArray(sc.incontro.nemici) && sc.incontro.nemici.length === 0)))
-}
 function azzera() {
   anteprima.value = null
   selezionate.value = []
@@ -38,11 +33,7 @@ async function leggiFile(e) {
   occupato.value = true
   try {
     const contenuto = JSON.parse(await file.text())
-    if (!oggetto(contenuto) || contenuto.formato !== 'dmc-sessioni' || contenuto.versione !== 1 ||
-        !Array.isArray(contenuto.sessioni) || !contenuto.sessioni.length || contenuto.sessioni.length > 30 ||
-        !contenuto.sessioni.every(validaSessione)) {
-      throw new Error('Formato non valido. Sono richiesti formato dmc-sessioni, versione 1 e sessioni con scene valide. Gli incontri con creature non sono ancora supportati.')
-    }
+    verificaArchivioSessioniChatGPT(contenuto)
     anteprima.value = contenuto
     selezionate.value = contenuto.sessioni.map((_, i) => i)
   } catch (e) {
