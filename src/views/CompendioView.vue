@@ -1,12 +1,19 @@
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { REGOLE_SRD, SCUOLE_SRD } from '../dati/compendioSRD.js'
-import { leggiArchivioIncantesimi, salvaArchivioIncantesimi, eliminaArchivioIncantesimi } from '../dati/archivioIncantesimiCompleti.js'
+import { validaArchivioIncantesimi } from '../dati/archivioIncantesimiCompleti.js'
 
 const ricerca = ref('')
-const archivioCompleto = ref(leggiArchivioIncantesimi())
-const messaggioImportazione = ref('')
-const caricamentoArchivio = ref(false)
+const archivioCompleto = ref(null)
+onMounted(async () => {
+  try {
+    const risposta = await fetch(`${import.meta.env.BASE_URL}compendio_incantesimi_SRD_5_2_1_completo.json`)
+    if (!risposta.ok) return
+    archivioCompleto.value = validaArchivioIncantesimi(await risposta.json())
+  } catch (errore) {
+    console.warn('Archivio incantesimi non disponibile; viene mostrato l’indice SRD.', errore)
+  }
+})
 const vociCompendio = computed(() => {
   if (!archivioCompleto.value) return REGOLE_SRD
   const nuove = new Map(archivioCompleto.value.map(v => [v.nome, v]))
@@ -49,33 +56,6 @@ const risultati = computed(() => {
 })
 const pagineTotali = computed(() => Math.max(1, Math.ceil(risultati.value.length / perPagina)))
 const risultatiPagina = computed(() => risultati.value.slice((pagina.value - 1) * perPagina, pagina.value * perPagina))
-async function importaArchivio(evento) {
-  const file = evento.target.files?.[0]
-  if (!file) return
-  caricamentoArchivio.value = true
-  messaggioImportazione.value = ''
-  try {
-    if (file.size > 3000000) throw new Error('Il file supera il limite di 3 MB.')
-    const dati = JSON.parse(await file.text())
-    const voci = salvaArchivioIncantesimi(dati)
-    archivioCompleto.value = voci
-    messaggioImportazione.value = 'Archivio caricato: 339 descrizioni integrali disponibili.'
-  } catch (errore) {
-    messaggioImportazione.value = 'Importazione non riuscita: ' + errore.message
-  } finally {
-    evento.target.value = ''
-    caricamentoArchivio.value = false
-  }
-}
-function ripristinaIndice() {
-  try {
-    eliminaArchivioIncantesimi()
-    archivioCompleto.value = null
-    messaggioImportazione.value = 'Archivio rimosso dal browser; ripristinato l’indice iniziale.'
-  } catch (errore) {
-    messaggioImportazione.value = 'Ripristino non riuscito: ' + errore.message
-  }
-}
 function scegliCategoria(id) {
   categoria.value = id
   livello.value = ''
@@ -104,7 +84,7 @@ watch([ricerca, categoria, livello, scuola, tempo, componente, soloDettagli, ord
     <header class="compendio-eroe">
       <small class="compendio-sopratitolo">DUNGEON MASTER COMPANION · SRD 5.2.1</small>
       <h1>Compendio</h1>
-      <p>Consulta le condizioni, le regole e l'indice degli incantesimi dell'SRD 5.2.1. Cerca una voce oppure esplora le categorie.</p>
+      <p>Consulta le condizioni, le regole e gli incantesimi dell'SRD 5.2.1. Cerca una voce oppure esplora le categorie.</p>
       <label class="compendio-ricerca">
         <span class="sr-only">Cerca nel compendio</span>
         <input v-model="ricerca" type="search" placeholder="Cerca nel compendio..." />
@@ -118,20 +98,6 @@ watch([ricerca, categoria, livello, scuola, tempo, componente, soloDettagli, ord
       </button>
     </section>
 
-    <section class="compendio-archivio dmc-pannello" aria-label="Archivio incantesimi SRD">
-      <div>
-        <strong>Descrizioni complete degli incantesimi</strong>
-        <p v-if="archivioCompleto">Archivio SRD 5.2.1 caricato: 339 schede con descrizioni estratte dal PDF. La revisione editoriale delle singole schede resta da completare.</p>
-        <p v-else>Per consultare il testo completo delle 339 schede, importa l'archivio JSON ricavato dal PDF SRD 5.2.1. L'importazione resta salvata in questo browser.</p>
-        <p v-if="messaggioImportazione" role="status">{{ messaggioImportazione }}</p>
-      </div>
-      <div class="compendio-archivio-azioni">
-        <label class="compendio-file">Importa JSON
-          <input type="file" accept=".json,application/json" :disabled="caricamentoArchivio" @change="importaArchivio" />
-        </label>
-        <button v-if="archivioCompleto" type="button" @click="ripristinaIndice">Ripristina indice</button>
-      </div>
-    </section>
     <div class="compendio-layout">
       <aside class="compendio-filtri dmc-pannello" aria-label="Filtri del compendio">
         <div class="compendio-filtri-testa"><h2>Filtri</h2><button type="button" @click="pulisci">Azzera</button></div>
@@ -169,7 +135,7 @@ watch([ricerca, categoria, livello, scuola, tempo, componente, soloDettagli, ord
           <label><input v-model="componente" type="radio" value="M" /> Materiali (M)</label>
         </fieldset>
         <label v-if="filtriMagia" class="compendio-opzione-dettagli"><input v-model="soloDettagli" type="checkbox" /> Solo schede con dettagli disponibili</label>
-        <p class="compendio-nota">Le schede complete importate provengono dall’estrazione del PDF e non sono ancora tutte revisionate manualmente.</p>
+        <p class="compendio-nota">Le schede integrali provengono dall’estrazione del PDF e non sono ancora tutte revisionate manualmente.</p>
       </aside>
 
       <section class="compendio-risultati" aria-label="Risultati del compendio">
@@ -259,12 +225,5 @@ watch([ricerca, categoria, livello, scuola, tempo, componente, soloDettagli, ord
 .compendio-scheda-incantesimo dd { margin: 4px 0 0; overflow-wrap: anywhere; }
 .compendio-opzione-dettagli { display: flex; align-items: flex-start; gap: 8px; margin-top: 18px; font-size: 12px; line-height: 1.5; }
 @media (max-width: 430px) { .compendio-scheda-incantesimo { grid-template-columns: 1fr; } }
-.compendio-archivio { display: flex; justify-content: space-between; align-items: center; gap: 18px; padding: 18px; margin-bottom: 24px; border: 1px solid #53616c; border-radius: 12px; }
-.compendio-archivio strong { color: #e5a65c; }
-.compendio-archivio p { color: #b8c2ca; font-size: 13px; margin: 7px 0 0; line-height: 1.5; }
-.compendio-archivio-azioni { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-.compendio-file,.compendio-archivio-azioni button { border: 1px solid #e5a65c; border-radius: 8px; padding: 9px 13px; color: #e5a65c; background: #242d38; cursor: pointer; white-space: nowrap; font: inherit; font-size: 13px; }
-.compendio-file input { display: block; max-width: 190px; font-size: 11px; margin-top: 7px; }
 .compendio-descrizione { white-space: pre-line; }
-@media (max-width: 680px) { .compendio-archivio { flex-direction: column; align-items: stretch; } }
 </style>
