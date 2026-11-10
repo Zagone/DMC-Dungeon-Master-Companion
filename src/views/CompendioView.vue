@@ -11,12 +11,14 @@ import { ARMI_SEMPLICI_SRD } from '../dati/armiSempliciSRD.js'
 import { ARMI_DA_GUERRA_SRD, ARMATURE_SRD } from '../dati/armiArmatureSRD.js'
 import { STRUMENTI_SRD } from '../dati/strumentiSRD.js'
 import { EQUIPAGGIAMENTO_AVVENTURA_SRD } from '../dati/equipaggiamentoAvventuraSRD.js'
+import { estraiIndiceOggettiMagici } from '../dati/indiceOggettiMagiciSRD.js'
 
 const ricerca = ref('')
 const archivioCompleto = ref(null)
 const schedeSpecie = ref(new Map())
 const schedeBackground = new Map(BACKGROUND_SRD.map(v => [v.nome, v]))
 const schedeTalenti = ref([])
+const schedeOggettiMagici = ref([])
 const testoFonte = ref('')
 const voceFonte = ref(null)
 const erroreFonte = ref('')
@@ -25,7 +27,8 @@ onMounted(async () => {
   const risultati = await Promise.allSettled([
     caricaSezioneSRD('Incantesimi'),
     caricaSezioneSRD('Specie'),
-    caricaSezioneSRD('Talenti')
+    caricaSezioneSRD('Talenti'),
+    caricaSezioneSRD('Oggetti magici')
   ])
   if (risultati[0].status === 'fulfilled') {
     try {
@@ -47,7 +50,14 @@ onMounted(async () => {
     } catch (errore) {
       console.warn('Archivio talenti non segmentabile; resta disponibile il testo originale.', errore)
     }
+  }  if (risultati[3].status === 'fulfilled') {
+    try {
+      schedeOggettiMagici.value = estraiIndiceOggettiMagici(risultati[3].value)
+    } catch (errore) {
+      console.warn('Indice degli oggetti magici non disponibile.', errore)
+    }
   }
+
 })
 const vociCompendio = computed(() => {
   const nuove = new Map((archivioCompleto.value || []).map(v => [v.nome, v]))
@@ -105,7 +115,7 @@ const vociCompendio = computed(() => {
       return dettagli ? { ...v, schedaSpecie: dettagli, pagineFonte: dettagli.pagine } : v
     }
     return v
-  }), ...talentiAggiuntivi, ...schedeArmi, ...schedeArmature, ...schedeStrumenti, ...schedeAvventura, voceMonete]
+  }), ...talentiAggiuntivi, ...schedeArmi, ...schedeArmature, ...schedeStrumenti, ...schedeAvventura, voceMonete, ...schedeOggettiMagici.value]
 })
 const categoria = ref('')
 const ordinamento = ref('az')
@@ -316,6 +326,7 @@ watch([ricerca, categoria, gruppoEquipaggiamento, livello, scuola, tempo, compon
                 <p><strong>Proprietà:</strong> {{ regola.schedaArma.proprieta }}</p>
                 <p><strong>Padronanza:</strong> {{ regola.schedaArma.padronanza }} · <strong>Peso:</strong> {{ regola.schedaArma.peso }}</p>
               </div>
+              <p v-if="regola.indicizzazioneAutomatica" class="compendio-nota">Voce indicizzata automaticamente dal PDF: nome, categoria e rarità non ancora revisionati. Consulta la pagina SRD per il testo originale.</p>
               <div v-if="regola.schedaAvventura" class="compendio-avventura">
                 <p><strong>Peso:</strong> {{ regola.schedaAvventura.peso }} · <strong>Costo:</strong> {{ regola.schedaAvventura.costo }}</p>
                 <p>Descrizione sintetica: consulta la fonte SRD per le regole complete.</p>
