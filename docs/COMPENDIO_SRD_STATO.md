@@ -49,10 +49,10 @@ Il file `tests/compendio-srd.test.js` controlla: 339 incantesimi e ID univoci, 1
 
 Quest'opera include materiale tratto dal System Reference Document 5.2.1 ("SRD 5.2.1") di Wizards of the Coast LLC, disponibile all'indirizzo https://www.dndbeyond.com/srd. Il SRD 5.2.1 è concesso in licenza ai sensi della licenza di attribuzione 4.0 Internazionale di Creative Commons, disponibile all'indirizzo https://creativecommons.org/licenses/by/4.0/legalcode.
 
-## Importazione delle 339 descrizioni integrali
+## Distribuzione delle 339 descrizioni integrali
 
-L'archivio `compendio_incantesimi_SRD_5_2_1_completo.json` è prodotto a partire dal PDF italiano SRD 5.2.1 e consegnato come file separato. Per usarlo, aprire **Compendio → Importa JSON** e selezionare il file. Il browser lo salva in `localStorage` e lo ripristina ai successivi accessi sullo stesso dispositivo e dominio. **Ripristina indice** rimuove soltanto questo archivio locale, senza toccare campagne, sessioni o mostri.
+Il compendio carica automaticamente l'asset statico `public/compendio_incantesimi_SRD_5_2_1_completo.json` **solo all'apertura della pagina**. Non compare più alcun riquadro per importare file e non si utilizza il `localStorage` per il corpus SRD.
 
-La scelta di non committare il corpus integrale nel repository consente di mantenere il bundle dell'applicazione leggero. Per la distribuzione pubblica sarà opportuno includere il corpus come asset statico lazy-loaded, dopo la revisione editoriale. L'archivio JSON non è un backup delle campagne e non deve essere importato dalla Gestione dati.
+**Passaggio di integrazione ancora necessario:** il corpus JSON è stato consegnato separatamente come ZIP contenente la cartella `public`; va copiato nella radice del progetto prima della distribuzione. Il file non è ancora stato aggiunto al repository remoto. Se manca, la pagina resta utilizzabile con le 339 voci dell'indice e le 20 schede sintetiche.
 
-I controlli automatici verificano esattamente 339 voci, nomi univoci, corrispondenza di nome/livello/scuola/pagina con l'indice già integrato e presenza di tutti i metadati. Non sostituiscono la verifica delle descrizioni sul documento originale.
+La validazione automatica richiede esattamente 339 nomi univoci e la corrispondenza con livello, scuola e pagina dell'indice SRD. L'estrazione è completa sul piano strutturale, ma la revisione editoriale dei testi non è conclusa.
