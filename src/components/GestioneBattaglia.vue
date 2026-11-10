@@ -1294,9 +1294,6 @@ function nuovoIncontro() {
           </button>
         </div>
 
-        <!-- RIEPILOGO TATTICO: azioni immediatamente accessibili durante il combattimento. -->
-        <SchedaTatticaCreatura :creatura="nemico" />
-
         <!-- CONDIZIONI NEMICO: PANNELLO ESPANDIBILE -->
 
         <details class="condizioni-dropdown">
@@ -1420,6 +1417,9 @@ function nuovoIncontro() {
             </div>
           </div>
         </details>
+
+        <!-- AZIONI E DETTAGLI TATTICI: sotto le condizioni, tutti espandibili. -->
+        <SchedaTatticaCreatura :creatura="nemico" />
 
         <!-- SCHEDA COMPLETA DEL NEMICO -->
 
