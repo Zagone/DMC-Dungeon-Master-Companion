@@ -1,7 +1,7 @@
 
 <script setup>
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
-import ImportaSessioniJSON from './ImportaSessioniJSON.vue'
+import CreazioneAssistitaCampagna from './CreazioneAssistitaCampagna.vue'
 
 import {
   datiCampagna,
@@ -1964,7 +1964,10 @@ function caricaIncontro(scena) {
         </button>
       </form>
 
-      <ImportaSessioniJSON />
+      <details class="dmc-pannello" style="margin:16px 0">
+        <summary style="padding:16px;cursor:pointer;color:var(--dmc-amber)">Crea sessioni con ChatGPT</summary>
+        <CreazioneAssistitaCampagna modalita="sessioni" />
+      </details>
 
       <!-- REGISTRO PNG COMPRIMIBILE -->
 
