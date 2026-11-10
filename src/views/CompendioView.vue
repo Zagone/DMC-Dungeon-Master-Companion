@@ -5,11 +5,13 @@ import { validaArchivioIncantesimi } from '../dati/archivioIncantesimiCompleti.j
 import { caricaSezioneSRD, estrattoVoceSRD } from '../dati/caricamentoSezioniSRD.js'
 import { estraiSchedeSpecieSRD } from '../dati/estrazioneSpecieSRD.js'
 import { BACKGROUND_SRD } from '../dati/backgroundSRD.js'
+import { estraiTalentiSRD } from '../dati/estrazioneTalentiSRD.js'
 
 const ricerca = ref('')
 const archivioCompleto = ref(null)
 const schedeSpecie = ref(new Map())
 const schedeBackground = new Map(BACKGROUND_SRD.map(v => [v.nome, v]))
+const schedeTalenti = ref([])
 const testoFonte = ref('')
 const voceFonte = ref(null)
 const erroreFonte = ref('')
@@ -17,7 +19,8 @@ const caricamentoFonte = ref(false)
 onMounted(async () => {
   const risultati = await Promise.allSettled([
     caricaSezioneSRD('Incantesimi'),
-    caricaSezioneSRD('Specie')
+    caricaSezioneSRD('Specie'),
+    caricaSezioneSRD('Talenti')
   ])
   if (risultati[0].status === 'fulfilled') {
     try {
@@ -33,13 +36,29 @@ onMounted(async () => {
       console.warn('Segmentazione specie non disponibile; rimane consultabile il testo per pagina.', errore)
     }
   }
+  if (risultati[2].status === 'fulfilled') {
+    try {
+      schedeTalenti.value = estraiTalentiSRD(risultati[2].value)
+    } catch (errore) {
+      console.warn('Archivio talenti non segmentabile; resta disponibile il testo originale.', errore)
+    }
+  }
 })
 const vociCompendio = computed(() => {
   const nuove = new Map((archivioCompleto.value || []).map(v => [v.nome, v]))
-  return REGOLE_SRD.map(v => {
+  const nomiIndice = new Set(REGOLE_SRD.filter(v => v.categoria === 'Talenti').map(v => v.nome))
+  const talentiAggiuntivi = schedeTalenti.value.filter(v => !nomiIndice.has(v.nome)).map(v => ({
+    ...v, id: 'talento-srd-' + v.nome.toLowerCase().replace(/[^a-z0-9]+/g,'-'),
+    categoria: 'Talenti', sintesi: v.categoriaTalento, schedaTalento: v
+  }))
+  return [...REGOLE_SRD.map(v => {
     if (v.categoria === 'Incantesimi') {
       const dettagli = nuove.get(v.nome)
       return dettagli ? { ...v, ...dettagli, id: v.id, categoria: v.categoria, sintesi: dettagli.descrizione || v.sintesi } : v
+    }
+    if (v.categoria === 'Talenti') {
+      const dettagli = schedeTalenti.value.find(t => t.nome === v.nome)
+      return dettagli ? { ...v, schedaTalento: dettagli } : v
     }
     if (v.categoria === 'Origini') {
       const dettagli = schedeBackground.get(v.nome)
@@ -50,7 +69,7 @@ const vociCompendio = computed(() => {
       return dettagli ? { ...v, schedaSpecie: dettagli, pagineFonte: dettagli.pagine } : v
     }
     return v
-  })
+  }), ...talentiAggiuntivi]
 })
 const categoria = ref('')
 const ordinamento = ref('az')
@@ -214,6 +233,10 @@ watch([ricerca, categoria, livello, scuola, tempo, componente, soloDettagli, ord
             <div class="compendio-testo">
               <p v-if="regola.dettagliCompleti" class="compendio-descrizione">{{ regola.descrizione }}</p>
               <p v-else>{{ regola.sintesi }}</p>
+              <div v-if="regola.schedaTalento" class="compendio-estratto-specie">
+                <small>{{ regola.schedaTalento.categoriaTalento }} · Pagina SRD {{ regola.schedaTalento.pagine.join(', ') }} · Testo estratto, da revisionare</small>
+                <pre>{{ regola.schedaTalento.descrizione }}</pre>
+              </div>
               <div v-if="regola.schedaBackground" class="compendio-background">
                 <dl class="compendio-scheda-incantesimo">
                   <div><dt>Caratteristiche</dt><dd>{{ regola.schedaBackground.caratteristiche.join(', ') }}</dd></div>
