@@ -96,3 +96,7 @@ Sono state introdotte le tabelle normalizzate `src/dati/armiSempliciSRD.js` (14 
 - Revisione dell'interfaccia e test end-to-end sul browser.
 
 **Nota:** il superamento della CI attesta il funzionamento tecnico dei test e della build, non la completezza né la correttezza editoriale dell'intero compendio.
+
+## Strumenti SRD — novembre 2026
+
+Aggiunte 25 schede individuali in `src/dati/strumentiSRD.js`: 17 strumenti da artigiano e 8 altri strumenti (SRD italiano pp. 105–107). Ogni scheda include nome, categoria, caratteristica, prezzo, peso e pagina. La vista compendio include un filtro «Strumenti» e conserva l'ordinamento per gruppi nell'equipaggiamento. I dettagli normativi su utilizzi, creazioni e varianti **non sono ancora trascritti**: le schede sono esplicitamente marcate `dettagliCompleti:false`. Test automatici in `tests/strumenti-srd.test.js`.
