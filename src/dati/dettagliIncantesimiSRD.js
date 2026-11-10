@@ -13,6 +13,14 @@ const VOCI = [
   ['Passo velato','azione bonus','incantatore','V','istantanea','Il lanciatore si teletrasporta fino a 9 metri in uno spazio libero che può vedere.'],
   ['Scudo','reazione (quando colpito da un attacco o bersagliato da Dardo incantato)','incantatore','V, S','1 round','Una barriera magica conferisce +5 alla CA fino all’inizio del turno successivo e impedisce i danni di Dardo incantato.'],
   ['Velocità','azione','9 metri','V, S, M (una scaglia di radice di liquirizia)','concentrazione, fino a 1 minuto','Raddoppia la velocità, conferisce +2 alla CA, vantaggio ai TS Destrezza e un’azione aggiuntiva limitata. Al termine il bersaglio è temporaneamente incapace di muoversi o agire.'],
+  ['Dardo incantato','azione','36 metri','V, S','istantanea','Tre dardi colpiscono automaticamente creature visibili entro gittata. Ciascun dardo infligge 1d4 + 1 danni da forza; uno aggiuntivo per ogni livello di slot oltre il 1°.'],
+  ['Dardo tracciante','azione','36 metri','V, S','1 round','Un attacco a distanza con incantesimo infligge danni radiosi e concede vantaggio al prossimo tiro per colpire contro il bersaglio prima della fine del turno successivo.'],
+  ['Guida','azione','contatto','V, S','concentrazione, fino a 1 minuto','Una creatura consenziente ottiene un bonus di 1d4 a una prova di caratteristica scelta, secondo i limiti previsti dalla descrizione.'],
+  ['Mani brucianti','azione','incantatore','V, S','istantanea','Un cono di fiamme si propaga dalle mani dell’incantatore; le creature nell’area effettuano un tiro salvezza su Destrezza per dimezzare i danni da fuoco.'],
+  ['Parola guaritrice','azione bonus','18 metri','V','istantanea','Una creatura visibile recupera 2d4 punti ferita più il modificatore da incantatore. La guarigione aumenta di 2d4 per livello di slot superiore al 1°.'],
+  ['Parola guaritrice di massa','azione bonus','18 metri','V','istantanea','Fino a sei creature visibili entro gittata recuperano 2d4 punti ferita più il modificatore da incantatore. La guarigione aumenta di 2d4 per livello di slot superiore al 3°.'],
+  ['Scudo della fede','azione bonus','18 metri','V, S, M (una pergamena con una preghiera)','concentrazione, fino a 10 minuti','Una creatura entro gittata riceve un bonus di +2 alla Classe Armatura per la durata.'],
+  ['Scurovisione','azione','contatto','V, S, M (una carota essiccata)','8 ore','Una creatura consenziente toccata ottiene scurovisione fino a 45 metri per la durata.'],
 ]
 export const DETTAGLI_INCANTESIMI_SRD = Object.freeze(Object.fromEntries(VOCI.map(
   ([nome,tempoLancio,gittata,componenti,durata,descrizione]) => [nome,Object.freeze({
