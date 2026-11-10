@@ -19,3 +19,7 @@ Verifica statica e test automatici della persistenza delle campagne, con priorit
 6. Navigazione fra campagne e refresh su rotte interne.
 
 I test automatizzati non sostituiscono le verifiche manuali dell'interfaccia, della persistenza nel browser e della conduzione di una battaglia.
+
+## Funzionalità pianificata: generazione campagne tramite ChatGPT
+
+Requisito prioritario del progetto: il DM deve poter descrivere una campagna in linguaggio naturale, generare e revisionare sessioni, scene, PNG, incontri, luoghi e ricompense con ChatGPT, quindi importare un JSON conforme al formato DMC. Prima fase senza API integrate: definizione di uno schema JSON interoperabile, prompt guidato, validazione rigorosa, anteprima ed importazione con gestione errori. La compatibilità va verificata sul modello reale di `statoDatiCampagna.js` e sul formato di backup `archivioDMC.js`; non assumere che un JSON narrativo generico sia direttamente importabile. Seconda fase opzionale: generazione dentro l'interfaccia via API OpenAI, previa valutazione di costi, gestione delle chiavi e privacy. Non dichiarare la funzionalità implementata finché non sono disponibili conversione, import e test end-to-end.
