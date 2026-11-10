@@ -34,3 +34,20 @@ test('metadati: taglie e velocità non uniformi conservate', () => {
   assert.deepEqual(schede.find(v=>v.nome==='Umano').taglie, ['Media','Piccola'])
   assert.deepEqual(schede.find(v=>v.nome==='Elfo').pagine, [94,95])
 })
+
+test('opzioni: tre lignaggi elfici e tre retaggi tiefling con progressione', () => {
+  const archivio = JSON.parse(readFileSync(file, 'utf8'))
+  const schede = estraiSchedeSpecieSRD(archivio)
+  for (const nome of ['Elfo','Tiefling']) {
+    const opzioni = schede.find(v=>v.nome===nome).opzioni
+    assert.equal(opzioni.length,3)
+    for (const opzione of opzioni) {
+      assert.ok(opzione.livello1)
+      assert.ok(opzione.livello3)
+      assert.ok(opzione.livello5)
+    }
+  }
+  assert.equal(schede.find(v=>v.nome==='Dragonide').opzioni.length,10)
+  assert.equal(schede.find(v=>v.nome==='Goliath').opzioni.length,6)
+  assert.equal(schede.find(v=>v.nome==='Gnomo').opzioni.length,2)
+})
