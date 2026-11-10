@@ -118,3 +118,7 @@ Esempio minimo:
 4. Conservare un backup delle campagne esistenti prima di operazioni massive.
 
 **Origine del contratto:** `src/stato/archivioDMC.js`, `src/stato/statoDatiCampagna.js`, `src/components/GestioneSessioni.vue`.
+
+## Rafforzamento della validazione — novembre 2026
+
+La validazione del formato `dmc-sessioni` è ora centralizzata in `src/dati/validazioneSessioniChatGPT.js` e utilizzata da `src/components/ImportaSessioniJSON.vue`. Verifica dimensioni e tipi dei campi narrativi, titoli, livelli, numero di PG, numero di sessioni e scene e rifiuta riferimenti a creature non supportati. I casi validi e malformati sono coperti da `tests/validazione-sessioni-chatgpt.test.js`. La pipeline CI è passata. Rimane da eseguire un test manuale nel browser del ciclo generazione file → anteprima → importazione → refresh → esportazione.
