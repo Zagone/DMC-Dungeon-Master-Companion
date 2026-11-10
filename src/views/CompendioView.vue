@@ -102,6 +102,8 @@ const vociCompendio = computed(() => {
     pagina: 101, sintesi: 'Valori delle cinque denominazioni monetarie SRD.',
     dettagliCompleti: false
   }
+  const indiceOggettiEsistenti = new Set(REGOLE_SRD.filter(v => v.categoria === 'Oggetti magici').map(v => v.nome.toLocaleLowerCase('it-IT')))
+  const oggettiAggiuntivi = schedeOggettiMagici.value.filter(v => !indiceOggettiEsistenti.has(v.nome.toLocaleLowerCase('it-IT')))
   return [...REGOLE_SRD.map(v => {
     if (v.categoria === 'Incantesimi') {
       const dettagli = nuove.get(v.nome)
@@ -120,7 +122,7 @@ const vociCompendio = computed(() => {
       return dettagli ? { ...v, schedaSpecie: dettagli, pagineFonte: dettagli.pagine } : v
     }
     return v
-  }), ...talentiAggiuntivi, ...schedeArmi, ...schedeArmature, ...schedeStrumenti, ...schedeAvventura, voceMonete, ...schedeOggettiMagici.value]
+  }), ...talentiAggiuntivi, ...schedeArmi, ...schedeArmature, ...schedeStrumenti, ...schedeAvventura, voceMonete, ...oggettiAggiuntivi]
 })
 const categoria = ref('')
 const ordinamento = ref('az')
