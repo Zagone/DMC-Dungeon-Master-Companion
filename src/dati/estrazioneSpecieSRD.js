@@ -1,53 +1,32 @@
 /**
- * Segmentazione conservativa delle nove specie SRD 5.2.1.
- * Non riscrive né interpreta i tratti: conserva il testo originale estratto.
- * La separazione tra specie è basata sui titoli presenti nel PDF;
- * il risultato è un estratto da verificare editorialmente.
+ * Schede anagrafiche delle nove specie dell'SRD 5.2.1 italiano.
+ * Dati confrontati con le pagine 94–97 del PDF, consultando le due colonne
+ * separatamente. I tratti sono indici, non parafrasi delle regole.
+ * Il testo completo rimane nell'archivio SRD di origine.
  */
-export const NOMI_SPECIE_SRD = Object.freeze([
-  'Dragonide', 'Elfo', 'Gnomo', 'Goliath', 'Halfling',
-  'Nano', 'Orco', 'Tiefling', 'Umano'
-])
+export const SPECIE_SRD_VERIFICATE = Object.freeze([
+  {nome:'Dragonide',pagina:94,pagine:[94],tipoCreatura:'Umanoide',taglie:['Media'],velocitaMetri:9,tratti:['Discendenza draconica','Soffio','Resistenza ai danni','Scurovisione','Volo draconico']},
+  {nome:'Elfo',pagina:94,pagine:[94,95],tipoCreatura:'Umanoide',taglie:['Media'],velocitaMetri:9,tratti:['Scurovisione','Lignaggio elfico','Retaggio fatato','Sensi acuti','Trance']},
+  {nome:'Gnomo',pagina:95,pagine:[95],tipoCreatura:'Umanoide',taglie:['Piccola'],velocitaMetri:9,tratti:['Astuzia gnomesca','Lignaggio gnomesco','Scurovisione']},
+  {nome:'Goliath',pagina:95,pagine:[95,96],tipoCreatura:'Umanoide',taglie:['Media'],velocitaMetri:10.5,tratti:['Costituzione robusta','Discendenza gigantica','Forma Grande']},
+  {nome:'Halfling',pagina:96,pagine:[96],tipoCreatura:'Umanoide',taglie:['Piccola'],velocitaMetri:9,tratti:['Agilità halfling','Coraggioso','Fortuna','Furtività innata']},
+  {nome:'Nano',pagina:96,pagine:[96],tipoCreatura:'Umanoide',taglie:['Media'],velocitaMetri:9,tratti:['Esperto minatore','Resilienza nanica','Robustezza nanica','Scurovisione']},
+  {nome:'Orco',pagina:96,pagine:[96],tipoCreatura:'Umanoide',taglie:['Media'],velocitaMetri:9,tratti:['Resistenza implacabile','Scarica di adrenalina','Scurovisione']},
+  {nome:'Tiefling',pagina:96,pagine:[96,97],tipoCreatura:'Umanoide',taglie:['Media','Piccola'],velocitaMetri:9,tratti:['Retaggio immondo','Presenza ultraterrena','Scurovisione']},
+  {nome:'Umano',pagina:97,pagine:[97],tipoCreatura:'Umanoide',taglie:['Media','Piccola'],velocitaMetri:9,tratti:['Intraprendente','Pluriabilità','Versatile']}
+].map(voce => Object.freeze({...voce,taglie:Object.freeze(voce.taglie),tratti:Object.freeze(voce.tratti),pagine:Object.freeze(voce.pagine),metadatiVerificati:true,testoTrattiVerificato:false})))
 
-const titoli = new Set(NOMI_SPECIE_SRD)
-const titoloRiga = riga => riga.trim()
-const inizio = riga => titoli.has(titoloRiga(riga))
+export const NOMI_SPECIE_SRD = Object.freeze(SPECIE_SRD_VERIFICATE.map(voce => voce.nome))
 
 export function estraiSchedeSpecieSRD(archivio) {
   if (!archivio || archivio.categoria !== 'specie' || !Array.isArray(archivio.pagine)) {
     throw new Error('Archivio delle specie SRD non valido.')
   }
-  const schede = new Map()
-  let corrente = null
-  for (const pagina of [...archivio.pagine].sort((a,b) => a.pagina-b.pagina)) {
-    if (!Number.isInteger(pagina.pagina) || typeof pagina.testo !== 'string') {
-      throw new Error('Pagina SRD non valida.')
+  const pagineDisponibili = new Set(archivio.pagine.map(p => p.pagina))
+  return SPECIE_SRD_VERIFICATE.map(voce => {
+    if (!voce.pagine.every(pagina => pagineDisponibili.has(pagina))) {
+      throw new Error('Pagina mancante per la specie ' + voce.nome)
     }
-    for (const riga of pagina.testo.split(/\r?\n/)) {
-      if (inizio(riga)) {
-        corrente = titoloRiga(riga)
-        if (schede.has(corrente)) throw new Error('Titolo specie ripetuto: ' + corrente)
-        schede.set(corrente, { nome: corrente, pagine: [], righe: [] })
-      }
-      if (corrente) {
-        const scheda = schede.get(corrente)
-        if (!scheda.pagine.includes(pagina.pagina)) scheda.pagine.push(pagina.pagina)
-        scheda.righe.push(riga)
-      }
-    }
-  }
-  if (schede.size !== NOMI_SPECIE_SRD.length) {
-    throw new Error('Non sono state individuate tutte le nove specie SRD.')
-  }
-  return NOMI_SPECIE_SRD.map(nome => {
-    const scheda = schede.get(nome)
-    return {
-      nome,
-      pagine: scheda.pagine,
-      descrizione: scheda.righe.join('\n').trim(),
-      fonte: 'SRD 5.2.1 italiano',
-      verificato: false,
-      tipoContenuto: 'estratto-testuale'
-    }
+    return voce
   })
 }
