@@ -28,7 +28,7 @@ Totale: **427 voci** di diversa granularità. Non rappresentano 427 schede compl
 
 - Ricerca su nomi e sintesi, insensibile a maiuscole e segni diacritici.
 - Filtro per categoria.
-- Per gli incantesimi: livello da 0 a 9, scuola e selezione delle sole schede con metadati verificati.
+- Per gli incantesimi: livello da 0 a 9, scuola, tempo di lancio, componenti e selezione delle schede con dettagli disponibili. I filtri tempo/componenti sono utili soprattutto dopo l'importazione dell'archivio completo.
 - Ordinamento alfabetico A–Z / Z–A.
 - Paginazione di 35 risultati per pagina per evitare elenchi lunghi.
 - Dati statici importati dalla vista lazy-loaded: non vengono scritti in localStorage e non modificano campagne o bestiario.
