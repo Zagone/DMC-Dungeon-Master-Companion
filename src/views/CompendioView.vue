@@ -74,12 +74,12 @@ const vociCompendio = computed(() => {
   ].map(arma => ({
     id: 'equip-arma-' + arma.nome.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
     nome: arma.nome, categoria: 'Equipaggiamento', pagina: arma.pagina,
-    sintesi: arma.danno, schedaArma: arma, dettagliCompleti: true
+    sintesi: arma.danno, schedaArma: arma, dettagliCompleti: false
   }))
   const schedeArmature = ARMATURE_SRD.map(armatura => ({
     id: 'equip-armatura-' + armatura.nome.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
     nome: armatura.nome, categoria: 'Equipaggiamento', pagina: armatura.pagina,
-    sintesi: armatura.classeArmatura, schedaArmatura: armatura, dettagliCompleti: true
+    sintesi: armatura.classeArmatura, schedaArmatura: armatura, dettagliCompleti: false
   }))
   const schedeStrumenti = STRUMENTI_SRD.map(strumento => ({
     id: 'equip-strumento-' + strumento.nome.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-'),
@@ -95,7 +95,7 @@ const vociCompendio = computed(() => {
   const voceMonete = {
     id: 'equip-monete', nome: 'Monete', categoria: 'Equipaggiamento',
     pagina: 101, sintesi: 'Valori delle cinque denominazioni monetarie SRD.',
-    dettagliCompleti: true
+    dettagliCompleti: false
   }
   return [...REGOLE_SRD.map(v => {
     if (v.categoria === 'Incantesimi') {
@@ -120,6 +120,8 @@ const vociCompendio = computed(() => {
 const categoria = ref('')
 const ordinamento = ref('az')
 const gruppoEquipaggiamento = ref('')
+const raritaOggetto = ref('')
+const sintoniaOggetto = ref('')
 const livello = ref('')
 const scuola = ref('')
 const tempo = ref('')
@@ -129,6 +131,8 @@ const pagina = ref(1)
 const perPagina = 35
 const filtriMagia = computed(() => categoria.value === 'Incantesimi')
 const filtriEquipaggiamento = computed(() => categoria.value === 'Equipaggiamento')
+const filtriOggettiMagici = computed(() => categoria.value === 'Oggetti magici')
+const raritaOggettiMagici = Object.freeze(['comune','non comune','raro','molto raro','leggendario','artefatto'])
 const gruppiEquipaggiamento = Object.freeze([
   { id: 'mischia', titolo: 'Armi da mischia' },
   { id: 'distanza', titolo: 'Armi a distanza' },
@@ -169,6 +173,8 @@ const risultati = computed(() => {
   const voci = vociCompendio.value.filter(v =>
     (!categoria.value || v.categoria === categoria.value) &&
     (!filtriEquipaggiamento.value || !gruppoEquipaggiamento.value || gruppoDiEquipaggiamento(v) === gruppoEquipaggiamento.value) &&
+    (!filtriOggettiMagici.value || !raritaOggetto.value || v.rarita === raritaOggetto.value) &&
+    (!filtriOggettiMagici.value || !sintoniaOggetto.value || (v.indicizzazioneAutomatica && String(v.richiedeSintonia) === sintoniaOggetto.value)) &&
     (livello.value === '' || v.livello === Number(livello.value)) &&
     (!scuola.value || v.scuola === scuola.value) &&
     (!tempo.value || (v.tempoLancio || '').toLocaleLowerCase('it-IT').includes(tempo.value)) &&
@@ -208,6 +214,8 @@ async function consultaFonte(regola) {
 function scegliCategoria(id) {
   categoria.value = id
   gruppoEquipaggiamento.value = ''
+  raritaOggetto.value = ''
+  sintoniaOggetto.value = ''
   livello.value = ''
   scuola.value = ''
   tempo.value = ''
@@ -233,7 +241,7 @@ function pulisci() {
   erroreFonte.value = ''
   voceFonte.value = null
 }
-watch([ricerca, categoria, gruppoEquipaggiamento, livello, scuola, tempo, componente, soloDettagli, ordinamento], () => { pagina.value = 1; aperta.value = null; testoFonte.value = ''; erroreFonte.value = ''; voceFonte.value = null })
+watch([ricerca, categoria, gruppoEquipaggiamento, raritaOggetto, sintoniaOggetto, livello, scuola, tempo, componente, soloDettagli, ordinamento], () => { pagina.value = 1; aperta.value = null; testoFonte.value = ''; erroreFonte.value = ''; voceFonte.value = null })
 </script>
 
 <template>
@@ -272,6 +280,19 @@ watch([ricerca, categoria, gruppoEquipaggiamento, livello, scuola, tempo, compon
           <label v-for="gruppo in gruppiEquipaggiamento" :key="gruppo.id">
             <input v-model="gruppoEquipaggiamento" type="radio" :value="gruppo.id" /> {{ gruppo.titolo }}
           </label>
+        </fieldset>
+        <fieldset v-if="filtriOggettiMagici">
+          <legend>Rarità degli oggetti magici</legend>
+          <label><input v-model="raritaOggetto" type="radio" value="" /> Tutte le rarità</label>
+          <label v-for="rarita in raritaOggettiMagici" :key="rarita">
+            <input v-model="raritaOggetto" type="radio" :value="rarita" /> {{ rarita }}
+          </label>
+        </fieldset>
+        <fieldset v-if="filtriOggettiMagici">
+          <legend>Sintonia</legend>
+          <label><input v-model="sintoniaOggetto" type="radio" value="" /> Tutti</label>
+          <label><input v-model="sintoniaOggetto" type="radio" value="true" /> Richiede sintonia</label>
+          <label><input v-model="sintoniaOggetto" type="radio" value="false" /> Non richiede sintonia</label>
         </fieldset>
         <fieldset v-if="filtriMagia">
           <legend>Livello</legend>
@@ -318,7 +339,7 @@ watch([ricerca, categoria, gruppoEquipaggiamento, livello, scuola, tempo, compon
           <details class="compendio-voce dmc-pannello" :open="aperta === regola.id" @toggle="e => { if (e.target.open) { aperta = regola.id; testoFonte = ''; erroreFonte = ''; voceFonte = null } else if (aperta === regola.id) { aperta = null; testoFonte = ''; erroreFonte = '' } }">
             <summary><span><strong>{{ regola.nome }}</strong><small>{{ regola.categoria === "Incantesimi" ? (regola.livello === 0 ? "Trucchetto" : "Livello " + regola.livello) + " · " + regola.scuola : regola.categoria }}</small></span><span aria-hidden="true">⌄</span></summary>
             <div class="compendio-testo">
-              <p v-if="regola.dettagliCompleti" class="compendio-descrizione">{{ regola.descrizione }}</p>
+              <p v-if="regola.dettagliCompleti && regola.descrizione" class="compendio-descrizione">{{ regola.descrizione }}</p>
               <p v-else>{{ regola.sintesi }}</p>
               <div v-if="regola.schedaArma" class="compendio-arma">
                 <p><strong>Categoria:</strong> {{ regola.schedaArma.categoria }} · {{ regola.schedaArma.impiego }}</p>
@@ -326,6 +347,7 @@ watch([ricerca, categoria, gruppoEquipaggiamento, livello, scuola, tempo, compon
                 <p><strong>Proprietà:</strong> {{ regola.schedaArma.proprieta }}</p>
                 <p><strong>Padronanza:</strong> {{ regola.schedaArma.padronanza }} · <strong>Peso:</strong> {{ regola.schedaArma.peso }}</p>
               </div>
+              <p v-if="regola.indicizzazioneAutomatica" class="compendio-metadata"><strong>Tipologia:</strong> {{ regola.tipo }} · <strong>Rarità:</strong> {{ regola.rarita }} · <strong>Sintonia:</strong> {{ regola.richiedeSintonia ? 'Richiesta' : 'Non indicata' }}</p>
               <p v-if="regola.indicizzazioneAutomatica" class="compendio-nota">Voce indicizzata automaticamente dal PDF: nome, categoria e rarità non ancora revisionati. Consulta la pagina SRD per il testo originale.</p>
               <div v-if="regola.schedaAvventura" class="compendio-avventura">
                 <p><strong>Peso:</strong> {{ regola.schedaAvventura.peso }} · <strong>Costo:</strong> {{ regola.schedaAvventura.costo }}</p>
@@ -391,7 +413,7 @@ watch([ricerca, categoria, gruppoEquipaggiamento, livello, scuola, tempo, compon
                   </ul>
                 </div>
               </div>
-              <dl v-if="regola.verificato || regola.dettagliCompleti" class="compendio-scheda-incantesimo">
+              <dl v-if="regola.categoria === 'Incantesimi' && (regola.verificato || regola.dettagliCompleti)" class="compendio-scheda-incantesimo">
                 <div><dt>Tempo di lancio</dt><dd>{{ regola.tempoLancio }}</dd></div>
                 <div><dt>Gittata</dt><dd>{{ regola.gittata }}</dd></div>
                 <div><dt>Componenti</dt><dd>{{ regola.componenti }}</dd></div>
