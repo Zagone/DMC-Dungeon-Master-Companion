@@ -18,3 +18,17 @@ test('indice oggetti magici ricavato da tipologia e rarità riconoscibili', () =
 test('archivio non valido rifiutato',()=>{
  assert.throws(()=>estraiIndiceOggettiMagici(null),TypeError)
 })
+
+test('rarità composte non vengono ridotte a comune o raro',()=>{
+ const dati={pagine:[{pagina:237,testo:[
+  'Amuleto di prova','Oggetto meraviglioso, non comune',
+  'Bastone di prova','Bastone, molto raro',
+  'Anello di prova','Anello, raro',
+  'Pozione di prova','Pozione, comune'
+ ].join('\\n')}]}
+ const voci=estraiIndiceOggettiMagici(dati)
+ assert.equal(voci.find(v=>v.nome==='Amuleto di prova')?.rarita,'non comune')
+ assert.equal(voci.find(v=>v.nome==='Bastone di prova')?.rarita,'molto raro')
+ assert.equal(voci.find(v=>v.nome==='Anello di prova')?.rarita,'raro')
+ assert.equal(voci.find(v=>v.nome==='Pozione di prova')?.rarita,'comune')
+})
