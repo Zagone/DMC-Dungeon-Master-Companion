@@ -41,7 +41,7 @@ const vociCompendio = computed(() => {
     }
     if (v.categoria === 'Specie') {
       const dettagli = schedeSpecie.value.get(v.nome)
-      return dettagli ? { ...v, estrattoSpecie: dettagli.descrizione, pagineFonte: dettagli.pagine } : v
+      return dettagli ? { ...v, schedaSpecie: dettagli, pagineFonte: dettagli.pagine } : v
     }
     return v
   })
@@ -208,7 +208,17 @@ watch([ricerca, categoria, livello, scuola, tempo, componente, soloDettagli, ord
             <div class="compendio-testo">
               <p v-if="regola.dettagliCompleti" class="compendio-descrizione">{{ regola.descrizione }}</p>
               <p v-else>{{ regola.sintesi }}</p>
-              <div v-if="regola.estrattoSpecie" class="compendio-estratto-specie"><small>Estratto SRD suddiviso automaticamente per specie · non ancora revisionato</small><pre>{{ regola.estrattoSpecie }}</pre></div>
+              <div v-if="regola.schedaSpecie" class="compendio-estratto-specie">
+                <small>Metadati verificati sul PDF SRD 5.2.1 · descrizioni dei tratti ancora da revisionare</small>
+                <dl class="compendio-scheda-incantesimo">
+                  <div><dt>Tipo di creatura</dt><dd>{{ regola.schedaSpecie.tipoCreatura }}</dd></div>
+                  <div><dt>Taglia</dt><dd>{{ regola.schedaSpecie.taglie.join(' / ') }}</dd></div>
+                  <div><dt>Velocità</dt><dd>{{ regola.schedaSpecie.velocitaMetri }} metri</dd></div>
+                  <div><dt>Pagine SRD</dt><dd>{{ regola.schedaSpecie.pagine.join(', ') }}</dd></div>
+                </dl>
+                <strong>Tratti della specie</strong>
+                <ul><li v-for="tratto in regola.schedaSpecie.tratti" :key="tratto">{{ tratto }}</li></ul>
+              </div>
               <dl v-if="regola.verificato || regola.dettagliCompleti" class="compendio-scheda-incantesimo">
                 <div><dt>Tempo di lancio</dt><dd>{{ regola.tempoLancio }}</dd></div>
                 <div><dt>Gittata</dt><dd>{{ regola.gittata }}</dd></div>
