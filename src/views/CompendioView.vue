@@ -4,10 +4,12 @@ import { REGOLE_SRD, SCUOLE_SRD } from '../dati/compendioSRD.js'
 import { validaArchivioIncantesimi } from '../dati/archivioIncantesimiCompleti.js'
 import { caricaSezioneSRD, estrattoVoceSRD } from '../dati/caricamentoSezioniSRD.js'
 import { estraiSchedeSpecieSRD } from '../dati/estrazioneSpecieSRD.js'
+import { BACKGROUND_SRD } from '../dati/backgroundSRD.js'
 
 const ricerca = ref('')
 const archivioCompleto = ref(null)
 const schedeSpecie = ref(new Map())
+const schedeBackground = new Map(BACKGROUND_SRD.map(v => [v.nome, v]))
 const testoFonte = ref('')
 const voceFonte = ref(null)
 const erroreFonte = ref('')
@@ -38,6 +40,10 @@ const vociCompendio = computed(() => {
     if (v.categoria === 'Incantesimi') {
       const dettagli = nuove.get(v.nome)
       return dettagli ? { ...v, ...dettagli, id: v.id, categoria: v.categoria, sintesi: dettagli.descrizione || v.sintesi } : v
+    }
+    if (v.categoria === 'Origini') {
+      const dettagli = schedeBackground.get(v.nome)
+      return dettagli ? { ...v, schedaBackground: dettagli } : v
     }
     if (v.categoria === 'Specie') {
       const dettagli = schedeSpecie.value.get(v.nome)
@@ -208,6 +214,16 @@ watch([ricerca, categoria, livello, scuola, tempo, componente, soloDettagli, ord
             <div class="compendio-testo">
               <p v-if="regola.dettagliCompleti" class="compendio-descrizione">{{ regola.descrizione }}</p>
               <p v-else>{{ regola.sintesi }}</p>
+              <div v-if="regola.schedaBackground" class="compendio-background">
+                <dl class="compendio-scheda-incantesimo">
+                  <div><dt>Caratteristiche</dt><dd>{{ regola.schedaBackground.caratteristiche.join(', ') }}</dd></div>
+                  <div><dt>Talento delle origini</dt><dd>{{ regola.schedaBackground.talento }}</dd></div>
+                  <div><dt>Competenze nelle abilità</dt><dd>{{ regola.schedaBackground.abilita.join(', ') }}</dd></div>
+                  <div><dt>Competenza negli strumenti</dt><dd>{{ regola.schedaBackground.strumenti }}</dd></div>
+                </dl>
+                <p><strong>Equipaggiamento A:</strong> {{ regola.schedaBackground.equipaggiamentoA }}</p>
+                <p><strong>Equipaggiamento B:</strong> {{ regola.schedaBackground.equipaggiamentoB }}</p>
+              </div>
               <div v-if="regola.schedaSpecie" class="compendio-estratto-specie">
                 <small>Metadati verificati sul PDF SRD 5.2.1 · descrizioni dei tratti ancora da revisionare</small>
                 <dl class="compendio-scheda-incantesimo">
