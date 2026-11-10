@@ -38,3 +38,15 @@ test('filtri: tutti i livelli e tutte le scuole', () => {
   assert.ok(cercaRegole('','Incantesimi',{livello:9}).length>0)
   assert.ok(cercaRegole('','Incantesimi',{scuola:'Necromanzia'}).length>0)
 })
+
+test('metadati: schede incantesimi verificati e filtri coerenti', () => {
+  const palla = cercaRegole('Palla di fuoco','Incantesimi',{livello:3,scuola:'Invocazione'})
+  assert.equal(palla.length,1)
+  assert.equal(palla[0].tempoLancio,'azione')
+  assert.equal(palla[0].gittata,'45 metri')
+  assert.equal(palla[0].durata,'istantanea')
+  assert.ok(palla[0].componenti.includes('guano'))
+  assert.equal(cercaRegole('Passo velato','Incantesimi')[0].tempoLancio,'azione bonus')
+  assert.equal(cercaRegole('Cura ferite','Incantesimi')[0].gittata,'contatto')
+  assert.ok(REGOLE_SRD.filter(v=>v.categoria==='Incantesimi' && v.verificato).length >= 12)
+})
