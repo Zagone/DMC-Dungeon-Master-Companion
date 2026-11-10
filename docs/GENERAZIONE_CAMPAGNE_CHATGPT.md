@@ -122,3 +122,15 @@ Esempio minimo:
 ## Rafforzamento della validazione — novembre 2026
 
 La validazione del formato `dmc-sessioni` è ora centralizzata in `src/dati/validazioneSessioniChatGPT.js` e utilizzata da `src/components/ImportaSessioniJSON.vue`. Verifica dimensioni e tipi dei campi narrativi, titoli, livelli, numero di PG, numero di sessioni e scene e rifiuta riferimenti a creature non supportati. I casi validi e malformati sono coperti da `tests/validazione-sessioni-chatgpt.test.js`. La pipeline CI è passata. Rimane da eseguire un test manuale nel browser del ciclo generazione file → anteprima → importazione → refresh → esportazione.
+
+## Creazione guidata dall'interfaccia — R4.2
+
+È disponibile il componente `src/components/CreazioneAssistitaCampagna.vue`, con due modalità: `campagna` e `sessioni`. Il percorso comprende quattro fasi (idea e ambientazione; struttura narrativa; PNG, fazioni, esplorazione e incontri; prompt e importazione) e conserva una bozza locale separata per modalità.
+
+**Accesso alla campagna:** Dashboard → Nuova campagna → Crea con ChatGPT. La fase conclusiva consente di caricare il JSON nativo `dmc-archivio-campagne`, visualizzare i nomi delle campagne e il numero di sessioni, e confermarne l'importazione. Vengono usate le funzioni già esistenti `verificaArchivio` e `importaBackup`, evitando percorsi di persistenza duplicati.
+
+**Accesso alle sessioni:** campagna → Sessioni → Crea sessioni con ChatGPT. La fase conclusiva riutilizza `ImportaSessioniJSON.vue`, con il formato `dmc-sessioni`.
+
+Il prompt è pensato per un dialogo iterativo: prima proposta e revisione, poi esportazione esplicita quando il DM scrive `ESPORTA DMC`. Nessuna API OpenAI o credenziale viene usata nell'applicazione.
+
+**Verifiche:** test, lint e build CI completati con esito positivo. Restano da effettuare un test manuale dell'esperienza di creazione, verifica dei dati dopo un refresh e confronto dei campi in una campagna complessa (incontri, PNG, scene, indizi, risorse). L'importazione delle sessioni non associa ancora automaticamente creature o PNG.
