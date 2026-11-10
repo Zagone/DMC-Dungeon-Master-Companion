@@ -12,7 +12,7 @@ Il file di riferimento è `IT_SRD_CC_v5.2.1_copia.pdf`, versione italiana dell'S
 
 | Categoria | Voci | Profondità attuale |
 |---|---:|---|
-| Incantesimi | 339 | Nome, livello, scuola, pagina SRD per tutti; **20 schede** arricchite con tempo di lancio, gittata, componenti, durata e sintesi verificata. Non testo integrale |
+| Incantesimi | 339 | Nome, livello, scuola e pagina SRD per tutti; **20 schede** con metadati sintetici integrati nel codice. Un archivio JSON esterno permette di caricare **339 descrizioni integrali** estratte dal PDF, con tempo di lancio, gittata, componenti e durata. L’archivio è strutturalmente verificato ma non revisionato manualmente voce per voce |
 | Condizioni | 15 | Tutte le condizioni del glossario; sintesi e pagina |
 | Regole | 29 | Selezione di regole operative; sintesi e pagina |
 | Classi | 12 | Indice, nome e pagina |
@@ -39,7 +39,7 @@ Il file `tests/compendio-srd.test.js` controlla: 339 incantesimi e ID univoci, 1
 
 ## Passi ancora necessari prima di chiamarlo «compendio completo»
 
-1. Estendere a tutti i 339 incantesimi i metadati delle prime 20 schede e integrare il testo completo, inclusi gli effetti a livelli superiori.
+1. Revisionare editorialmente le 339 schede integrali estratte dal PDF; verificare impaginazione, paragrafi, tabelle e rimandi. L'archivio JSON è già disponibile per l'importazione.
 2. Integrare le descrizioni integrali e le tabelle di classi, specie, background, talenti, equipaggiamento e oggetti magici.
 3. Attivare filtri avanzati solo quando i rispettivi metadati sono completi.
 4. Eseguire un collaudo manuale desktop/mobile, navigazione da tastiera e lettori di schermo.
@@ -48,3 +48,11 @@ Il file `tests/compendio-srd.test.js` controlla: 339 incantesimi e ID univoci, 1
 ## Attribuzione obbligatoria
 
 Quest'opera include materiale tratto dal System Reference Document 5.2.1 ("SRD 5.2.1") di Wizards of the Coast LLC, disponibile all'indirizzo https://www.dndbeyond.com/srd. Il SRD 5.2.1 è concesso in licenza ai sensi della licenza di attribuzione 4.0 Internazionale di Creative Commons, disponibile all'indirizzo https://creativecommons.org/licenses/by/4.0/legalcode.
+
+## Importazione delle 339 descrizioni integrali
+
+L'archivio `compendio_incantesimi_SRD_5_2_1_completo.json` è prodotto a partire dal PDF italiano SRD 5.2.1 e consegnato come file separato. Per usarlo, aprire **Compendio → Importa JSON** e selezionare il file. Il browser lo salva in `localStorage` e lo ripristina ai successivi accessi sullo stesso dispositivo e dominio. **Ripristina indice** rimuove soltanto questo archivio locale, senza toccare campagne, sessioni o mostri.
+
+La scelta di non committare il corpus integrale nel repository consente di mantenere il bundle dell'applicazione leggero. Per la distribuzione pubblica sarà opportuno includere il corpus come asset statico lazy-loaded, dopo la revisione editoriale. L'archivio JSON non è un backup delle campagne e non deve essere importato dalla Gestione dati.
+
+I controlli automatici verificano esattamente 339 voci, nomi univoci, corrispondenza di nome/livello/scuola/pagina con l'indice già integrato e presenza di tutti i metadati. Non sostituiscono la verifica delle descrizioni sul documento originale.
