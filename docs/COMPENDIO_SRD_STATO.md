@@ -12,7 +12,7 @@ Il file di riferimento è `IT_SRD_CC_v5.2.1_copia.pdf`, versione italiana dell'S
 
 | Categoria | Voci | Profondità attuale |
 |---|---:|---|
-| Incantesimi | 339 | Nome, livello, scuola, pagina SRD. **Non** testo integrale, tempo di lancio, gittata, componenti o durata |
+| Incantesimi | 339 | Nome, livello, scuola, pagina SRD per tutti; **12 schede** arricchite con tempo di lancio, gittata, componenti, durata e sintesi verificata. Non testo integrale |
 | Condizioni | 15 | Tutte le condizioni del glossario; sintesi e pagina |
 | Regole | 29 | Selezione di regole operative; sintesi e pagina |
 | Classi | 12 | Indice, nome e pagina |
@@ -28,7 +28,7 @@ Totale: **427 voci** di diversa granularità. Non rappresentano 427 schede compl
 
 - Ricerca su nomi e sintesi, insensibile a maiuscole e segni diacritici.
 - Filtro per categoria.
-- Per gli incantesimi: livello da 0 a 9 e scuola.
+- Per gli incantesimi: livello da 0 a 9, scuola e selezione delle sole schede con metadati verificati.
 - Ordinamento alfabetico A–Z / Z–A.
 - Paginazione di 35 risultati per pagina per evitare elenchi lunghi.
 - Dati statici importati dalla vista lazy-loaded: non vengono scritti in localStorage e non modificano campagne o bestiario.
@@ -39,7 +39,7 @@ Il file `tests/compendio-srd.test.js` controlla: 339 incantesimi e ID univoci, 1
 
 ## Passi ancora necessari prima di chiamarlo «compendio completo»
 
-1. Trascrivere e verificare le schede complete degli incantesimi, compresi tempo di lancio, gittata, componenti, durata, descrizione ed effetti a livelli superiori.
+1. Estendere a tutti i 339 incantesimi i metadati delle prime 12 schede e integrare il testo completo, inclusi gli effetti a livelli superiori.
 2. Integrare le descrizioni integrali e le tabelle di classi, specie, background, talenti, equipaggiamento e oggetti magici.
 3. Attivare filtri avanzati solo quando i rispettivi metadati sono completi.
 4. Eseguire un collaudo manuale desktop/mobile, navigazione da tastiera e lettori di schermo.
