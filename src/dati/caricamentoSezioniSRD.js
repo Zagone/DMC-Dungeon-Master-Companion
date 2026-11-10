@@ -16,7 +16,7 @@ export async function caricaSezioneSRD(categoria) {
   const percorso = PERCORSI[categoria]
   if (!percorso) throw new Error('Categoria SRD non riconosciuta.')
   if (!cache.has(percorso)) {
-    const richiesta = fetch(`${import.meta.env.BASE_URL}compendio/${percorso}.json`)
+    const richiesta = fetch(`${import.meta.env?.BASE_URL || '/'}compendio/${percorso}.json`)
       .then(async risposta => {
         if (!risposta.ok) throw new Error('Archivio della categoria non disponibile.')
         const dati = await risposta.json()
