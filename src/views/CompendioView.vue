@@ -7,6 +7,7 @@ const categoria = ref('')
 const ordinamento = ref('az')
 const livello = ref('')
 const scuola = ref('')
+const soloDettagli = ref(false)
 const pagina = ref(1)
 const perPagina = 35
 const filtriMagia = computed(() => categoria.value === 'Incantesimi')
@@ -25,7 +26,7 @@ const categorie = [
 ]
 const risultati = computed(() => {
   const voci = cercaRegole(ricerca.value, categoria.value, { livello: livello.value === '' ? null : Number(livello.value), scuola: scuola.value })
-  return [...voci].sort((a,b) => ordinamento.value === 'za'
+  return [...voci.filter(v => !soloDettagli.value || Boolean(v.verificato))].sort((a,b) => ordinamento.value === 'za'
     ? b.nome.localeCompare(a.nome,'it') : a.nome.localeCompare(b.nome,'it'))
 })
 const pagineTotali = computed(() => Math.max(1, Math.ceil(risultati.value.length / perPagina)))
@@ -34,6 +35,7 @@ function scegliCategoria(id) {
   categoria.value = id
   livello.value = ''
   scuola.value = ''
+  soloDettagli.value = false
   pagina.value = 1
   aperta.value = null
 }
@@ -46,7 +48,7 @@ function pulisci() {
   pagina.value = 1
   aperta.value = null
 }
-watch([ricerca, categoria, livello, scuola, ordinamento], () => { pagina.value = 1; aperta.value = null })
+watch([ricerca, categoria, livello, scuola, soloDettagli, ordinamento], () => { pagina.value = 1; aperta.value = null })
 </script>
 
 <template>
@@ -89,7 +91,8 @@ watch([ricerca, categoria, livello, scuola, ordinamento], () => { pagina.value =
           <label><input v-model="scuola" type="radio" value="" /> Tutte le scuole</label>
           <label v-for="s in SCUOLE_SRD" :key="s"><input v-model="scuola" type="radio" :value="s" /> {{ s }}</label>
         </fieldset>
-        <p class="compendio-nota">Gli incantesimi riportano nome, scuola, livello e pagina SRD. Il testo integrale e i dettagli di lancio non sono ancora integrati.</p>
+        <label v-if="filtriMagia" class="compendio-opzione-dettagli"><input v-model="soloDettagli" type="checkbox" /> Solo schede con metadati verificati</label>
+        <p class="compendio-nota">Le schede con metadati verificati riportano tempo di lancio, gittata, componenti e durata. Le altre voci restano consultabili come indice.</p>
       </aside>
 
       <section class="compendio-risultati" aria-label="Risultati del compendio">
@@ -107,6 +110,12 @@ watch([ricerca, categoria, livello, scuola, ordinamento], () => { pagina.value =
             <summary><span><strong>{{ regola.nome }}</strong><small>{{ regola.categoria === "Incantesimi" ? (regola.livello === 0 ? "Trucchetto" : "Livello " + regola.livello) + " · " + regola.scuola : regola.categoria }}</small></span><span aria-hidden="true">⌄</span></summary>
             <div class="compendio-testo">
               <p>{{ regola.sintesi }}</p>
+              <dl v-if="regola.verificato" class="compendio-scheda-incantesimo">
+                <div><dt>Tempo di lancio</dt><dd>{{ regola.tempoLancio }}</dd></div>
+                <div><dt>Gittata</dt><dd>{{ regola.gittata }}</dd></div>
+                <div><dt>Componenti</dt><dd>{{ regola.componenti }}</dd></div>
+                <div><dt>Durata</dt><dd>{{ regola.durata }}</dd></div>
+              </dl>
               <p v-if="regola.categoria === 'Incantesimi'" class="compendio-metadata"><strong>Scuola:</strong> {{ regola.scuola }} · <strong>Livello:</strong> {{ regola.livello === 0 ? 'Trucchetto' : regola.livello }}</p>
               <small>SRD 5.2.1 italiano · riferimento PDF: pagina {{ regola.pagina }}</small>
             </div>
@@ -166,4 +175,10 @@ watch([ricerca, categoria, livello, scuola, ordinamento], () => { pagina.value =
 .compendio-paginazione { display: flex; align-items: center; justify-content: center; gap: 16px; flex-wrap: wrap; padding: 18px; }
 .compendio-paginazione button { padding: 9px 14px; background: #242d38; border: 1px solid #64727c; border-radius: 8px; color: #f6eee2; cursor: pointer; }
 .compendio-paginazione button:disabled { opacity: .45; cursor: not-allowed; }
+.compendio-scheda-incantesimo { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; margin: 18px 0; }
+.compendio-scheda-incantesimo div { padding: 12px; border: 1px solid #53616c; border-radius: 8px; }
+.compendio-scheda-incantesimo dt { color: #e5a65c; font-size: 12px; font-weight: 700; }
+.compendio-scheda-incantesimo dd { margin: 4px 0 0; overflow-wrap: anywhere; }
+.compendio-opzione-dettagli { display: flex; align-items: flex-start; gap: 8px; margin-top: 18px; font-size: 12px; line-height: 1.5; }
+@media (max-width: 430px) { .compendio-scheda-incantesimo { grid-template-columns: 1fr; } }
 </style>
