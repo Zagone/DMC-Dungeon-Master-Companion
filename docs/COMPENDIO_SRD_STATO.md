@@ -71,3 +71,9 @@ L'app ora carica gli incantesimi automaticamente da `public/compendio/incantesim
 - Aggiunti test automatici per intervalli delle classi.
 
 **Non ancora concluso:** il testo delle classi è un estratto pluripagina, non una scheda normalizzata per singola capacità; specie, origini, talenti, equipaggiamento, oggetti magici, condizioni e regole sono ancora consultabili prevalentemente per pagina. Il PDF contiene tabelle e impaginazione a colonne che richiedono verifiche prima di trasformarle in dati puntuali. Non usare la presenza degli archivi come indicatore di completezza editoriale.
+
+## Segmentazione specie giocabili (novembre 2026)
+
+Aggiunto `src/dati/estrazioneSpecieSRD.js`: suddivide il testo estratto da `specie.json` in nove sezioni, individuando i titoli delle specie. La vista mostra ora il testo per specie, preservando la trascrizione estratta senza reinterpretare i tratti. Sono stati aggiunti test su tutti e nove i nomi e sui riferimenti di pagina.
+
+**Limite metodologico:** le pagine del PDF sono impaginate a colonne e il testo può proseguire tra pagine; la suddivisione per titolo è automatica e non certifica che ogni frase appartenga alla specie corretta. Le schede restano marcate `verificato: false`. Per il rilascio definitivo occorre una verifica puntuale con il PDF e la normalizzazione dei campi (tipo, taglia, velocità, tratti).
