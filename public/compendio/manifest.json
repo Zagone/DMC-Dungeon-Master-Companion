@@ -1,0 +1,107 @@
+{
+  "formato": "dmc-compendio-manifest",
+  "versione": 1,
+  "fonte": "System Reference Document 5.2.1 italiano (CC BY 4.0)",
+  "categorie": {
+    "classi": {
+      "file": "classi.json",
+      "pagine": 61,
+      "intervalli": [
+        [
+          32,
+          92
+        ]
+      ],
+      "caratteri": 270928
+    },
+    "specie": {
+      "file": "specie.json",
+      "pagine": 4,
+      "intervalli": [
+        [
+          94,
+          97
+        ]
+      ],
+      "caratteri": 16673
+    },
+    "origini": {
+      "file": "origini.json",
+      "pagine": 2,
+      "intervalli": [
+        [
+          93,
+          94
+        ]
+      ],
+      "caratteri": 8842
+    },
+    "talenti": {
+      "file": "talenti.json",
+      "pagine": 3,
+      "intervalli": [
+        [
+          98,
+          100
+        ]
+      ],
+      "caratteri": 10225
+    },
+    "equipaggiamento": {
+      "file": "equipaggiamento.json",
+      "pagine": 17,
+      "intervalli": [
+        [
+          101,
+          117
+        ]
+      ],
+      "caratteri": 76964
+    },
+    "oggetti-magici": {
+      "file": "oggetti-magici.json",
+      "pagine": 57,
+      "intervalli": [
+        [
+          232,
+          288
+        ]
+      ],
+      "caratteri": 285736
+    },
+    "regole": {
+      "file": "regole.json",
+      "pagine": 50,
+      "intervalli": [
+        [
+          5,
+          20
+        ],
+        [
+          118,
+          121
+        ],
+        [
+          202,
+          231
+        ]
+      ],
+      "caratteri": 242433
+    },
+    "condizioni": {
+      "file": "condizioni.json",
+      "pagine": 18,
+      "intervalli": [
+        [
+          202,
+          219
+        ]
+      ],
+      "caratteri": 87902
+    },
+    "incantesimi": {
+      "file": "incantesimi.json",
+      "schede": 339
+    }
+  }
+}
