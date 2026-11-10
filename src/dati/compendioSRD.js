@@ -1,4 +1,5 @@
 import { INCANTESIMI_SRD } from './incantesimiSRD.js'
+import { DETTAGLI_INCANTESIMI_SRD } from './dettagliIncantesimiSRD.js'
 
 // Sintesi redazionali, non trascrizioni integrali. Pagine del PDF SRD 5.2.1 italiano.
 // Le 15 condizioni corrispondono all'elenco ufficiale del Glossario, p. 206.
@@ -94,7 +95,11 @@ export const CONDIZIONI_SRD = Object.freeze(CONDIZIONI.map(([nome,pagina,sintesi
  Object.freeze({id:'condizione-'+slug(nome),nome,categoria:'Condizioni',pagina,sintesi,dettagliCompleti:false})))
 export const REGOLE_BASE_SRD = Object.freeze(REGOLE.map(([nome,pagina,sintesi]) =>
  Object.freeze({id:'regola-'+slug(nome),nome,categoria:'Regole',pagina,sintesi,dettagliCompleti:false})))
-export const REGOLE_SRD = Object.freeze([...CONDIZIONI_SRD,...REGOLE_BASE_SRD,...INCANTESIMI_SRD,...INDICI_SRD])
+export const INCANTESIMI_CON_DETTAGLI_SRD = Object.freeze(INCANTESIMI_SRD.map(v => {
+ const dettagli = DETTAGLI_INCANTESIMI_SRD[v.nome]
+ return dettagli ? Object.freeze({ ...v, ...dettagli, sintesi: dettagli.descrizione, dettagliCompleti: false }) : v
+}))
+export const REGOLE_SRD = Object.freeze([...CONDIZIONI_SRD,...REGOLE_BASE_SRD,...INCANTESIMI_CON_DETTAGLI_SRD,...INDICI_SRD])
 export const CATEGORIE_SRD = Object.freeze(['Condizioni','Incantesimi','Regole','Origini','Classi','Specie','Talenti','Equipaggiamento','Oggetti magici'])
 export const SCUOLE_SRD = Object.freeze([...new Set(INCANTESIMI_SRD.map(r=>r.scuola))].sort((a,b)=>a.localeCompare(b,'it')))
 export function cercaRegole(testo='', categoria='', filtri={}) {
