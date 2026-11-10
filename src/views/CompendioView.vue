@@ -23,42 +23,47 @@ const testoFonte = ref('')
 const voceFonte = ref(null)
 const erroreFonte = ref('')
 const caricamentoFonte = ref(false)
-onMounted(async () => {
-  const risultati = await Promise.allSettled([
-    caricaSezioneSRD('Incantesimi'),
-    caricaSezioneSRD('Specie'),
-    caricaSezioneSRD('Talenti'),
-    caricaSezioneSRD('Oggetti magici')
-  ])
-  if (risultati[0].status === 'fulfilled') {
-    try {
-      archivioCompleto.value = validaArchivioIncantesimi(risultati[0].value)
-    } catch (errore) {
-      console.warn('Schede incantesimi non valide; viene mostrato l’indice SRD.', errore)
-    }
-  }
-  if (risultati[1].status === 'fulfilled') {
-    try {
-      schedeSpecie.value = new Map(estraiSchedeSpecieSRD(risultati[1].value).map(v => [v.nome, v]))
-    } catch (errore) {
-      console.warn('Segmentazione specie non disponibile; rimane consultabile il testo per pagina.', errore)
-    }
-  }
-  if (risultati[2].status === 'fulfilled') {
-    try {
-      schedeTalenti.value = estraiTalentiSRD(risultati[2].value)
-    } catch (errore) {
-      console.warn('Archivio talenti non segmentabile; resta disponibile il testo originale.', errore)
-    }
-  }  if (risultati[3].status === 'fulfilled') {
-    try {
-      schedeOggettiMagici.value = estraiIndiceOggettiMagici(risultati[3].value)
-    } catch (errore) {
-      console.warn('Indice degli oggetti magici non disponibile.', errore)
-    }
-  }
-
+// Gli archivi estesi sono caricati solo quando la categoria è richiesta.
+// La ricerca globale carica tutte le categorie una sola volta; il loader
+// condiviso conserva in cache le richieste e gli eventuali errori.
+const caricamentoCategorie = ref(new Set())
+const categorieCaricate = new Set()
+const categorieInCorso = new Map()
+async function caricaCategoria(categoriaRichiesta) {
+  const destinazioni = categoriaRichiesta
+    ? [categoriaRichiesta]
+    : ['Incantesimi', 'Specie', 'Talenti', 'Oggetti magici']
+  await Promise.all(destinazioni.map(async nome => {
+    if (!['Incantesimi', 'Specie', 'Talenti', 'Oggetti magici'].includes(nome)) return
+    if (categorieCaricate.has(nome)) return
+    if (categorieInCorso.has(nome)) return categorieInCorso.get(nome)
+    const richiesta = (async () => {
+      caricamentoCategorie.value = new Set([...caricamentoCategorie.value, nome])
+      try {
+        const archivio = await caricaSezioneSRD(nome)
+        if (nome === 'Incantesimi') archivioCompleto.value = validaArchivioIncantesimi(archivio)
+        if (nome === 'Specie') schedeSpecie.value = new Map(estraiSchedeSpecieSRD(archivio).map(v => [v.nome, v]))
+        if (nome === 'Talenti') schedeTalenti.value = estraiTalentiSRD(archivio)
+        if (nome === 'Oggetti magici') schedeOggettiMagici.value = estraiIndiceOggettiMagici(archivio)
+        categorieCaricate.add(nome)
+      } catch (errore) {
+        console.warn('Caricamento del compendio non riuscito per ' + nome, errore)
+      } finally {
+        categorieInCorso.delete(nome)
+        const attive = new Set(caricamentoCategorie.value)
+        attive.delete(nome)
+        caricamentoCategorie.value = attive
+      }
+    })()
+    categorieInCorso.set(nome, richiesta)
+    return richiesta
+  }))
+}
+onMounted(() => {
+  // Nessun archivio corposo viene scaricato sulla schermata iniziale.
+  if (ricerca.value.trim()) void caricaCategoria('')
 })
+
 const vociCompendio = computed(() => {
   const nuove = new Map((archivioCompleto.value || []).map(v => [v.nome, v]))
   const nomiIndice = new Set(REGOLE_SRD.filter(v => v.categoria === 'Talenti').map(v => v.nome))
@@ -213,6 +218,7 @@ async function consultaFonte(regola) {
 }
 function scegliCategoria(id) {
   categoria.value = id
+  if (id) void caricaCategoria(id)
   gruppoEquipaggiamento.value = ''
   raritaOggetto.value = ''
   sintoniaOggetto.value = ''
@@ -241,6 +247,12 @@ function pulisci() {
   erroreFonte.value = ''
   voceFonte.value = null
 }
+watch(ricerca, valore => {
+  if (valore.trim()) void caricaCategoria('')
+})
+watch(categoria, valore => {
+  if (valore) void caricaCategoria(valore)
+})
 watch([ricerca, categoria, gruppoEquipaggiamento, raritaOggetto, sintoniaOggetto, livello, scuola, tempo, componente, soloDettagli, ordinamento], () => { pagina.value = 1; aperta.value = null; testoFonte.value = ''; erroreFonte.value = ''; voceFonte.value = null })
 </script>
 
