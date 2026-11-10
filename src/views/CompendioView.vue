@@ -8,6 +8,7 @@ import { BACKGROUND_SRD } from '../dati/backgroundSRD.js'
 import { estraiTalentiSRD } from '../dati/estrazioneTalentiSRD.js'
 import { MONETE_SRD } from '../dati/moneteSRD.js'
 import { ARMI_SEMPLICI_SRD } from '../dati/armiSempliciSRD.js'
+import { ARMI_DA_GUERRA_SRD, ARMATURE_SRD } from '../dati/armiArmatureSRD.js'
 
 const ricerca = ref('')
 const archivioCompleto = ref(null)
@@ -53,6 +54,26 @@ const vociCompendio = computed(() => {
     ...v, id: 'talento-srd-' + v.nome.toLowerCase().replace(/[^a-z0-9]+/g,'-'),
     categoria: 'Talenti', sintesi: v.categoriaTalento, schedaTalento: v
   }))
+  const schedeArmi = [
+    ...ARMI_SEMPLICI_SRD.map(arma => ({
+      ...arma, danno: arma.dadiDanno + ' ' + arma.tipoDanno
+    })),
+    ...ARMI_DA_GUERRA_SRD
+  ].map(arma => ({
+    id: 'equip-arma-' + arma.nome.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+    nome: arma.nome, categoria: 'Equipaggiamento', pagina: arma.pagina,
+    sintesi: arma.danno, schedaArma: arma, dettagliCompleti: true
+  }))
+  const schedeArmature = ARMATURE_SRD.map(armatura => ({
+    id: 'equip-armatura-' + armatura.nome.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+    nome: armatura.nome, categoria: 'Equipaggiamento', pagina: armatura.pagina,
+    sintesi: armatura.classeArmatura, schedaArmatura: armatura, dettagliCompleti: true
+  }))
+  const voceMonete = {
+    id: 'equip-monete', nome: 'Monete', categoria: 'Equipaggiamento',
+    pagina: 101, sintesi: 'Valori delle cinque denominazioni monetarie SRD.',
+    dettagliCompleti: true
+  }
   return [...REGOLE_SRD.map(v => {
     if (v.categoria === 'Incantesimi') {
       const dettagli = nuove.get(v.nome)
@@ -71,7 +92,7 @@ const vociCompendio = computed(() => {
       return dettagli ? { ...v, schedaSpecie: dettagli, pagineFonte: dettagli.pagine } : v
     }
     return v
-  }), ...talentiAggiuntivi]
+  }), ...talentiAggiuntivi, ...schedeArmi, ...schedeArmature, voceMonete]
 })
 const categoria = ref('')
 const ordinamento = ref('az')
@@ -235,15 +256,18 @@ watch([ricerca, categoria, livello, scuola, tempo, componente, soloDettagli, ord
             <div class="compendio-testo">
               <p v-if="regola.dettagliCompleti" class="compendio-descrizione">{{ regola.descrizione }}</p>
               <p v-else>{{ regola.sintesi }}</p>
-              <div v-if="regola.categoria === 'Equipaggiamento' && /arm/i.test(regola.nome)" class="compendio-armi">
-                <strong>Armi semplici — SRD 5.2.1, pagina 103</strong>
-                <div v-for="arma in ARMI_SEMPLICI_SRD" :key="arma.nome" class="compendio-arma">
-                  <strong>{{ arma.nome }}</strong>
-                  <p>{{ arma.categoria }} · {{ arma.impiego }} · {{ arma.dadiDanno }} {{ arma.tipoDanno }} · {{ arma.costo }}</p>
-                  <small>Proprietà: {{ arma.proprieta }} · Padronanza: {{ arma.padronanza }} · Peso: {{ arma.peso }}</small>
-                </div>
+              <div v-if="regola.schedaArma" class="compendio-arma">
+                <p><strong>Categoria:</strong> {{ regola.schedaArma.categoria }} · {{ regola.schedaArma.impiego }}</p>
+                <p><strong>Danni:</strong> {{ regola.schedaArma.danno }} · <strong>Costo:</strong> {{ regola.schedaArma.costo }}</p>
+                <p><strong>Proprietà:</strong> {{ regola.schedaArma.proprieta }}</p>
+                <p><strong>Padronanza:</strong> {{ regola.schedaArma.padronanza }} · <strong>Peso:</strong> {{ regola.schedaArma.peso }}</p>
               </div>
-              <div v-if="regola.categoria === 'Equipaggiamento' && /monet/i.test(regola.nome)" class="compendio-monete">
+              <div v-if="regola.schedaArmatura" class="compendio-armatura">
+                <p><strong>Categoria:</strong> {{ regola.schedaArmatura.categoria }} · <strong>CA:</strong> {{ regola.schedaArmatura.classeArmatura }}</p>
+                <p><strong>Forza minima:</strong> {{ regola.schedaArmatura.forzaMinima ?? '—' }} · <strong>Furtività:</strong> {{ regola.schedaArmatura.svantaggioFurtivita ? 'Svantaggio' : '—' }}</p>
+                <p><strong>Peso:</strong> {{ regola.schedaArmatura.peso }} · <strong>Costo:</strong> {{ regola.schedaArmatura.costo }}</p>
+              </div>
+              <div v-if="regola.id === 'equip-monete'" class="compendio-monete">
                 <strong>Valore delle monete (espresso in monete d'oro)</strong>
                 <table>
                   <thead><tr><th>Moneta</th><th>Sigla</th><th>Valore in mo</th></tr></thead>
