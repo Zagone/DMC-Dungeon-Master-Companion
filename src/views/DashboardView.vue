@@ -5,6 +5,7 @@ import { useRouter } from 'vue-router'
 import { usaModale } from '../stato/usaModale.js'
 
 import GestioneArchivioDMC from '../components/GestioneArchivioDMC.vue'
+import CreazioneAssistitaCampagna from '../components/CreazioneAssistitaCampagna.vue'
 import CardAvventura from '../components/ui/CardAvventura.vue'
 import IconaDirezione from '../components/ui/IconaDirezione.vue'
 
@@ -84,6 +85,7 @@ function apriCampagna(id) {
 }
 
 const creazioneAperta = ref(false)
+const assistitaAperta = ref(false)
 const modaleCreazione = ref(null)
 const nomeNuovaCampagna = ref('')
 const errore = ref('')
@@ -298,6 +300,9 @@ function nuovaCampagna() {
         </label>
 
         <div class="dv-azioni dmc-azioni">
+          <button type="button" class="dv-bottone dmc-btn dmc-btn--secondary" @click="creazioneAperta = false; assistitaAperta = true">
+            Crea con ChatGPT
+          </button>
           <button
             type="submit"
             class="dv-bottone dmc-btn"
@@ -314,6 +319,12 @@ function nuovaCampagna() {
           </button>
         </div>
       </form>
+    </div>
+    <div v-if="assistitaAperta" class="dv-overlay dmc-overlay" @click.self="assistitaAperta = false">
+      <section class="dv-modale dmc-modale" style="width:min(96vw,1080px);max-width:1080px;max-height:90vh;overflow:auto" role="dialog" aria-modal="true" aria-label="Crea campagna con ChatGPT">
+        <button type="button" class="dmc-btn dmc-btn--secondary" @click="assistitaAperta = false">Chiudi creazione assistita</button>
+        <CreazioneAssistitaCampagna modalita="campagna" @importata="assistitaAperta = false" />
+      </section>
     </div>
   </div>
 </template>
