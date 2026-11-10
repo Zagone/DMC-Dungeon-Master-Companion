@@ -288,7 +288,7 @@ watch([ricerca, categoria, gruppoEquipaggiamento, livello, scuola, tempo, compon
         <div class="compendio-elenco">
           <template v-for="(regola, indice) in risultatiPagina" :key="regola.id">
           <h3 v-if="filtriEquipaggiamento && (indice === 0 || gruppoDiEquipaggiamento(risultatiPagina[indice - 1]) !== gruppoDiEquipaggiamento(regola))" class="compendio-gruppo-titolo">{{ gruppiEquipaggiamento.find(g => g.id === gruppoDiEquipaggiamento(regola))?.titolo }}</h3>
-          <details :key="regola.id" class="compendio-voce dmc-pannello" :open="aperta === regola.id" @toggle="e => { if (e.target.open) { aperta = regola.id; testoFonte = ''; erroreFonte = ''; voceFonte = null } else if (aperta === regola.id) { aperta = null; testoFonte = ''; erroreFonte = '' } }">
+          <details class="compendio-voce dmc-pannello" :open="aperta === regola.id" @toggle="e => { if (e.target.open) { aperta = regola.id; testoFonte = ''; erroreFonte = ''; voceFonte = null } else if (aperta === regola.id) { aperta = null; testoFonte = ''; erroreFonte = '' } }">
             <summary><span><strong>{{ regola.nome }}</strong><small>{{ regola.categoria === "Incantesimi" ? (regola.livello === 0 ? "Trucchetto" : "Livello " + regola.livello) + " · " + regola.scuola : regola.categoria }}</small></span><span aria-hidden="true">⌄</span></summary>
             <div class="compendio-testo">
               <p v-if="regola.dettagliCompleti" class="compendio-descrizione">{{ regola.descrizione }}</p>
