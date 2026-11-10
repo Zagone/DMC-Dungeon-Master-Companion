@@ -7,6 +7,7 @@ import { caricaSezioneSRD, paginaSRD } from '../dati/caricamentoSezioniSRD.js'
 const ricerca = ref('')
 const archivioCompleto = ref(null)
 const testoFonte = ref('')
+const voceFonte = ref(null)
 const erroreFonte = ref('')
 const caricamentoFonte = ref(false)
 onMounted(async () => {
@@ -19,7 +20,11 @@ onMounted(async () => {
 const vociCompendio = computed(() => {
   if (!archivioCompleto.value) return REGOLE_SRD
   const nuove = new Map(archivioCompleto.value.map(v => [v.nome, v]))
-  return REGOLE_SRD.map(v => v.categoria === 'Incantesimi' ? (nuove.get(v.nome) || v) : v)
+  return REGOLE_SRD.map(v => {
+    if (v.categoria !== 'Incantesimi') return v
+    const dettagli = nuove.get(v.nome)
+    return dettagli ? { ...v, ...dettagli, id: v.id, categoria: v.categoria, sintesi: dettagli.descrizione || v.sintesi } : v
+  })
 })
 const categoria = ref('')
 const ordinamento = ref('az')
@@ -60,19 +65,21 @@ const pagineTotali = computed(() => Math.max(1, Math.ceil(risultati.value.length
 const risultatiPagina = computed(() => risultati.value.slice((pagina.value - 1) * perPagina, pagina.value * perPagina))
 async function consultaFonte(regola) {
   if (caricamentoFonte.value) return
-  if (testoFonte.value && aperta.value === regola.id) {
+  if (testoFonte.value && voceFonte.value === regola.id) {
     testoFonte.value = ''
     return
   }
   testoFonte.value = ''
   erroreFonte.value = ''
+  voceFonte.value = regola.id
   caricamentoFonte.value = true
   try {
     const dati = await caricaSezioneSRD(regola.categoria)
+    if (voceFonte.value !== regola.id) return
     testoFonte.value = paginaSRD(dati, regola.pagina)
     if (!testoFonte.value) erroreFonte.value = 'La pagina non è presente in questo archivio.'
   } catch (errore) {
-    erroreFonte.value = errore.message
+    if (voceFonte.value === regola.id) erroreFonte.value = errore.message
   } finally {
     caricamentoFonte.value = false
   }
@@ -88,6 +95,7 @@ function scegliCategoria(id) {
   aperta.value = null
   testoFonte.value = ''
   erroreFonte.value = ''
+  voceFonte.value = null
 }
 function pulisci() {
   ricerca.value = ''
@@ -98,8 +106,11 @@ function pulisci() {
   soloDettagli.value = false
   pagina.value = 1
   aperta.value = null
+  testoFonte.value = ''
+  erroreFonte.value = ''
+  voceFonte.value = null
 }
-watch([ricerca, categoria, livello, scuola, tempo, componente, soloDettagli, ordinamento], () => { pagina.value = 1; aperta.value = null; testoFonte.value = ''; erroreFonte.value = '' })
+watch([ricerca, categoria, livello, scuola, tempo, componente, soloDettagli, ordinamento], () => { pagina.value = 1; aperta.value = null; testoFonte.value = ''; erroreFonte.value = ''; voceFonte.value = null })
 </script>
 
 <template>
@@ -172,7 +183,7 @@ watch([ricerca, categoria, livello, scuola, tempo, componente, soloDettagli, ord
           </label>
         </div>
         <div class="compendio-elenco">
-          <details v-for="regola in risultatiPagina" :key="regola.id" class="compendio-voce dmc-pannello" :open="aperta === regola.id" @toggle="e => { if (e.target.open) { aperta = regola.id; testoFonte = ''; erroreFonte = '' } else if (aperta === regola.id) { aperta = null; testoFonte = ''; erroreFonte = '' } }">
+          <details v-for="regola in risultatiPagina" :key="regola.id" class="compendio-voce dmc-pannello" :open="aperta === regola.id" @toggle="e => { if (e.target.open) { aperta = regola.id; testoFonte = ''; erroreFonte = ''; voceFonte = null } else if (aperta === regola.id) { aperta = null; testoFonte = ''; erroreFonte = '' } }">
             <summary><span><strong>{{ regola.nome }}</strong><small>{{ regola.categoria === "Incantesimi" ? (regola.livello === 0 ? "Trucchetto" : "Livello " + regola.livello) + " · " + regola.scuola : regola.categoria }}</small></span><span aria-hidden="true">⌄</span></summary>
             <div class="compendio-testo">
               <p v-if="regola.dettagliCompleti" class="compendio-descrizione">{{ regola.descrizione }}</p>
@@ -187,8 +198,8 @@ watch([ricerca, categoria, livello, scuola, tempo, componente, soloDettagli, ord
               <small>SRD 5.2.1 italiano · riferimento PDF: pagina {{ regola.pagina }}</small>
               <div v-if="regola.categoria !== 'Incantesimi'" class="compendio-fonte">
                 <button type="button" :disabled="caricamentoFonte" @click="consultaFonte(regola)">Consulta testo della pagina SRD</button>
-                <p v-if="erroreFonte && aperta === regola.id" role="status">{{ erroreFonte }}</p>
-                <pre v-if="testoFonte && aperta === regola.id">{{ testoFonte }}</pre>
+                <p v-if="erroreFonte && voceFonte === regola.id && aperta === regola.id" role="status">{{ erroreFonte }}</p>
+                <pre v-if="testoFonte && voceFonte === regola.id && aperta === regola.id">{{ testoFonte }}</pre>
               </div>
             </div>
           </details>
