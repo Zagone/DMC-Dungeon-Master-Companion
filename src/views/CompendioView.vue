@@ -2,14 +2,16 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import { REGOLE_SRD, SCUOLE_SRD } from '../dati/compendioSRD.js'
 import { validaArchivioIncantesimi } from '../dati/archivioIncantesimiCompleti.js'
+import { caricaSezioneSRD, paginaSRD } from '../dati/caricamentoSezioniSRD.js'
 
 const ricerca = ref('')
 const archivioCompleto = ref(null)
+const testoFonte = ref('')
+const erroreFonte = ref('')
+const caricamentoFonte = ref(false)
 onMounted(async () => {
   try {
-    const risposta = await fetch(`${import.meta.env.BASE_URL}compendio_incantesimi_SRD_5_2_1_completo.json`)
-    if (!risposta.ok) return
-    archivioCompleto.value = validaArchivioIncantesimi(await risposta.json())
+    archivioCompleto.value = validaArchivioIncantesimi(await caricaSezioneSRD('Incantesimi'))
   } catch (errore) {
     console.warn('Archivio incantesimi non disponibile; viene mostrato l’indice SRD.', errore)
   }
@@ -56,6 +58,25 @@ const risultati = computed(() => {
 })
 const pagineTotali = computed(() => Math.max(1, Math.ceil(risultati.value.length / perPagina)))
 const risultatiPagina = computed(() => risultati.value.slice((pagina.value - 1) * perPagina, pagina.value * perPagina))
+async function consultaFonte(regola) {
+  if (caricamentoFonte.value) return
+  if (testoFonte.value && aperta.value === regola.id) {
+    testoFonte.value = ''
+    return
+  }
+  testoFonte.value = ''
+  erroreFonte.value = ''
+  caricamentoFonte.value = true
+  try {
+    const dati = await caricaSezioneSRD(regola.categoria)
+    testoFonte.value = paginaSRD(dati, regola.pagina)
+    if (!testoFonte.value) erroreFonte.value = 'La pagina non è presente in questo archivio.'
+  } catch (errore) {
+    erroreFonte.value = errore.message
+  } finally {
+    caricamentoFonte.value = false
+  }
+}
 function scegliCategoria(id) {
   categoria.value = id
   livello.value = ''
@@ -65,6 +86,8 @@ function scegliCategoria(id) {
   soloDettagli.value = false
   pagina.value = 1
   aperta.value = null
+  testoFonte.value = ''
+  erroreFonte.value = ''
 }
 function pulisci() {
   ricerca.value = ''
@@ -76,7 +99,7 @@ function pulisci() {
   pagina.value = 1
   aperta.value = null
 }
-watch([ricerca, categoria, livello, scuola, tempo, componente, soloDettagli, ordinamento], () => { pagina.value = 1; aperta.value = null })
+watch([ricerca, categoria, livello, scuola, tempo, componente, soloDettagli, ordinamento], () => { pagina.value = 1; aperta.value = null; testoFonte.value = ''; erroreFonte.value = '' })
 </script>
 
 <template>
@@ -149,7 +172,7 @@ watch([ricerca, categoria, livello, scuola, tempo, componente, soloDettagli, ord
           </label>
         </div>
         <div class="compendio-elenco">
-          <details v-for="regola in risultatiPagina" :key="regola.id" class="compendio-voce dmc-pannello" :open="aperta === regola.id" @toggle="e => { if (e.target.open) aperta = regola.id; else if (aperta === regola.id) aperta = null }">
+          <details v-for="regola in risultatiPagina" :key="regola.id" class="compendio-voce dmc-pannello" :open="aperta === regola.id" @toggle="e => { if (e.target.open) { aperta = regola.id; testoFonte = ''; erroreFonte = '' } else if (aperta === regola.id) { aperta = null; testoFonte = ''; erroreFonte = '' } }">
             <summary><span><strong>{{ regola.nome }}</strong><small>{{ regola.categoria === "Incantesimi" ? (regola.livello === 0 ? "Trucchetto" : "Livello " + regola.livello) + " · " + regola.scuola : regola.categoria }}</small></span><span aria-hidden="true">⌄</span></summary>
             <div class="compendio-testo">
               <p v-if="regola.dettagliCompleti" class="compendio-descrizione">{{ regola.descrizione }}</p>
@@ -162,6 +185,11 @@ watch([ricerca, categoria, livello, scuola, tempo, componente, soloDettagli, ord
               </dl>
               <p v-if="regola.categoria === 'Incantesimi'" class="compendio-metadata"><strong>Scuola:</strong> {{ regola.scuola }} · <strong>Livello:</strong> {{ regola.livello === 0 ? 'Trucchetto' : regola.livello }}</p>
               <small>SRD 5.2.1 italiano · riferimento PDF: pagina {{ regola.pagina }}</small>
+              <div v-if="regola.categoria !== 'Incantesimi'" class="compendio-fonte">
+                <button type="button" :disabled="caricamentoFonte" @click="consultaFonte(regola)">Consulta testo della pagina SRD</button>
+                <p v-if="erroreFonte && aperta === regola.id" role="status">{{ erroreFonte }}</p>
+                <pre v-if="testoFonte && aperta === regola.id">{{ testoFonte }}</pre>
+              </div>
             </div>
           </details>
           <nav v-if="pagineTotali > 1" class="compendio-paginazione" aria-label="Pagine dei risultati"><button type="button" :disabled="pagina === 1" @click="pagina--">Precedente</button><span>Pagina {{ pagina }} di {{ pagineTotali }}</span><button type="button" :disabled="pagina === pagineTotali" @click="pagina++">Successiva</button></nav>
@@ -226,4 +254,7 @@ watch([ricerca, categoria, livello, scuola, tempo, componente, soloDettagli, ord
 .compendio-opzione-dettagli { display: flex; align-items: flex-start; gap: 8px; margin-top: 18px; font-size: 12px; line-height: 1.5; }
 @media (max-width: 430px) { .compendio-scheda-incantesimo { grid-template-columns: 1fr; } }
 .compendio-descrizione { white-space: pre-line; }
+.compendio-fonte { margin-top: 12px; }
+.compendio-fonte button { background: none; border: 1px solid #64727c; color: #e5a65c; border-radius: 8px; padding: 8px 12px; cursor: pointer; }
+.compendio-fonte pre { white-space: pre-wrap; overflow-wrap: anywhere; font: inherit; font-size: 13px; line-height: 1.65; padding: 14px; background: #101e2a; border: 1px solid #53616c; border-radius: 9px; max-height: 500px; overflow: auto; }
 </style>
