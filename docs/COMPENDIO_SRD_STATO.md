@@ -77,3 +77,7 @@ L'app ora carica gli incantesimi automaticamente da `public/compendio/incantesim
 Aggiunto `src/dati/estrazioneSpecieSRD.js`: suddivide il testo estratto da `specie.json` in nove sezioni, individuando i titoli delle specie. La vista mostra ora il testo per specie, preservando la trascrizione estratta senza reinterpretare i tratti. Sono stati aggiunti test su tutti e nove i nomi e sui riferimenti di pagina.
 
 **Limite metodologico:** le pagine del PDF sono impaginate a colonne e il testo può proseguire tra pagine; la suddivisione per titolo è automatica e non certifica che ogni frase appartenga alla specie corretta. Le schede restano marcate `verificato: false`. Per il rilascio definitivo occorre una verifica puntuale con il PDF e la normalizzazione dei campi (tipo, taglia, velocità, tratti).
+
+## Correzione verifica specie su PDF originale
+
+La precedente suddivisione automatica del testo per titoli è stata **ritirata dalla UI**: l'estrazione della pagina mescolava le colonne e poteva attribuire parti di una specie a un'altra. Il PDF italiano SRD 5.2.1, pp. 94–97, è stato ricontrollato con estrazione a layout di colonne. Ora `estrazioneSpecieSRD.js` fornisce per tutte e nove le specie: tipo di creatura, taglia, velocità, indice dei tratti e pagine. La vista espone questi campi invece del testo contaminato. I nomi dei tratti sono un indice; **non** equivalgono a una verifica del contenuto normativo di ciascun tratto, delle sottoscelte e delle tabelle.
