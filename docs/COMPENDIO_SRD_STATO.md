@@ -104,3 +104,7 @@ Aggiunte 25 schede individuali in `src/dati/strumentiSRD.js`: 17 strumenti da ar
 ## Equipaggiamento d'avventura — novembre 2026
 
 Prima tranche: 14 oggetti (da Abiti da viaggiatore a Borsa per componenti), dati di peso e costo confrontati con la tabella p. 108 e sintesi derivate dalla p. 107. Le schede individuali sono in `src/dati/equipaggiamentoAvventuraSRD.js`, integrate nel filtro Equipaggiamento d’avventura; test in `tests/equipaggiamento-avventura-srd.test.js`. Le sintesi non sostituiscono le descrizioni normative e l'elenco complessivo della tabella non è ancora esaurito.
+
+## Indicizzazione oggetti magici — novembre 2026
+
+Introdotto `src/dati/indiceOggettiMagiciSRD.js`: riconoscimento automatico di titoli seguiti da una riga tipologica con rarità nel corpus di pagine 237–288. Le voci risultanti sono ricercabili nel compendio, con categoria, rarità, indicazione di sintonia e pagina. L'indice è **esplorativo e incompleto**: non garantisce copertura di tutti gli oggetti, può contenere errori di segmentazione e non include descrizioni normative verificate. I dettagli restano consultabili nell'archivio per pagina. Test: `tests/indice-oggetti-magici-srd.test.js`. La categoria non deve essere considerata editorialmente completa.
