@@ -26,7 +26,7 @@ const categorie = [
 ]
 const risultati = computed(() => {
   const voci = cercaRegole(ricerca.value, categoria.value, { livello: livello.value === '' ? null : Number(livello.value), scuola: scuola.value })
-  return [...voci.filter(v => !soloDettagli.value || Boolean(v.verificato))].sort((a,b) => ordinamento.value === 'za'
+  return voci.filter(v => !soloDettagli.value || Boolean(v.verificato)).sort((a,b) => ordinamento.value === 'za'
     ? b.nome.localeCompare(a.nome,'it') : a.nome.localeCompare(b.nome,'it'))
 })
 const pagineTotali = computed(() => Math.max(1, Math.ceil(risultati.value.length / perPagina)))
