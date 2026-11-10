@@ -6,7 +6,7 @@
  * attraverso la pagina originale per evitare associazioni errate.
  */
 const TIPI = ['Oggetto meraviglioso','Anello','Armatura','Arma','Bacchetta','Bastone','Pergamena','Pozione','Verga']
-const RARITA = ['comune','non comune','raro','molto raro','leggendario','artefatto']
+const RARITA = ['non comune','molto raro','leggendario','artefatto','comune','raro']
 function pulisci(testo) {
   return String(testo || '').replace(/\s+/g, ' ').trim()
 }
