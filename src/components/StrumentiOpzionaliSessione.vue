@@ -4,6 +4,7 @@ import { idUnivoco } from '../stato/statoDatiCampagna.js'
 defineProps({
   sessione: { type: Object, required: true },
 })
+const emit = defineEmits(['aggiorna-descrizione'])
 
 const titoloScena = (scena, indice) => scena?.titolo?.trim() || `Scena ${indice + 1}`
 
@@ -130,7 +131,8 @@ function rimuovi(lista, id) {
                   Descrizione
 
                   <textarea
-                    v-model="sessione.rituale.descrizione"
+                     :value="sessione.rituale.descrizione"
+                    @input="emit('aggiorna-descrizione', $event.target.value)"
                     class="dmc-campo"
                     rows="2"
                   ></textarea>
