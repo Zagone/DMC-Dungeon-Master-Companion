@@ -11,6 +11,7 @@ import { ARMI_SEMPLICI_SRD } from '../dati/armiSempliciSRD.js'
 import { ARMI_DA_GUERRA_SRD, ARMATURE_SRD } from '../dati/armiArmatureSRD.js'
 import { STRUMENTI_SRD } from '../dati/strumentiSRD.js'
 import { EQUIPAGGIAMENTO_AVVENTURA_SRD } from '../dati/equipaggiamentoAvventuraSRD.js'
+import { CAVALCATURE_SRD, FINIMENTI_SRD, NAVI_SRD } from '../dati/cavalcatureVeicoliSRD.js'
 import { estraiIndiceOggettiMagici } from '../dati/indiceOggettiMagiciSRD.js'
 
 const ricerca = ref('')
@@ -97,6 +98,16 @@ const vociCompendio = computed(() => {
     nome: oggetto.nome, categoria: 'Equipaggiamento', pagina: oggetto.pagina,
     sintesi: oggetto.sintesi, schedaAvventura: oggetto, dettagliCompleti: false
   }))
+  const schedeTrasporti = [...CAVALCATURE_SRD, ...FINIMENTI_SRD, ...NAVI_SRD].map(voce => ({
+    id: 'equip-trasporto-' + voce.nome.toLowerCase().normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').replace(/[^a-z0-9]+/g,'-'),
+    nome: voce.nome, categoria: 'Equipaggiamento', pagina: voce.pagina,
+    sintesi: voce.gruppo === 'cavalcature'
+      ? 'Capacità di trasporto: ' + voce.capacitaTrasporto + ' · ' + voce.costo
+      : voce.gruppo === 'finimenti'
+        ? 'Peso: ' + voce.peso + ' · ' + voce.costo
+        : 'Velocità: ' + voce.velocita + ' · ' + voce.costo,
+    schedaTrasporto: voce, dettagliCompleti: false
+  }))
   const voceMonete = {
     id: 'equip-monete', nome: 'Monete', categoria: 'Equipaggiamento',
     pagina: 101, sintesi: 'Valori delle cinque denominazioni monetarie SRD.',
@@ -122,7 +133,7 @@ const vociCompendio = computed(() => {
       return dettagli ? { ...v, schedaSpecie: dettagli, pagineFonte: dettagli.pagine } : v
     }
     return v
-  }), ...talentiAggiuntivi, ...schedeArmi, ...schedeArmature, ...schedeStrumenti, ...schedeAvventura, voceMonete, ...oggettiAggiuntivi]
+  }), ...talentiAggiuntivi, ...schedeArmi, ...schedeArmature, ...schedeStrumenti, ...schedeAvventura, ...schedeTrasporti, voceMonete, ...oggettiAggiuntivi]
 })
 const categoria = ref('')
 const ordinamento = ref('az')
@@ -149,9 +160,13 @@ const gruppiEquipaggiamento = Object.freeze([
   { id: 'scudi', titolo: 'Scudi' },
   { id: 'strumenti', titolo: 'Strumenti' },
   { id: 'avventura', titolo: 'Equipaggiamento d’avventura' },
+  { id: 'cavalcature', titolo: 'Cavalcature e animali' },
+  { id: 'finimenti', titolo: 'Finimenti e veicoli da tiro' },
+  { id: 'navi', titolo: 'Veicoli aerei e imbarcazioni' },
   { id: 'altro', titolo: 'Altro equipaggiamento' }
 ])
 function gruppoDiEquipaggiamento(voce) {
+  if (voce.schedaTrasporto) return voce.schedaTrasporto.gruppo
   if (voce.schedaAvventura) return 'avventura'
   if (voce.schedaStrumento) return 'strumenti'
   if (voce.schedaArma) return voce.schedaArma.impiego === 'Mischia' ? 'mischia' : 'distanza'
@@ -368,6 +383,20 @@ watch([ricerca, categoria, gruppoEquipaggiamento, raritaOggetto, sintoniaOggetto
               </div>
               <p v-if="regola.indicizzazioneAutomatica" class="compendio-metadata"><strong>Tipologia:</strong> {{ regola.tipo }} · <strong>Rarità:</strong> {{ regola.rarita }} · <strong>Sintonia:</strong> {{ regola.richiedeSintonia ? 'Richiesta' : 'Non indicata' }}</p>
               <p v-if="regola.indicizzazioneAutomatica" class="compendio-nota">Voce indicizzata automaticamente dal PDF: nome, categoria e rarità non ancora revisionati. Consulta la pagina SRD per il testo originale.</p>
+              <div v-if="regola.schedaTrasporto" class="compendio-trasporto">
+                <template v-if="regola.schedaTrasporto.gruppo === 'cavalcature'">
+                  <p><strong>Capacità di trasporto:</strong> {{ regola.schedaTrasporto.capacitaTrasporto }} · <strong>Costo:</strong> {{ regola.schedaTrasporto.costo }}</p>
+                </template>
+                <template v-else-if="regola.schedaTrasporto.gruppo === 'finimenti'">
+                  <p><strong>Peso:</strong> {{ regola.schedaTrasporto.peso }} · <strong>Costo:</strong> {{ regola.schedaTrasporto.costo }}</p>
+                </template>
+                <template v-else>
+                  <p><strong>Velocità:</strong> {{ regola.schedaTrasporto.velocita }} · <strong>Costo:</strong> {{ regola.schedaTrasporto.costo }}</p>
+                  <p><strong>Equipaggio:</strong> {{ regola.schedaTrasporto.equipaggio }} · <strong>Passeggeri:</strong> {{ regola.schedaTrasporto.passeggeri }} · <strong>Carico:</strong> {{ regola.schedaTrasporto.caricoTonnellate }} t</p>
+                  <p><strong>CA:</strong> {{ regola.schedaTrasporto.ca }} · <strong>PF:</strong> {{ regola.schedaTrasporto.pf }} · <strong>Soglia di danno:</strong> {{ regola.schedaTrasporto.sogliaDanno }}</p>
+                </template>
+                <p>Statistiche della tabella SRD: consulta la fonte per le regole complete.</p>
+              </div>
               <div v-if="regola.schedaAvventura" class="compendio-avventura">
                 <p><strong>Peso:</strong> {{ regola.schedaAvventura.peso }} · <strong>Costo:</strong> {{ regola.schedaAvventura.costo }}</p>
                 <p>Descrizione sintetica: consulta la fonte SRD per le regole complete.</p>
