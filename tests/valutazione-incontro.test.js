@@ -15,7 +15,7 @@ test('nessun nemico o dati party incompleti', () => {
 
 test('soglie a quattro PG livello 2: bassa, moderata e oltre alta', () => {
   assert.match(calcola([{ pe: 50, quantita: 2 }]),/100 PE · Bassa/)
-  assert.match(calcola([{ pe: 100, quantita: 4 }]),/400 PE · Moderata/)
+  assert.match(calcola([{ pe: 150, quantita: 3 }]),/450 PE · Moderata/)
   assert.match(calcola([{ pe: 200, quantita: 5 }]),/1000 PE · Oltre la soglia alta/)
   assert.match(calcola([{ pe: 200, quantita: 5 }]),/soglie: 400 \/ 600 \/ 800 PE/)
 })
