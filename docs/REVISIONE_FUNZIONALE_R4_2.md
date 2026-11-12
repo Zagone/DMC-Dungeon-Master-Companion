@@ -39,3 +39,7 @@ La sezione Sessioni → PNG della campagna permette ora di selezionare un PNG pe
 ## Gerarchia UX nella preparazione delle sessioni
 
 Il form «Nuova sessione» è ora seguito immediatamente dall'elenco delle sessioni e dai relativi editor: le sezioni accessorie «Crea sessioni con ChatGPT» e «PNG della campagna» sono collocate dopo l'elenco. La sessione appena creata si apre automaticamente e riceve focus e scorrimento verso la relativa scheda. Il registro PNG resta utilizzabile per associare personaggi alle scene, ma non interrompe il flusso di compilazione iniziale. Nessuna modifica ai modelli dati o alla logica di salvataggio. Pipeline CI superata (run 43263845436); resta da verificare il comportamento visuale su mobile.
+
+## Preparazione guidata delle sessioni
+
+L'editor di una sessione è stato suddiviso in tre sezioni navigabili: Impostazioni, Scene e Strumenti opzionali. La creazione si apre sulle impostazioni e l'utente può procedere verso le scene o navigare liberamente. Elementi interattivi e attività monitorate sono stati spostati dopo le scene e accompagnati da esempi concreti e spiegazioni sul loro funzionamento nella conduzione. L'intervento modifica soltanto la gerarchia e la visibilità dei pannelli, senza alterare il modello dati o il sistema di salvataggio. CI superata (run 43268821006). Da verificare in browser la navigazione da tastiera, il flusso di creazione scena e la leggibilità su mobile.
