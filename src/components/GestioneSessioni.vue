@@ -1822,7 +1822,10 @@ function caricaIncontro(scena) {
             </div>
           </section>
           <section v-show="sezionePreparazione[sessione.id] === 'extra'" class="passo-editor">
-            <StrumentiOpzionaliSessione :sessione="sessione" />
+            <StrumentiOpzionaliSessione
+              :sessione="sessione"
+              @aggiorna-descrizione="sessione.rituale.descrizione = $event"
+            />
             <div class="navigazione-preparazione">
               <button
                 type="button"
