@@ -3,6 +3,7 @@ import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import CreazioneAssistitaCampagna from './CreazioneAssistitaCampagna.vue'
 import RegistroPNCampagna from './RegistroPNCampagna.vue'
 import StrumentiOpzionaliSessione from './StrumentiOpzionaliSessione.vue'
+import ImpostazioniSessione from './ImpostazioniSessione.vue'
 import { preparaSessione as normalizzaSessione } from '../dati/preparazioneSessioni.js'
 import { valutaIncontro } from '../dati/valutazioneIncontro.js'
 
@@ -1297,70 +1298,10 @@ function caricaIncontro(scena) {
               scrivi che cosa vorresti accadesse nella sessione. Il resoconto si può completare dopo
               aver giocato.
             </p>
-            <details class="editor-espandibile">
-              <summary>Impostazioni della sessione</summary>
-
-              <div class="interno-details griglia-campi">
-                <label>
-                  Titolo
-
-                  <input v-model="sessione.titolo" class="dmc-campo" />
-                </label>
-
-                <label>
-                  Data
-
-                  <input v-model="sessione.data" class="dmc-campo" type="date" />
-                </label>
-
-                <label>
-                  Numero PG
-
-                  <input
-                    v-model.number="sessione.pgPrevisti"
-                    class="dmc-campo"
-                    type="number"
-                    min="1"
-                    max="20"
-                  />
-                </label>
-
-                <label>
-                  Livello PG
-
-                  <input
-                    v-model.number="sessione.livelloPrevisto"
-                    class="dmc-campo"
-                    type="number"
-                    min="1"
-                    max="20"
-                  />
-                </label>
-
-                <label>
-                  Stato
-
-                  <select v-model="sessione.stato" class="dmc-campo">
-                    <option value="preparazione">In preparazione</option>
-
-                    <option value="svolta">Svolta</option>
-                  </select>
-                </label>
-
-                <label>
-                  Obiettivi
-
-                  <textarea v-model="sessione.obiettivi" class="dmc-campo" rows="3"></textarea>
-                </label>
-
-                <label>
-                  Resoconto
-
-                  <textarea v-model="sessione.resoconto" class="dmc-campo" rows="3"></textarea>
-                </label>
-              </div>
-            </details>
-
+            <ImpostazioniSessione
+              :sessione="sessione"
+              @aggiorna-campo="sessione[$event.campo] = $event.valore"
+            />
             <div class="navigazione-preparazione">
               <button
                 type="button"
