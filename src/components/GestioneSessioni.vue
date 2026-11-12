@@ -34,6 +34,8 @@ const sessioneInConduzione = computed(
 )
 
 const sessioneApertaId = ref(null)
+// Navigazione locale: non modifica i dati persistenti della sessione.
+const sezionePreparazione = ref({})
 const scenaApertaId = ref(null)
 const scenaConsultataId = ref(null)
 const passoApertoId = ref(null)
@@ -530,6 +532,7 @@ function creaSessione() {
   dati.value.sessioni.push(sessione)
 
   sessioneApertaId.value = sessione.id
+  sezionePreparazione.value[sessione.id] = 'base'
   nuovaSessione.value = ''
 
   // L'editor appena creato è ora subito sotto al modulo di creazione.
@@ -2109,6 +2112,20 @@ function caricaIncontro(scena) {
           class="editor-sessione"
         >
 
+          <nav class="passi-preparazione" aria-label="Preparazione della sessione">
+            <button v-for="passo in [
+              { id: 'base', nome: '1. Impostazioni' },
+              { id: 'scene', nome: '2. Scene' },
+              { id: 'extra', nome: '3. Strumenti opzionali' }
+            ]" :key="passo.id" type="button"
+              class="dmc-btn dmc-btn--secondary"
+              :class="{ 'passo-attivo': (sezionePreparazione[sessione.id] || 'base') === passo.id }"
+              :aria-current="(sezionePreparazione[sessione.id] || 'base') === passo.id ? 'step' : undefined"
+              @click="sezionePreparazione[sessione.id] = passo.id"
+            >{{ passo.nome }}</button>
+          </nav>
+          <section v-show="(sezionePreparazione[sessione.id] || 'base') === 'base'" class="passo-editor">
+            <p class="guida-preparazione"><strong>Per iniziare:</strong> definisci data, numero e livello dei personaggi, poi scrivi che cosa vorresti accadesse nella sessione. Il resoconto si può completare dopo aver giocato.</p>
           <details class="editor-espandibile">
             <summary>
               Impostazioni della sessione
@@ -2198,210 +2215,12 @@ function caricaIncontro(scena) {
             </div>
           </details>
 
-          <!-- ELEMENTI INTERATTIVI -->
-
-          <details class="editor-espandibile">
-            <summary>
-              Elementi interattivi
-
-              <small>
-                facoltativi · per scena
-              </small>
-            </summary>
-
-            <div class="interno-details">
-              <p class="testo-secondario">
-                Oggetti, effetti o meccanismi
-                con uno stato condiviso.
-                Compaiono solo nelle scene selezionate.
-              </p>
-
-              <button
-                type="button"
-                class="dmc-btn dmc-btn--secondary"
-                @click="
-                  aggiungi(
-                    sessione.risorseNarrative,
-                    {
-                      nome: '',
-                      effetto: '',
-                      stato: 'inattivo',
-                      sceneIds: []
-                    }
-                  )
-                "
-              >
-                + Elemento
-              </button>
-
-              <div
-                v-for="elemento in sessione.risorseNarrative"
-                :key="elemento.id"
-                class="scheda-secondaria"
-              >
-
-                <label>
-                  Nome
-
-                  <input
-                    v-model="elemento.nome"
-                    class="dmc-campo"
-                  />
-                </label>
-
-                <label>
-                  Descrizione/effetto
-
-                  <textarea
-                    v-model="elemento.effetto"
-                    class="dmc-campo"
-                    rows="2"
-                  ></textarea>
-                </label>
-
-                <label>
-                  Stato
-
-                  <select
-                    v-model="elemento.stato"
-                    class="dmc-campo"
-                  >
-                    <option value="inattivo">
-                      Non attivo
-                    </option>
-
-                    <option value="pronto">
-                      Disponibile
-                    </option>
-
-                    <option value="utilizzato">
-                      Utilizzato
-                    </option>
-                  </select>
-                </label>
-
-                <fieldset class="collegamenti">
-                  <legend>
-                    Mostra nelle scene
-                  </legend>
-
-                  <label
-                    v-for="(scena, indice) in sessione.scene"
-                    :key="scena.id"
-                    class="check-inline"
-                  >
-                    <input
-                      type="checkbox"
-                      v-model="elemento.sceneIds"
-                      :value="scena.id"
-                    />
-
-                    {{ titoloScena(scena, indice) }}
-                  </label>
-                </fieldset>
-
-                <button
-                  type="button"
-                  class="dmc-btn dmc-btn--danger"
-                  @click="
-                    rimuovi(
-                      sessione.risorseNarrative,
-                      elemento.id
-                    )
-                  "
-                >
-                  Elimina elemento
-                </button>
-              </div>
+            <div class="navigazione-preparazione">
+              <button type="button" class="dmc-btn" @click="sezionePreparazione[sessione.id] = 'scene'">Continua: prepara le scene →</button>
             </div>
-          </details>
-
-          <!-- ATTIVITÀ MONITORATA -->
-
-          <details class="editor-espandibile">
-            <summary>
-              Attività monitorata
-
-              <small>facoltativa</small>
-            </summary>
-
-            <div class="interno-details">
-              <p class="testo-secondario">
-                Per attività con più partecipanti
-                o condizioni, indipendenti dal combattimento.
-              </p>
-
-              <label>
-                Descrizione
-
-                <textarea
-                  v-model="sessione.rituale.descrizione"
-                  class="dmc-campo"
-                  rows="2"
-                ></textarea>
-              </label>
-
-              <button
-                type="button"
-                class="dmc-btn dmc-btn--secondary"
-                @click="
-                  aggiungi(
-                    sessione.rituale.partecipanti,
-                    {
-                      nome: 'Partecipante',
-                      attivo: true
-                    }
-                  )
-                "
-              >
-                + Partecipante
-              </button>
-
-              <div
-                v-for="partecipante in sessione.rituale.partecipanti"
-                :key="partecipante.id"
-                class="riga-editor"
-              >
-                <label class="campo-flessibile">
-                  Nome
-
-                  <input
-                    v-model="partecipante.nome"
-                    class="dmc-campo"
-                  />
-                </label>
-
-                <label class="check-inline">
-                  <input
-                    type="checkbox"
-                    :checked="
-                      !partecipante.attivo
-                    "
-                    @change="
-                      partecipante.attivo =
-                        !$event.target.checked
-                    "
-                  />
-
-                  Interrotto
-                </label>
-
-                <button
-                  type="button"
-                  class="dmc-btn dmc-btn--danger"
-                  @click="
-                    rimuovi(
-                      sessione.rituale.partecipanti,
-                      partecipante.id
-                    )
-                  "
-                >
-                  ×
-                </button>
-              </div>
-            </div>
-          </details>
-
+          </section>
+          <section v-show="sezionePreparazione[sessione.id] === 'scene'" class="passo-editor">
+          <p class="guida-preparazione"><strong>Costruisci la sessione:</strong> aggiungi una scena per ogni momento significativo. Per ciascuna indica cosa accade, eventuali indizi e incontri. Puoi tornare a modificarle in qualsiasi momento.</p>
           <!-- SCENE -->
 
           <div class="intestazione">
@@ -3024,6 +2843,218 @@ function caricaIncontro(scena) {
               </details>
             </div>
           </article>
+            <div class="navigazione-preparazione">
+              <button type="button" class="dmc-btn dmc-btn--secondary" @click="sezionePreparazione[sessione.id] = 'base'">← Impostazioni</button>
+              <button type="button" class="dmc-btn" @click="sezionePreparazione[sessione.id] = 'extra'">Strumenti opzionali →</button>
+            </div>
+          </section>
+          <section v-show="sezionePreparazione[sessione.id] === 'extra'" class="passo-editor">
+          <!-- ELEMENTI INTERATTIVI -->
+          <p class="guida-preparazione"><strong>Non sono obbligatori.</strong> Usa questi strumenti solo se hai meccanismi da attivare, oggetti da usare o un'attività collettiva da seguire durante la conduzione. Per una sessione tradizionale sono sufficienti le scene.</p>
+
+          <details class="editor-espandibile">
+            <summary>
+              Elementi interattivi
+
+              <small>
+                facoltativi · per scena
+              </small>
+            </summary>
+
+            <div class="interno-details">
+              <p class="testo-secondario">
+                Esempio: una leva che apre una porta, un altare da attivare o una trappola da disinnescare. Imposta il nome, descrivi cosa cambia e scegli in quali scene compare. Durante la conduzione potrai aggiornarne lo stato.
+              </p>
+
+              <button
+                type="button"
+                class="dmc-btn dmc-btn--secondary"
+                @click="
+                  aggiungi(
+                    sessione.risorseNarrative,
+                    {
+                      nome: '',
+                      effetto: '',
+                      stato: 'inattivo',
+                      sceneIds: []
+                    }
+                  )
+                "
+              >
+                + Elemento
+              </button>
+
+              <div
+                v-for="elemento in sessione.risorseNarrative"
+                :key="elemento.id"
+                class="scheda-secondaria"
+              >
+
+                <label>
+                  Nome
+
+                  <input
+                    v-model="elemento.nome"
+                    class="dmc-campo"
+                  />
+                </label>
+
+                <label>
+                  Descrizione/effetto
+
+                  <textarea
+                    v-model="elemento.effetto"
+                    class="dmc-campo"
+                    rows="2"
+                  ></textarea>
+                </label>
+
+                <label>
+                  Stato
+
+                  <select
+                    v-model="elemento.stato"
+                    class="dmc-campo"
+                  >
+                    <option value="inattivo">
+                      Non attivo
+                    </option>
+
+                    <option value="pronto">
+                      Disponibile
+                    </option>
+
+                    <option value="utilizzato">
+                      Utilizzato
+                    </option>
+                  </select>
+                </label>
+
+                <fieldset class="collegamenti">
+                  <legend>
+                    Mostra nelle scene
+                  </legend>
+
+                  <label
+                    v-for="(scena, indice) in sessione.scene"
+                    :key="scena.id"
+                    class="check-inline"
+                  >
+                    <input
+                      type="checkbox"
+                      v-model="elemento.sceneIds"
+                      :value="scena.id"
+                    />
+
+                    {{ titoloScena(scena, indice) }}
+                  </label>
+                </fieldset>
+
+                <button
+                  type="button"
+                  class="dmc-btn dmc-btn--danger"
+                  @click="
+                    rimuovi(
+                      sessione.risorseNarrative,
+                      elemento.id
+                    )
+                  "
+                >
+                  Elimina elemento
+                </button>
+              </div>
+            </div>
+          </details>
+
+          <!-- ATTIVITÀ MONITORATA -->
+
+          <details class="editor-espandibile">
+            <summary>
+              Attività monitorata
+
+              <small>facoltativa</small>
+            </summary>
+
+            <div class="interno-details">
+              <p class="testo-secondario">
+                Esempio: un rituale in cui tre personaggi devono mantenere la concentrazione, oppure una fuga in cui diversi partecipanti possono essere interrotti. Descrivi l'attività, aggiungi i partecipanti e, nelle singole scene, abilita «Attività monitorata in questa scena». Non serve per i normali incontri di combattimento.
+              </p>
+
+              <label>
+                Descrizione
+
+                <textarea
+                  v-model="sessione.rituale.descrizione"
+                  class="dmc-campo"
+                  rows="2"
+                ></textarea>
+              </label>
+
+              <button
+                type="button"
+                class="dmc-btn dmc-btn--secondary"
+                @click="
+                  aggiungi(
+                    sessione.rituale.partecipanti,
+                    {
+                      nome: 'Partecipante',
+                      attivo: true
+                    }
+                  )
+                "
+              >
+                + Partecipante
+              </button>
+
+              <div
+                v-for="partecipante in sessione.rituale.partecipanti"
+                :key="partecipante.id"
+                class="riga-editor"
+              >
+                <label class="campo-flessibile">
+                  Nome
+
+                  <input
+                    v-model="partecipante.nome"
+                    class="dmc-campo"
+                  />
+                </label>
+
+                <label class="check-inline">
+                  <input
+                    type="checkbox"
+                    :checked="
+                      !partecipante.attivo
+                    "
+                    @change="
+                      partecipante.attivo =
+                        !$event.target.checked
+                    "
+                  />
+
+                  Interrotto
+                </label>
+
+                <button
+                  type="button"
+                  class="dmc-btn dmc-btn--danger"
+                  @click="
+                    rimuovi(
+                      sessione.rituale.partecipanti,
+                      partecipante.id
+                    )
+                  "
+                >
+                  ×
+                </button>
+              </div>
+            </div>
+          </details>
+
+            <div class="navigazione-preparazione">
+              <button type="button" class="dmc-btn dmc-btn--secondary" @click="sezionePreparazione[sessione.id] = 'scene'">← Torna alle scene</button>
+            </div>
+          </section>
         </div>
       </article>
 
@@ -3894,4 +3925,13 @@ function caricaIncontro(scena) {
     max-width: unset;
   }
 }
+
+/* Percorso guidato della preparazione, senza alterare il modello dati. */
+.passi-preparazione {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}
+.passi-preparazione .dmc-btn {white-space:normal;text-align:center;min-height:44px;}
+.passi-preparazione .passo-attivo {border-color:var(--dmc-amber);color:var(--dmc-amber-light);background:var(--dmc-surface-soft);}
+.passo-editor {display:grid;gap:12px;min-width:0;}
+.guida-preparazione {margin:0;padding:12px 14px;border-left:3px solid var(--dmc-amber);border-radius:6px;background:var(--dmc-ink);color:var(--dmc-cream);font-size:13px;line-height:1.6;}
+.navigazione-preparazione {display:flex;justify-content:flex-end;flex-wrap:wrap;gap:8px;padding-top:8px;}
+@media(max-width:650px){.passi-preparazione{grid-template-columns:1fr;}.navigazione-preparazione .dmc-btn{flex:1 1 auto;}}
 </style>
