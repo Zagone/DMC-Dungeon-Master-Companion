@@ -15,8 +15,7 @@ const pngApertoId = ref(null)
 const conferma = ref(null)
 
 function registroPNG() {
-  if (!Array.isArray(props.dati.pngNarrativi)) props.dati.pngNarrativi = []
-  return props.dati.pngNarrativi
+  return Array.isArray(props.dati.pngNarrativi) ? props.dati.pngNarrativi : []
 }
 
 function creaPNG() {
@@ -63,7 +62,9 @@ function aggiungiPNGDaBestiario() {
 }
 
 function eliminaPNG(png) {
-  props.dati.pngNarrativi = registroPNG().filter((elemento) => elemento.id !== png.id)
+  const registro = registroPNG()
+  const indice = registro.findIndex((elemento) => elemento.id === png.id)
+  if (indice >= 0) registro.splice(indice, 1)
   for (const sessione of props.dati.sessioni || []) {
     for (const scena of sessione.scene || []) {
       scena.pngIds = (scena.pngIds || []).filter((id) => id !== png.id)
