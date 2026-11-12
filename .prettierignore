@@ -1,0 +1,8 @@
+# Dashboard: template Vue con espressioni che il parser Prettier riscrive in forma non compilabile.
+# Mantenere escluso finché la sintassi del template non viene adeguata e verificata.
+src/views/DashboardView.vue
+
+# Archivi SRD e asset generati: non sono sorgenti da riformattare.
+public/compendio/
+dist/
+node_modules/
