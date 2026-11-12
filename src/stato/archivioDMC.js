@@ -57,6 +57,16 @@ export function importaBackup(archivio, indici) {
     if (p.rimappa[n.creaturaId]) n.creaturaId = p.rimappa[n.creaturaId]
     if (n.istantanea && p.rimappa[n.istantanea.id]) n.istantanea.id = p.rimappa[n.istantanea.id]
   }
+  // I PNG narrativi possono riferirsi a schede del Bestiario personale.
+  // Se l'importazione ha rigenerato gli ID per evitare collisioni,
+  // anche questi riferimenti devono seguire la rimappatura.
+  for (const campagna of scelte) {
+    for (const png of campagna.dati.pngNarrativi || []) {
+      if (png && typeof png.creaturaId === 'string' && p.rimappa[png.creaturaId]) {
+        png.creaturaId = p.rimappa[png.creaturaId]
+      }
+    }
+  }
   const c = preparaCampagneImportate(scelte)
   const modifiche = [p.scrittura, ...c.nuove.map((meta,i) => [PREFISSO+meta.id, JSON.stringify(scelte[i].dati)]), c.scrittura]
   const r = scriviTransazione(modifiche)
