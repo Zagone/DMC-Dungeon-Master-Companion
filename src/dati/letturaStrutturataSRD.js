@@ -204,6 +204,41 @@ export function estraiTestiEquipaggiamentoSRD(archivio, schede) {
   }]).filter(([, voce]) => voce.testo.length > 15))
 }
 
+/**
+ * Estrae utilizzi, creazioni e varianti dei 25 strumenti dalle pp. 105–107.
+ * Interrompe la lettura prima della sezione dell'equipaggiamento d'avventura.
+ */
+export function estraiTestiStrumentiSRD(archivio, schede) {
+  if (!Array.isArray(archivio?.pagine)) throw new TypeError('Archivio strumenti non valido')
+  const nomi = new Map(schede.map((s) => [chiaveSRD(s.nome), s]))
+  const sezioni = new Map()
+  let corrente = null
+  let finito = false
+  for (const pagina of archivio.pagine) {
+    if (pagina.pagina < 105 || pagina.pagina > 107 || finito) continue
+    for (const riga of righePulite(pagina.testo)) {
+      if (/^Equipaggiamento$/i.test(riga) && pagina.pagina === 107) {
+        corrente = null
+        finito = true
+        break
+      }
+      const titolo = riga.match(/^(.{3,80})\s+\((?:variabil[ei]|[\d.,]+\s*(?:mo|ma|mr|me|mp))\)$/i)
+      if (titolo) {
+        const scheda = nomi.get(chiaveSRD(titolo[1]))
+        corrente = scheda ? { nome: scheda.nome, righe: [], pagine: [pagina.pagina] } : null
+        if (corrente) sezioni.set(corrente.nome, corrente)
+        continue
+      }
+      if (!corrente) continue
+      if (!corrente.pagine.includes(pagina.pagina)) corrente.pagine.push(pagina.pagina)
+      corrente.righe.push(riga)
+    }
+  }
+  return new Map([...sezioni].map(([nome, voce]) => [nome, {
+    testo: voce.righe.join('\n').trim(), pagine: voce.pagine,
+  }]).filter(([, voce]) => voce.testo.length > 15))
+}
+
 /** Delimita una voce per titolo riconoscibile; non restituisce mai
  * l'intera pagina quando l'ancora non è stata trovata. */
 export function estraiTestoSingolaVoceSRD(archivio, voce) {
