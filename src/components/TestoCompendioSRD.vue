@@ -14,6 +14,9 @@ const blocchi = computed(() => blocchiTestoSRD(props.testo))
     <template v-for="(blocco, indice) in blocchi" :key="indice">
       <h4 v-if="blocco.tipo === 'titolo'" class="lettura-srd__titolo">{{ blocco.testo }}</h4>
       <p v-else-if="blocco.tipo === 'pagina'" class="lettura-srd__pagina">{{ blocco.testo }}</p>
+      <p v-else-if="blocco.tipo === 'rubrica'" class="lettura-srd__rubrica">
+        <strong>{{ blocco.titolo }}.</strong> {{ blocco.testo }}
+      </p>
       <p v-else-if="blocco.tipo === 'elenco'" class="lettura-srd__elenco">{{ blocco.testo }}</p>
       <p v-else class="lettura-srd__paragrafo">{{ blocco.testo }}</p>
     </template>
@@ -33,11 +36,13 @@ const blocchi = computed(() => blocchiTestoSRD(props.testo))
   overflow-wrap: anywhere;
 }
 .lettura-srd__paragrafo,
+.lettura-srd__rubrica,
 .lettura-srd__pagina,
 .lettura-srd__elenco {
   margin: 0;
   white-space: normal;
 }
+.lettura-srd__rubrica strong { color: var(--dmc-amber, #e5a65c); font-weight: 700; }
 .lettura-srd__titolo {
   margin: 0.75rem 0 0.1rem;
   padding-bottom: 0.45rem;
