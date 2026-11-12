@@ -103,7 +103,7 @@ Aggiunte 25 schede individuali in `src/dati/strumentiSRD.js`: 17 strumenti da ar
 
 ## Equipaggiamento d'avventura — novembre 2026
 
-Prima tranche: 14 oggetti (da Abiti da viaggiatore a Borsa per componenti), dati di peso e costo confrontati con la tabella p. 108 e sintesi derivate dalla p. 107. Le schede individuali sono in `src/dati/equipaggiamentoAvventuraSRD.js`, integrate nel filtro Equipaggiamento d’avventura; test in `tests/equipaggiamento-avventura-srd.test.js`. Le sintesi non sostituiscono le descrizioni normative e l'elenco complessivo della tabella non è ancora esaurito.
+Prima tranche iniziale: 14 oggetti (da Abiti da viaggiatore a Borsa per componenti), dati di peso e costo confrontati con la tabella p. 108 e sintesi derivate dalla p. 107. Le schede individuali sono in `src/dati/equipaggiamentoAvventuraSRD.js`, integrate nel filtro Equipaggiamento d’avventura; test in `tests/equipaggiamento-avventura-srd.test.js`. Le sintesi non sostituiscono le descrizioni normative e l'elenco complessivo della tabella non è ancora esaurito.
 
 ## Indicizzazione oggetti magici — novembre 2026
 
@@ -112,3 +112,9 @@ Introdotto `src/dati/indiceOggettiMagiciSRD.js`: riconoscimento automatico di ti
 ## Caricamento differito — novembre 2026
 
 La vista `CompendioView.vue` ora carica gli archivi estesi di Incantesimi, Specie, Talenti e Oggetti magici solo alla selezione della rispettiva categoria oppure alla prima ricerca globale. Richieste concorrenti deduplicate, cache già presente nel servizio, indicatore di caricamento accessibile con `role=status`. Il pulsante Azzera ripristina anche filtri rarità, sintonia, tempo e componenti. L'ottimizzazione riduce il traffico iniziale, non cambia il formato dei dati né il grado di verifica delle schede.
+
+## Completamento dell'indice dell'equipaggiamento d'avventura — novembre 2026
+
+Integrate **82 voci individuali** della tabella «Equipaggiamento d'avventura» a p. 108 del PDF SRD italiano 5.2.1. Il file `src/dati/equipaggiamentoAvventuraSRD.js` conserva per ogni voce denominazione, peso e costo. Le prime 14 voci includono le sintesi già presenti; per le restanti 68 voci sono disponibili **solo dati tabellari verificati**, mentre descrizioni e regole d'uso devono ancora essere normalizzate dalle pp. 107–112. Le voci con peso/costo «Variabile» conservano tale indicazione della tabella, senza inventare un valore.
+
+Aggiornato `tests/equipaggiamento-avventura-srd.test.js` per copertura numerica, unicità dei nomi e campioni tabellari. **Non** considerare l'intero equipaggiamento completato: mancano ancora la revisione delle descrizioni, le varianti degli oggetti, cavalcature e veicoli, le spese e altre tabelle. Il compendio non trasforma automaticamente questi dati parziali in schede normative complete.
