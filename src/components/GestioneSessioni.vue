@@ -2,7 +2,8 @@
 <script setup>
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import CreazioneAssistitaCampagna from './CreazioneAssistitaCampagna.vue'
-import { preparaSessione as normalizzaSessione, sogliePerPG } from '../dati/preparazioneSessioni.js'
+import { preparaSessione as normalizzaSessione } from '../dati/preparazioneSessioni.js'
+import { valutaIncontro } from '../dati/valutazioneIncontro.js'
 
 import {
   datiCampagna,
@@ -594,61 +595,13 @@ function creatureDaCollegare(scena) {
 }
 
 function difficolta(scena, sessione) {
-  const pg = Number(sessione.pgPrevisti)
-  const livello = Number(sessione.livelloPrevisto)
-
-  if (
-    !Number.isInteger(pg) ||
-    pg < 1 ||
-    pg > 20 ||
-    !sogliePerPG[livello]
-  ) {
-    return 'Imposta numero e livello dei PG.'
-  }
-
-  if (creatureDaCollegare(scena).length) {
-    return 'Collega le creature mancanti prima di valutare lo scontro.'
-  }
-
-  if (!totaleNemici(scena)) {
-    return 'Nessun nemico preparato.'
-  }
-
-  let esperienza = 0
-
-  for (const voce of scena.incontro.nemici) {
-    const creatura = risolviVoceIncontro(voce)
-    const pe = creatura?.puntiEsperienza
-
-    if (
-      pe == null ||
-      !Number.isFinite(Number(pe))
-    ) {
-      return 'PE non disponibili: valutazione manuale.'
-    }
-
-    esperienza +=
-      Number(pe) * Number(voce.quantita)
-  }
-
-  const [bassa, moderata, alta] =
-    sogliePerPG[livello].map(
-      valore => valore * pg
-    )
-
-  const fascia =
-    esperienza <= bassa
-      ? 'Bassa'
-      : esperienza <= moderata
-        ? 'Moderata'
-        : esperienza <= alta
-          ? 'Alta'
-          : 'Oltre la soglia alta'
-
-  return (
-    `${esperienza} PE · ${fascia} ` +
-    `(soglie: ${bassa} / ${moderata} / ${alta} PE)`
-  )
+  return valutaIncontro({
+    pg: sessione.pgPrevisti,
+    livello: sessione.livelloPrevisto,
+    nemici: scena?.incontro?.nemici,
+    risolviCreatura: risolviVoceIncontro,
+    collegamentiMancanti: creatureDaCollegare(scena).length > 0,
+  })
 }
 
 function aggiungiCreatura(scena) {
