@@ -86,6 +86,10 @@ const testi = [
   ['tassonomiaOriginale', 'Tassonomia completa'],
 ]
 
+const testiIdentita = testi.filter(([campo]) => ['nomeOriginale', 'allineamento', 'tassonomiaOriginale'].includes(campo))
+const testiStatistiche = testi.filter(([campo]) => ['gs', 'pfFormula', 'velocita', 'sensi'].includes(campo))
+const testiDescrizione = testi.filter(([campo]) => ['lingue', 'equipaggiamento'].includes(campo))
+
 const elenchi = [
   ['aliases', 'Alias per la ricerca'],
   ['taglie', 'Taglie alternative'],
@@ -96,6 +100,10 @@ const elenchi = [
   ['immunitaCondizioni', 'Immunità alle condizioni'],
   ['tags', 'Tag personali'],
 ]
+
+const elenchiIdentita = elenchi.filter(([campo]) => ['aliases', 'taglie', 'sottotipi'].includes(campo))
+const elenchiDifese = elenchi.filter(([campo]) => ['resistenze', 'vulnerabilita', 'immunita', 'immunitaCondizioni'].includes(campo))
+const elenchiDescrizione = elenchi.filter(([campo]) => campo === 'tags')
 
 function elenco(campo, testo) {
   scheda.value[campo] = testo
@@ -253,6 +261,13 @@ function salva() {
         </select>
       </label>
 
+      <label v-for="[campo, titolo] in testiIdentita" :key="campo">
+        {{ titolo }} <input class="dmc-campo" v-model="scheda[campo]" />
+      </label>
+      <label v-for="[campo, titolo] in elenchiIdentita" :key="campo">
+        {{ titolo }} <small>Una voce per riga.</small>
+        <textarea class="dmc-campo" :value="scheda[campo].join('\\n')" rows="3" @input="elenco(campo, $event.target.value)"></textarea>
+      </label>
     </div>
     </section>
     <section v-show="sezioneAttiva === 'statistiche'" class="pannello-sezione" aria-labelledby="editor-statistiche">
@@ -271,7 +286,7 @@ function salva() {
       </label>
 
       <label
-        v-for="[campo, titolo] in testi"
+        v-for="[campo, titolo] in testiStatistiche"
         :key="campo"
       >
         {{ titolo }}
@@ -347,6 +362,15 @@ function salva() {
       >
         + Aggiungi abilità
       </button>
+    </fieldset>
+    <fieldset>
+      <legend>Difese e immunità</legend>
+      <div class="griglia">
+        <label v-for="[campo, titolo] in elenchiDifese" :key="campo">
+          {{ titolo }} <small>Una voce per riga; specifica eventuali condizioni d’uso.</small>
+          <textarea class="dmc-campo" :value="scheda[campo].join('\\n')" rows="3" @input="elenco(campo, $event.target.value)"></textarea>
+        </label>
+      </div>
     </fieldset>
 
     </section>
@@ -481,8 +505,13 @@ function salva() {
     <section v-show="sezioneAttiva === 'descrizione'" class="pannello-sezione" aria-labelledby="editor-descrizione">
       <h4 id="editor-descrizione">Dettagli, difese e descrizione</h4>
     <div class="griglia">
+      <label v-for="[campo, titolo] in testiDescrizione" :key="campo">
+        {{ titolo }} <input class="dmc-campo" v-model="scheda[campo]" />
+      </label>
+    </div>
+    <div class="griglia">
       <label
-        v-for="[campo, titolo] in elenchi"
+        v-for="[campo, titolo] in elenchiDescrizione"
         :key="campo"
       >
         {{ titolo }}
