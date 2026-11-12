@@ -32,7 +32,7 @@ jobs:
         run: npm ci
 
       - name: Formatta soltanto sorgenti applicativi e test
-        run: npx prettier --write "src/**/*.{js,vue,css}" "tests/**/*.js"
+        run: npx prettier --write --ignore-path .prettierignore "src/**/*.{js,vue,css}" "tests/**/*.js"
 
       - name: Controlla spaziatura e diff
         run: git diff --check
