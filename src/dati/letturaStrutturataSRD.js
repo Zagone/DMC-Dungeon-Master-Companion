@@ -215,15 +215,23 @@ export function estraiTestoSingolaVoceSRD(archivio, voce) {
   return ''
 }
 
-/** Frammentazione tipografica conservativa: nessun HTML non attendibile. */
+/** Frammentazione tipografica conservativa: nessun HTML non attendibile.
+ * Le rubriche delle regole (es. «Velocità 0.» o «Influenza sugli attacchi.»)
+ * vengono separate dal corpo, senza manipolare gli effetti meccanici.
+ */
 export function blocchiTestoSRD(testo) {
   const righe = String(testo || '').replace(/\u00ad/g, '').split(/\r?\n/)
   const blocchi = []
-  let paragrafo = ''
+  let blocco = null
   const emetti = () => {
-    if (!paragrafo.trim()) return
-    blocchi.push({ tipo: 'paragrafo', testo: paragrafo.trim() })
-    paragrafo = ''
+    if (blocco?.testo?.trim()) blocchi.push({ ...blocco, testo: blocco.testo.trim() })
+    blocco = null
+  }
+  const aggiungi = (riga) => {
+    if (!blocco) blocco = { tipo: 'paragrafo', testo: '' }
+    if (blocco.testo.endsWith('-')) blocco.testo = blocco.testo.slice(0, -1) + riga
+    else blocco.testo += (blocco.testo ? ' ' : '') + riga
+    if (blocco.testo.length > 900 && /[.!?]$/.test(riga)) emetti()
   }
   for (const grezza of righe) {
     const riga = grezza.trim().replace(/\s+/g, ' ')
@@ -233,25 +241,26 @@ export function blocchiTestoSRD(testo) {
       blocchi.push({ tipo: 'pagina', testo: riga })
       continue
     }
-    if (/^Livello \d+(?:º|°)?:\s*\S/i.test(riga) || /^Tratti del (?:barbaro|bardo|chierico|druido|guerriero|ladro|mago|monaco|paladino|ranger|stregone|warlock)$/i.test(riga)) {
+    if (/^Livello \d+(?:º|°)?:\s*\S/i.test(riga) ||
+        /^Tratti del (?:barbaro|bardo|chierico|druido|guerriero|ladro|mago|monaco|paladino|ranger|stregone|warlock)$/i.test(riga)) {
       emetti()
       blocchi.push({ tipo: 'titolo', testo: riga })
       continue
     }
-    if (/^[•●]\s*/.test(riga) || /^[-–]\s+(?=\S)/.test(riga)) {
+    if (/^[•●]\s*/.test(riga) || /^[-–]\s+(?=\S)/.test(riga) ||
+        /^\d+[.):]\s+\S/.test(riga)) {
       emetti()
       blocchi.push({ tipo: 'elenco', testo: riga.replace(/^[•●–-]\s*/, '') })
       continue
     }
-    if (/^\d+[.):]\s+\S/.test(riga)) {
+    const rubrica = riga.match(/^([A-ZÀ-Ú][a-zA-ZÀ-ú0-9'’\-/ ]{2,55})\.\s+(.+)$/u)
+    if (rubrica && rubrica[1].split(/\s+/).length <= 6 &&
+        !/^(?:Il|La|Lo|Un|Una|Uno|Quando|Questo|Questa|Ogni|Se|Dopo|Per|Come|Nel|Nella|L'|L’)\b/i.test(rubrica[1])) {
       emetti()
-      blocchi.push({ tipo: 'elenco', testo: riga })
+      blocco = { tipo: 'rubrica', titolo: rubrica[1], testo: rubrica[2] }
       continue
     }
-    if (paragrafo.endsWith('-')) paragrafo = paragrafo.slice(0,-1) + riga
-    else paragrafo += (paragrafo ? ' ' : '') + riga
-    // Evita pareti di testo, senza cambiare il contenuto delle regole.
-    if (paragrafo.length > 900 && /[.!?]$/.test(riga)) emetti()
+    aggiungi(riga)
   }
   emetti()
   return blocchi
