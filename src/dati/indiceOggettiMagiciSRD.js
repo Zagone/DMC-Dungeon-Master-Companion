@@ -29,7 +29,9 @@ function metadati(linea) {
   )
   if (!tipo) return null
   const resto = r.slice(r.indexOf(',') + 1).trim()
-  const rarita = RARITA.find((t) => new RegExp('(?:^|\\W)' + t + '(?:\\W|$)', 'i').test(resto))
+  const testoRarita = resto.replace(/\\brara\\b/gi, 'raro').replace(/\\bmolto rara\\b/gi, 'molto raro')
+    .replace(/\\bleggendaria\\b/gi, 'leggendario')
+  const rarita = RARITA.find((t) => new RegExp('(?:^|\\W)' + t + '(?:\\W|$)', 'i').test(testoRarita))
   if (!rarita) return null
   return { tipo, rarita, richiedeSintonia: /richiede sintonia/i.test(resto) }
 }
