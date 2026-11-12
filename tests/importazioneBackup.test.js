@@ -92,3 +92,23 @@ test('importazione: indici di selezione non validi non modificano i dati', () =>
     assert.equal(creaturePersonali.value.length, numeroCreature)
   }
 })
+
+test('importazione backup: il collegamento PNG al Bestiario segue la rimappatura degli ID', () => {
+  const archivio = archivioValido()
+  archivio.creaturePersonali[0].categoria = 'png'
+  archivio.campagne[0].dati.pngNarrativi = [{
+    id:'png-campagna', nome:'Mostro personale', creaturaId:'mostro-personale',
+    ruolo:'Alleato', personalita:'Riservato', obiettivo:'Proteggere il villaggio',
+    segreto:'', informazioni:''
+  }]
+  // Il bestiario contiene già una scheda con lo stesso ID, che viene preservata:
+  // l'importazione deve associare il PNG narrativo alla nuova scheda.
+  archivio.creaturePersonali[0].nome = 'Versione modificata del PNG'
+  const prima = creaturePersonali.value.length
+  assert.equal(importaBackup(archivio,[0]),1)
+  assert.equal(creaturePersonali.value.length,prima + 1)
+  const nuova = creaturePersonali.value.find(c => c.nome === 'Versione modificata del PNG')
+  const dati = JSON.parse(valori.get('dmc_dati_campagna_v1_' + campagne.value.at(-1).id))
+  assert.equal(dati.pngNarrativi[0].creaturaId,nuova.id)
+  assert.equal(dati.pngNarrativi[0].obiettivo,'Proteggere il villaggio')
+})
