@@ -56,3 +56,14 @@ L'editor di una sessione è stato suddiviso in tre sezioni navigabili: Impostazi
 ## Uniformazione della formattazione — novembre 2026
 
 Applicato Prettier 3 ai file `src/**/*.{js,vue,css}` e `tests/**/*.js` mediante workflow GitHub Actions dedicato, dopo verifica di test automatici, ESLint, Oxlint e build. Commit di sola formattazione: `27ce30be7df8b03782d488ec6e3fbecab300f959`. Il file `src/views/DashboardView.vue` è temporaneamente escluso via `.prettierignore`: la sua espressione di template viene riscritta da Prettier in una forma che produce errore di parsing Vue durante la build. La Dashboard non è stata modificata. Esclusi inoltre gli archivi SRD, `dist/` e `node_modules/`. `package.json` espone `npm run format` e `npm run format:check`. La formattazione è distinta dal refactoring architetturale e non cambia intenzionalmente il comportamento applicativo.
+
+## Refactoring strutturale — componenti delle Sessioni
+
+Il componente `GestioneSessioni.vue` è stato alleggerito mediante l'estrazione di due aree funzionali indipendenti:
+
+- `src/components/RegistroPNCampagna.vue`: creazione, modifica, eliminazione e collegamento al Bestiario dei PNG narrativi. La rimozione cancella anche i riferimenti del PNG dalle scene della campagna. Il componente riceve i dati della campagna attiva e conserva i controlli e la struttura del registro precedente.
+- `src/components/StrumentiOpzionaliSessione.vue`: elementi interattivi e attività monitorate (rituale/partecipanti), mantenuti nella terza sezione dell'editor guidato. La modifica della descrizione dell'attività è comunicata al componente padre mediante evento; i campi e gli ID rimangono quelli esistenti.
+
+La logica di normalizzazione e valutazione degli incontri era già stata estratta in `preparazioneSessioni.js` e `valutazioneIncontro.js`. I formati dei dati persistenti e il flusso di navigazione non sono stati modificati. Pipeline test/lint/build superata (run 43278854013).
+
+**Limite e collaudo:** rimangono nel componente principale le schermate di preparazione delle scene e conduzione, che richiedono un successivo refactoring più impegnativo. La pipeline non sostituisce la verifica manuale dei componenti appena estratti (aggiunta e rimozione PNG, persistenza dopo refresh, assegnazione a scena e aggiornamento attività in conduzione).
