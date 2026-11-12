@@ -7,6 +7,32 @@
  */
 const INTESTAZIONI_GLOSSARIO = String.raw`Abilità|Accecato [condizione]|Affascinato [condizione]|Afferrare|Afferrato [condizione]|Aiuto [azione]|Al giorno|Alleato|Allineamento|Amichevole [atteggiamento]|Area di effetto|Arma|Armi improvvisate|Arrotondare per difetto|Assordato [condizione]|Attacchi di opportunità|Attacco [azione]|Attacco con arma|Attacco con incantesimo|Atteggiamento|Avvelenato [condizione]|Avventura|Azione|Azione bonus|Bersaglio|Caduta [pericolo]|Campagna|Capacità di trasporto|Cilindro [area di effetto]|Classe Armatura|Classe Difficoltà|Colpo critico|Colpo senz'armi|Competenza|Competenza nelle armature|Concentrazione|Condizione|Cono [area di effetto]|Copertura|Creatura|Cubo [area di effetto]|Dadi Vita|Danni|Disidratazione [pericolo]|Disimpegno [azione]|Effetti simultanei|Effetto magico|Emanazione [area di effetto]|Fluttuare|Focus da incantatore|Grado di sfida|Guarigione|Illusioni|Immunità|Incantesimo|Incapacitato [condizione]|Incontro|Indebolimento [condizione]|Indifferente [atteggiamento]|In fiamme [pericolo]|Influenza [azione]|Iniziativa|Invisibile [condizione]|Ispirazione eroica|Leggermente oscurata|Linea [area di effetto]|Luce fioca|Luce intensa|Maestria|Magia [azione]|Maledizioni|Malnutrizione [pericolo]|Morte|Mostro|Mutaforma|Nascondersi [azione]|Nemico|Nuotare|Oggetto|Oscurità|Ostile [atteggiamento]|Paralizzato [condizione]|Percezione passiva|Percezione tellurica|Pericolo|Personaggio giocante|Personaggio non giocante|Pesantemente oscurata|Pietrificato [condizione]|Portata|Possessione|Prepararsi [azione]|Privo di sensi [condizione]|Prono [condizione]|Prova con D20|Prova di caratteristica|Punteggio di caratteristica e modificatore|Punti esperienza|Punti ferita|Punti ferita temporanei|Reazione|Resistenza|Ricerca [azione]|Riposo breve|Riposo lungo|Rituale|Rompere gli oggetti|Saltare|Salto in alto|Salto in lungo|Sanguinante|Scalare|Scatto [azione]|Scheda delle statistiche|Scheda del personaggio|Schivata [azione]|Scurovisione|Sfera [area di effetto]|Sintonia|Soffocamento [pericolo]|Soglia di danno|Sorpresa|Spaventato [condizione]|Spazio libero|Spazio occupato|Stabile|Stordito [condizione]|Strisciare|Studio [azione]|Svantaggio|Taglia|Telepatia|Teletrasporto|Terreno difficile|Tipi di danno|Tipo di creatura|Tiro per colpire|Tiro per i danni|Tiro salvezza|Tiro salvezza contro morte|Tramortire una creatura|Trattenuto [condizione]|Trucchetto|Utilizzo [azione]|Vantaggio|Velocità`.split('|')
 
+
+// Pagine delle intestazioni verificate sul PDF originale tramite font dei titoli.
+const PAGINE_GLOSSARIO = new Map(
+  Object.entries({
+  "202": "Abilità|Accecato [condizione]|Affascinato [condizione]|Afferrare",
+  "203": "Afferrato [condizione]|Aiuto [azione]|Al giorno|Alleato|Allineamento|Amichevole [atteggiamento]|Area di effetto|Arma|Armi improvvisate",
+  "204": "Arrotondare per difetto|Assordato [condizione]|Attacchi di opportunità|Attacco [azione]|Attacco con arma|Attacco con incantesimo|Atteggiamento|Avvelenato [condizione]|Avventura|Azione",
+  "205": "Azione bonus|Bersaglio|Caduta [pericolo]|Campagna|Capacità di trasporto|Cilindro [area di effetto]|Classe Armatura|Classe Difficoltà|Colpo critico|Colpo senz'armi",
+  "206": "Competenza|Competenza nelle armature|Concentrazione|Condizione|Cono [area di effetto]|Copertura|Creatura|Cubo [area di effetto]",
+  "207": "Dadi Vita|Danni|Disidratazione [pericolo]|Disimpegno [azione]|Effetti simultanei|Effetto magico|Emanazione [area di effetto]|Fluttuare|Focus da incantatore|Grado di sfida|Guarigione|Illusioni",
+  "208": "Immunità|Incantesimo|Incapacitato [condizione]|Incontro|Indebolimento [condizione]|Indifferente [atteggiamento]|In fiamme [pericolo]|Influenza [azione]|Iniziativa",
+  "209": "Invisibile [condizione]|Ispirazione eroica|Leggermente oscurata|Linea [area di effetto]|Luce fioca|Luce intensa|Maestria|Magia [azione]|Maledizioni|Malnutrizione [pericolo]",
+  "210": "Morte|Mostro|Mutaforma|Nascondersi [azione]|Nemico|Nuotare|Oggetto|Oscurità|Ostile [atteggiamento]|Paralizzato [condizione]",
+  "211": "Percezione passiva|Percezione tellurica|Pericolo|Personaggio giocante|Personaggio non giocante|Pesantemente oscurata|Pietrificato [condizione]|Portata|Possessione|Prepararsi [azione]",
+  "212": "Privo di sensi [condizione]|Prono [condizione]|Prova con D20|Prova di caratteristica|Punteggio di caratteristica e modificatore|Punti esperienza|Punti ferita|Punti ferita temporanei|Reazione|Resistenza|Ricerca [azione]",
+  "213": "Riposo breve|Riposo lungo|Rituale|Rompere gli oggetti",
+  "214": "Saltare|Salto in alto|Salto in lungo|Sanguinante|Scalare|Scatto [azione]",
+  "215": "Scheda delle statistiche|Scheda del personaggio|Schivata [azione]|Scurovisione",
+  "216": "Sfera [area di effetto]|Sintonia|Soffocamento [pericolo]|Soglia di danno|Sorpresa|Spaventato [condizione]|Spazio libero|Spazio occupato|Stabile|Stordito [condizione]|Strisciare|Studio [azione]",
+  "217": "Svantaggio|Taglia|Telepatia|Teletrasporto|Terreno difficile|Tipi di danno",
+  "218": "Tipo di creatura|Tiro per colpire|Tiro per i danni|Tiro salvezza|Tiro salvezza contro morte|Tramortire una creatura|Trattenuto [condizione]|Trucchetto|Utilizzo [azione]|Vantaggio|Velocità"
+}).flatMap(([pagina, voci]) =>
+    voci.split('|').map((titolo) => [titolo.toLocaleLowerCase('it-IT'), Number(pagina)]),
+  ),
+)
+
 const NOMI_SPECIE = ['Dragonide','Elfo','Gnomo','Goliath','Halfling','Nano','Orco','Tiefling','Umano']
 const NOMI_ORIGINI = ['Accolito','Criminale','Sapiente','Soldato']
 const INTERRUZIONI_PAGINA = /^(?:System Reference Document 5\.2\.1|\d+\s+S\s+t\s+R\s+f\s+D.*)$/i
@@ -36,7 +62,9 @@ function raccoltaSezioni(archivio, titoli, paginaMinima = 0, paginaMassima = Inf
     if (pagina.pagina < paginaMinima || pagina.pagina > paginaMassima) continue
     for (const riga of righePulite(pagina.testo)) {
       const titolo = titoliPerChiave.get(intestazione(riga))
-      if (titolo && !viste.has(intestazione(titolo))) {
+      if (titolo && !viste.has(intestazione(titolo)) &&
+        (paginaMinima !== 202 ||
+          PAGINE_GLOSSARIO.get(titolo.toLocaleLowerCase('it-IT')) === pagina.pagina)) {
         viste.add(intestazione(titolo))
         corrente = { titolo, pagina: pagina.pagina, righe: [], pagine: [pagina.pagina] }
         sezioni.push(corrente)
@@ -102,8 +130,17 @@ export function estraiTestiOggettiMagiciSRD(archivio, schede) {
       const chiave = chiaveSRD(righe[i])
       const scheda = schedePerChiave.get(chiave)
       const rigaTipologica = righe[i + 1] || ''
-      const intestazione = scheda && /^(oggetto meraviglioso|anello|armatura|arma|bacchetta|bastone|pergamena|pozione|verga),/i.test(rigaTipologica)
+      const intestazione = /^(oggetto meraviglioso|anello|armatura|arma|bacchetta|bastone|pergamena|pozione|verga),/i.test(rigaTipologica)
+        && /^[A-ZÀ-Ú]/.test(righe[i]) && righe[i].length <= 100
+        && !/[.:;!?]$/.test(righe[i])
+      // Interrompi anche se il titolo successivo non è tra le schede indicizzate:
+      // in caso contrario il testo dell'oggetto precedente verrebbe contaminato.
       if (intestazione) {
+        if (!scheda) {
+          corrente = null
+          i++
+          continue
+        }
         corrente = { scheda, pagina: pagina.pagina, righe: [], pagine: [pagina.pagina] }
         titoli.push(corrente)
         i++
