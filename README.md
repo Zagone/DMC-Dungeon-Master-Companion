@@ -1,34 +1,53 @@
-# Dungeon Master Companion — Crooked Realms R4.1
+# Dungeon Master Companion — Crooked Realms R4.2
 
-Progetto completo Vue 3 + Vite. R4.1 estende Crooked Realms a Libreria, Panoramica, Sessioni, Conduzione, Battaglia, Note, Bestiario, editor e archivio. Cornici illustrate più sottili nelle schermate operative, superfici uniformi sotto i dati, placche condivise e controlli nativi. La Dashboard R4 conserva panorama e card. Testi e dati rimangono HTML/Vue.
+Web app Vue 3 + Vite per la preparazione e conduzione di campagne Dungeons & Dragons 5e, sviluppata come progetto di tesi in *Interfacce e Tecnologie della Comunicazione*. La versione di lavoro R4.2 è sviluppata sul branch `feature/r4-2-gestione-dati-integrazione`; la branch `main` non riceve automaticamente queste modifiche.
 
-## Avvio in VS Code
+## Avvio del progetto
 
-Aprire questa cartella, quella che contiene `package.json`. Richiede Node.js `^22.18.0 || >=24.12.0`, come nella R3.
+Prerequisito: Node.js `^22.18.0 || >=24.12.0`.
 
 ```sh
+git switch feature/r4-2-gestione-dati-integrazione
+git pull origin feature/r4-2-gestione-dati-integrazione
 npm ci
 npm run dev
 ```
 
-Per la versione di produzione:
+Aprire l'indirizzo locale indicato da Vite. Per verificare la build:
 
 ```sh
 npm run build
 npm run preview
 ```
 
-Aprire l'indirizzo indicato da Vite. `dist/` contiene anche la build verificata alla consegna. `node_modules/` è esclusa dallo ZIP e viene ricreata da `npm ci`.
+I dati personali vengono conservati nel browser tramite `localStorage`; il clone del repository **non contiene** le campagne o i mostri salvati sul computer dell'utente. Per trasferirli usare gli strumenti di esportazione/importazione dell'Archivio. Cambiare origine/porta dell'app può comportare uno spazio `localStorage` distinto.
 
-## Organizzazione R4.1
+## Funzionalità principali
 
-- `src/components/ui/`: componenti presentazionali riutilizzabili, senza dipendenze dallo stato delle campagne.
-- `src/assets/ui/crooked-realms-r4/`: cornice e placche WebP trasparenti, traversa SVG e documentazione degli asset.
-- `src/stili/dashboard.css`: unico foglio di composizione della Dashboard, caricato con scope dalla vista.
-- `src/stili/design-system.css`: token condivisi, incluso il font illustrato R4.
-- `src/stili/layout-globale.css`: navbar e strumenti esistenti; altezze della barra conservate.
-- `docs/RESOCONTO_R4_1.md`: scelte, modifiche, risultati effettivi e limiti delle verifiche.
+- **Campagne e Sessioni:** preparazione in tre sezioni navigabili (impostazioni, scene, strumenti opzionali), conduzione delle scene, PNG narrativi e incontri con più tipologie di creature.
+- **Bestiario:** 330 creature SRD integrate e schede personali homebrew/PNG, editor in sei sezioni, collegamento dei PNG personali ai registri delle campagne.
+- **Battaglia:** gestione dei combattenti, iniziativa, PF e condizioni; sezioni tattiche compatte con azioni e capacità espandibili.
+- **Compendio SRD 5.2.1:** ricerca e consultazione per categorie, incantesimi, condizioni, regole, equipaggiamento e indici di altre categorie. **La copertura editoriale non è completa**: vedere `docs/COMPENDIO_SRD_STATO.md`.
+- **Creazione assistita con ChatGPT:** percorso guidato per comporre un prompt, aprire ChatGPT in una scheda esterna e importare un JSON compatibile. Non usa API OpenAI integrate.
+- **Archivio e backup:** esportazione e importazione dei dati del DM, gestione di riferimenti e collisioni tra identificativi.
 
-Routing, stato, catalogo SRD, salvataggi e import/export conservano i sorgenti R3. I dati salvati nel browser non sono inclusi nel progetto: per trasferirli fra origini o dispositivi usare l'archivio DMC già presente nell'app. Mantenere dominio e porta abituali per accedere allo stesso localStorage.
+## Architettura e file di riferimento
 
-L'avviso Vite sul chunk del Bestiario superiore a 500 kB è già presente nella R3. Il catalogo resta differito e non viene richiesto dalla sola Dashboard. Nessuna dipendenza applicativa è stata aggiunta.
+- `src/stato/`: stato persistente delle campagne, bestiario e archivio dati.
+- `src/components/GestioneSessioni.vue`: interfaccia di preparazione e conduzione.
+- `src/dati/preparazioneSessioni.js`: normalizzazione e migrazione non distruttiva delle strutture narrative.
+- `src/dati/valutazioneIncontro.js`: valutazione PE e soglie per gli incontri.
+- `src/components/EditorCreatura.vue`: editor homebrew/PNG organizzato in sezioni.
+- `src/components/SchedaTatticaCreatura.vue`: consultazione rapida delle azioni in battaglia.
+- `src/views/CompendioView.vue` e `public/compendio/`: visualizzazione, indici e archivi SRD caricati quando richiesti.
+- `src/stili/design-system.css` e `src/assets/ui/crooked-realms-r4/`: design system e identità visiva.
+- `docs/REVISIONE_FUNZIONALE_R4_2.md`: interventi R4.2 e aspetti da collaudare.
+- `docs/GENERAZIONE_CAMPAGNE_CHATGPT.md`: flusso di generazione assistita.
+
+## Verifiche e limiti
+
+La pipeline `.github/workflows/verifiche-r4-2.yml` verifica test automatici, ESLint, Oxlint e build. Superare la pipeline **non equivale** a un collaudo end-to-end nel browser. Sono ancora da verificare manualmente flussi completi di creazione, conduzione e import/export, accessibilità e responsive.
+
+## Licenza e attribuzione SRD
+
+Il materiale SRD 5.2.1 di Wizards of the Coast LLC è distribuito con licenza Creative Commons Attribution 4.0 International (CC BY 4.0). Fonte: https://www.dndbeyond.com/srd — licenza: https://creativecommons.org/licenses/by/4.0/legalcode. Gli altri componenti del progetto possono avere condizioni di utilizzo differenti.
