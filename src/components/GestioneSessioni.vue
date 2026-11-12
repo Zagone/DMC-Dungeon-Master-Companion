@@ -531,6 +531,14 @@ function creaSessione() {
 
   sessioneApertaId.value = sessione.id
   nuovaSessione.value = ''
+
+  // L'editor appena creato è ora subito sotto al modulo di creazione.
+  // Portiamo il focus sulla scheda, senza richiedere una ricerca manuale.
+  nextTick(() => {
+    const elemento = document.getElementById('dmc-sessione-' + sessione.id)
+    elemento?.focus({ preventScroll: true })
+    elemento?.scrollIntoView({ block: 'start', behavior: 'smooth' })
+  })
 }
 
 function creaScena(sessione) {
@@ -1993,229 +2001,6 @@ function caricaIncontro(scena) {
         </button>
       </form>
 
-      <details class="dmc-pannello" style="margin:16px 0">
-        <summary style="padding:16px;cursor:pointer;color:var(--dmc-amber)">Crea sessioni con ChatGPT</summary>
-        <CreazioneAssistitaCampagna modalita="sessioni" />
-      </details>
-
-      <!-- REGISTRO PNG COMPRIMIBILE -->
-
-      <details class="registro-png dmc-pannello">
-        <summary>
-          PNG della campagna
-
-          <small>
-            {{ dati?.pngNarrativi?.length || 0 }}
-            schede
-          </small>
-        </summary>
-
-        <div class="interno-details">
-
-          <form
-            class="nuova-sessione"
-            @submit.prevent="creaPNG"
-          >
-            <label class="campo-flessibile">
-              Nome del PNG
-
-              <input
-                v-model="nuovoPNG"
-                class="dmc-campo"
-                required
-                maxlength="120"
-                placeholder="Nome del personaggio"
-              />
-            </label>
-
-            <button
-              type="submit"
-              class="dmc-btn"
-            >
-              + Aggiungi PNG
-            </button>
-          </form>
-
-          <div class="nuova-sessione" style="margin:12px 0;padding:14px;border:1px solid var(--dmc-border-soft);border-radius:8px">
-            <label class="campo-flessibile">
-              Aggiungi dal Bestiario (PNG personalizzati)
-              <select v-model="pngBestiarioSelezionato" class="dmc-campo">
-                <option value="">Seleziona un PNG già creato…</option>
-                <option v-for="creatura in pngBestiarioCollegabili" :key="creatura.id" :value="creatura.id">
-                  {{ creatura.nome }}
-                </option>
-              </select>
-            </label>
-            <button type="button" class="dmc-btn dmc-btn--secondary" :disabled="!pngBestiarioSelezionato" @click="aggiungiPNGDaBestiario">
-              + Collega PNG
-            </button>
-            <p v-if="!pngPersonalizzati.length" class="testo-secondario">
-              Nessun PNG personale nel Bestiario. Puoi crearne uno nella sezione Bestiario e collegarlo qui.
-            </p>
-            <p v-else-if="!pngBestiarioCollegabili.length" class="testo-secondario">
-              Tutti i PNG personali del Bestiario sono già collegati a questa campagna.
-            </p>
-            <p v-if="messaggioPNG" role="status">{{ messaggioPNG }}</p>
-          </div>
-
-          <article
-            v-for="png in dati?.pngNarrativi || []"
-            :key="png.id"
-            class="scheda-secondaria"
-          >
-            <div class="intestazione">
-              <strong>
-                {{ png.nome }}
-              </strong>
-
-              <div class="azioni">
-                <button
-                  type="button"
-                  class="dmc-btn dmc-btn--secondary"
-                  @click="
-                    pngApertoId =
-                      pngApertoId === png.id
-                        ? null
-                        : png.id
-                  "
-                >
-                  {{
-                    pngApertoId === png.id
-                      ? 'Chiudi'
-                      : 'Scheda'
-                  }}
-                </button>
-
-                <button
-                  type="button"
-                  class="dmc-btn dmc-btn--danger"
-                  @click="
-                    conferma = `png-${png.id}`
-                  "
-                >
-                  Elimina
-                </button>
-              </div>
-            </div>
-
-            <div
-              v-if="
-                conferma === `png-${png.id}`
-              "
-              class="conferma"
-            >
-              Eliminare questo PNG e i suoi
-              collegamenti alle scene?
-
-              <div class="azioni">
-                <button
-                  type="button"
-                  class="dmc-btn dmc-btn--danger"
-                  @click="eliminaPNG(png)"
-                >
-                  Conferma
-                </button>
-
-                <button
-                  type="button"
-                  class="dmc-btn dmc-btn--secondary"
-                  @click="conferma = null"
-                >
-                  Annulla
-                </button>
-              </div>
-            </div>
-
-            <div
-              v-if="pngApertoId === png.id"
-              class="griglia-campi"
-            >
-              <label>
-                Nome
-
-                <input
-                  v-model="png.nome"
-                  class="dmc-campo"
-                />
-              </label>
-
-              <label>
-                Ruolo
-
-                <input
-                  v-model="png.ruolo"
-                  class="dmc-campo"
-                />
-              </label>
-
-              <label>
-                Personalità
-
-                <textarea
-                  v-model="png.personalita"
-                  class="dmc-campo"
-                  rows="2"
-                ></textarea>
-              </label>
-
-              <label>
-                Obiettivo
-
-                <textarea
-                  v-model="png.obiettivo"
-                  class="dmc-campo"
-                  rows="2"
-                ></textarea>
-              </label>
-
-              <label>
-                Segreto
-
-                <textarea
-                  v-model="png.segreto"
-                  class="dmc-campo"
-                  rows="2"
-                ></textarea>
-              </label>
-
-              <label>
-                Informazioni e dialoghi
-
-                <textarea
-                  v-model="png.informazioni"
-                  class="dmc-campo"
-                  rows="3"
-                ></textarea>
-              </label>
-
-              <label>
-                Collegamento al Bestiario (facoltativo)
-
-                <select
-                  v-model="png.creaturaId"
-                  class="dmc-campo"
-                >
-                  <option v-if="png.creaturaId && !pngBestiarioConsultabili.some(c => c.id === png.creaturaId)" :value="png.creaturaId">
-                    Riferimento non più disponibile ({{ png.creaturaId }})
-                  </option>
-                  <option value="">
-                    Nessuno
-                  </option>
-
-                  <option
-                    v-for="creatura in pngBestiarioConsultabili"
-                    :key="creatura.id"
-                    :value="creatura.id"
-                  >
-                    {{ creatura.nome }}
-                  </option>
-                </select>
-              </label>
-            </div>
-          </article>
-        </div>
-      </details>
-
       <!-- ELENCO DELLE SESSIONI -->
 
       <p
@@ -2228,6 +2013,8 @@ function caricaIncontro(scena) {
       <article
         v-for="(sessione, indiceSessione) in dati?.sessioni || []"
         :key="sessione.id"
+        :id="'dmc-sessione-' + sessione.id"
+        tabindex="-1"
         class="scheda-sessione dmc-pannello"
       >
         <header class="intestazione">
@@ -3239,6 +3026,230 @@ function caricaIncontro(scena) {
           </article>
         </div>
       </article>
+
+      <!-- STRUMENTI SECONDARI: dopo la preparazione delle sessioni. -->
+      <details class="dmc-pannello" style="margin:16px 0">
+        <summary style="padding:16px;cursor:pointer;color:var(--dmc-amber)">Crea sessioni con ChatGPT</summary>
+        <CreazioneAssistitaCampagna modalita="sessioni" />
+      </details>
+
+      <!-- REGISTRO PNG COMPRIMIBILE -->
+
+      <details class="registro-png dmc-pannello">
+        <summary>
+          PNG della campagna
+
+          <small>
+            {{ dati?.pngNarrativi?.length || 0 }}
+            schede
+          </small>
+        </summary>
+
+        <div class="interno-details">
+
+          <form
+            class="nuova-sessione"
+            @submit.prevent="creaPNG"
+          >
+            <label class="campo-flessibile">
+              Nome del PNG
+
+              <input
+                v-model="nuovoPNG"
+                class="dmc-campo"
+                required
+                maxlength="120"
+                placeholder="Nome del personaggio"
+              />
+            </label>
+
+            <button
+              type="submit"
+              class="dmc-btn"
+            >
+              + Aggiungi PNG
+            </button>
+          </form>
+
+          <div class="nuova-sessione" style="margin:12px 0;padding:14px;border:1px solid var(--dmc-border-soft);border-radius:8px">
+            <label class="campo-flessibile">
+              Aggiungi dal Bestiario (PNG personalizzati)
+              <select v-model="pngBestiarioSelezionato" class="dmc-campo">
+                <option value="">Seleziona un PNG già creato…</option>
+                <option v-for="creatura in pngBestiarioCollegabili" :key="creatura.id" :value="creatura.id">
+                  {{ creatura.nome }}
+                </option>
+              </select>
+            </label>
+            <button type="button" class="dmc-btn dmc-btn--secondary" :disabled="!pngBestiarioSelezionato" @click="aggiungiPNGDaBestiario">
+              + Collega PNG
+            </button>
+            <p v-if="!pngPersonalizzati.length" class="testo-secondario">
+              Nessun PNG personale nel Bestiario. Puoi crearne uno nella sezione Bestiario e collegarlo qui.
+            </p>
+            <p v-else-if="!pngBestiarioCollegabili.length" class="testo-secondario">
+              Tutti i PNG personali del Bestiario sono già collegati a questa campagna.
+            </p>
+            <p v-if="messaggioPNG" role="status">{{ messaggioPNG }}</p>
+          </div>
+
+          <article
+            v-for="png in dati?.pngNarrativi || []"
+            :key="png.id"
+            class="scheda-secondaria"
+          >
+            <div class="intestazione">
+              <strong>
+                {{ png.nome }}
+              </strong>
+
+              <div class="azioni">
+                <button
+                  type="button"
+                  class="dmc-btn dmc-btn--secondary"
+                  @click="
+                    pngApertoId =
+                      pngApertoId === png.id
+                        ? null
+                        : png.id
+                  "
+                >
+                  {{
+                    pngApertoId === png.id
+                      ? 'Chiudi'
+                      : 'Scheda'
+                  }}
+                </button>
+
+                <button
+                  type="button"
+                  class="dmc-btn dmc-btn--danger"
+                  @click="
+                    conferma = `png-${png.id}`
+                  "
+                >
+                  Elimina
+                </button>
+              </div>
+            </div>
+
+            <div
+              v-if="
+                conferma === `png-${png.id}`
+              "
+              class="conferma"
+            >
+              Eliminare questo PNG e i suoi
+              collegamenti alle scene?
+
+              <div class="azioni">
+                <button
+                  type="button"
+                  class="dmc-btn dmc-btn--danger"
+                  @click="eliminaPNG(png)"
+                >
+                  Conferma
+                </button>
+
+                <button
+                  type="button"
+                  class="dmc-btn dmc-btn--secondary"
+                  @click="conferma = null"
+                >
+                  Annulla
+                </button>
+              </div>
+            </div>
+
+            <div
+              v-if="pngApertoId === png.id"
+              class="griglia-campi"
+            >
+              <label>
+                Nome
+
+                <input
+                  v-model="png.nome"
+                  class="dmc-campo"
+                />
+              </label>
+
+              <label>
+                Ruolo
+
+                <input
+                  v-model="png.ruolo"
+                  class="dmc-campo"
+                />
+              </label>
+
+              <label>
+                Personalità
+
+                <textarea
+                  v-model="png.personalita"
+                  class="dmc-campo"
+                  rows="2"
+                ></textarea>
+              </label>
+
+              <label>
+                Obiettivo
+
+                <textarea
+                  v-model="png.obiettivo"
+                  class="dmc-campo"
+                  rows="2"
+                ></textarea>
+              </label>
+
+              <label>
+                Segreto
+
+                <textarea
+                  v-model="png.segreto"
+                  class="dmc-campo"
+                  rows="2"
+                ></textarea>
+              </label>
+
+              <label>
+                Informazioni e dialoghi
+
+                <textarea
+                  v-model="png.informazioni"
+                  class="dmc-campo"
+                  rows="3"
+                ></textarea>
+              </label>
+
+              <label>
+                Collegamento al Bestiario (facoltativo)
+
+                <select
+                  v-model="png.creaturaId"
+                  class="dmc-campo"
+                >
+                  <option v-if="png.creaturaId && !pngBestiarioConsultabili.some(c => c.id === png.creaturaId)" :value="png.creaturaId">
+                    Riferimento non più disponibile ({{ png.creaturaId }})
+                  </option>
+                  <option value="">
+                    Nessuno
+                  </option>
+
+                  <option
+                    v-for="creatura in pngBestiarioConsultabili"
+                    :key="creatura.id"
+                    :value="creatura.id"
+                  >
+                    {{ creatura.nome }}
+                  </option>
+                </select>
+              </label>
+            </div>
+          </article>
+        </div>
+      </details>
 
       <p
         v-if="messaggio"
