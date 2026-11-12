@@ -266,7 +266,7 @@ function salva() {
       </label>
       <label v-for="[campo, titolo] in elenchiIdentita" :key="campo">
         {{ titolo }} <small>Una voce per riga.</small>
-        <textarea class="dmc-campo" :value="scheda[campo].join('\\n')" rows="3" @input="elenco(campo, $event.target.value)"></textarea>
+        <textarea class="dmc-campo" :value="scheda[campo].join('\n')" rows="3" @input="elenco(campo, $event.target.value)"></textarea>
       </label>
     </div>
     </section>
@@ -368,7 +368,7 @@ function salva() {
       <div class="griglia">
         <label v-for="[campo, titolo] in elenchiDifese" :key="campo">
           {{ titolo }} <small>Una voce per riga; specifica eventuali condizioni d’uso.</small>
-          <textarea class="dmc-campo" :value="scheda[campo].join('\\n')" rows="3" @input="elenco(campo, $event.target.value)"></textarea>
+          <textarea class="dmc-campo" :value="scheda[campo].join('\n')" rows="3" @input="elenco(campo, $event.target.value)"></textarea>
         </label>
       </div>
     </fieldset>
