@@ -72,21 +72,6 @@ function dataBreve(data) {
   return Number.isNaN(valore.getTime()) ? 'Data non valida' : valore.toLocaleDateString('it-IT')
 }
 
-function aggiungi(lista, valori) {
-  lista.push({
-    id: idUnivoco(),
-    ...valori,
-  })
-}
-
-function rimuovi(lista, id) {
-  const indice = lista.findIndex((voce) => voce.id === id)
-
-  if (indice >= 0) {
-    lista.splice(indice, 1)
-  }
-}
-
 function sposta(lista, indice, direzione) {
   const destinazione = indice + direzione
 
