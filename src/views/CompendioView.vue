@@ -18,6 +18,7 @@ import {
   estraiGlossarioSRD,
   estraiTestiOggettiMagiciSRD,
   estraiTestoSingolaVoceSRD,
+  estraiTestiEquipaggiamentoSRD,
 } from '../dati/letturaStrutturataSRD.js'
 import TestoCompendioSRD from '../components/TestoCompendioSRD.vue'
 
@@ -28,6 +29,7 @@ const schedeBackground = new Map(BACKGROUND_SRD.map((v) => [v.nome, v]))
 const schedeTalenti = ref([])
 const schedeOggettiMagici = ref([])
 const schedeGlossario = ref([])
+const testiEquipaggiamento = ref(new Map())
 const testoFonte = ref('')
 const voceFonte = ref(null)
 const erroreFonte = ref('')
@@ -41,11 +43,11 @@ const categorieInCorso = new Map()
 async function caricaCategoria(categoriaRichiesta) {
   const destinazioni = categoriaRichiesta
     ? [categoriaRichiesta]
-    : ['Incantesimi', 'Specie', 'Talenti', 'Oggetti magici', 'Regole']
+    : ['Incantesimi', 'Specie', 'Talenti', 'Oggetti magici', 'Regole', 'Equipaggiamento']
   await Promise.all(
     destinazioni.map(async (nome) => {
       const sezione = nome === 'Condizioni' ? 'Regole' : nome
-      if (!['Incantesimi', 'Specie', 'Talenti', 'Oggetti magici', 'Regole'].includes(sezione))
+      if (!['Incantesimi', 'Specie', 'Talenti', 'Oggetti magici', 'Regole', 'Equipaggiamento'].includes(sezione))
         return
       if (categorieCaricate.has(sezione)) return
       if (categorieInCorso.has(sezione)) return categorieInCorso.get(sezione)
@@ -61,6 +63,8 @@ async function caricaCategoria(categoriaRichiesta) {
             schedeOggettiMagici.value = estraiTestiOggettiMagiciSRD(
               archivio, estraiIndiceOggettiMagici(archivio),
             )
+          if (sezione === 'Equipaggiamento')
+            testiEquipaggiamento.value = estraiTestiEquipaggiamentoSRD(archivio, EQUIPAGGIAMENTO_AVVENTURA_SRD)
           if (sezione === 'Regole') {
             schedeGlossario.value = estraiGlossarioSRD(archivio)
             categorieCaricate.add('Condizioni')
@@ -137,6 +141,13 @@ const vociCompendio = computed(() => {
     dettagliCompleti: false,
   }))
   const schedeAvventura = EQUIPAGGIAMENTO_AVVENTURA_SRD.map((oggetto) => ({
+    ...(testiEquipaggiamento.value.has(oggetto.nome)
+      ? {
+          descrizione: testiEquipaggiamento.value.get(oggetto.nome).testo,
+          descrizioneEstratta: true,
+          pagineFonte: testiEquipaggiamento.value.get(oggetto.nome).pagine,
+        }
+      : {}),
     id:
       'equip-avventura-' +
       oggetto.nome
