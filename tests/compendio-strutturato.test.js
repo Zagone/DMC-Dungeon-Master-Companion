@@ -65,7 +65,7 @@ test('Le descrizioni dell’equipaggiamento sono delimitate per singolo oggetto'
   assert.ok(dati.size >= 80)
   const acido = dati.get('Acido')
   assert.match(acido.testo, /2d6 danni da acido/i)
-  assert.doesNotMatch(acido.testo, /^Acqua santa \\(/m)
+  assert.equal(acido.testo.includes('Acqua santa'), false)
   assert.match(dati.get('Corda').testo, /corda/i)
 })
 
