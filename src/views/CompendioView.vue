@@ -19,6 +19,7 @@ import {
   estraiTestiOggettiMagiciSRD,
   estraiTestoSingolaVoceSRD,
   estraiTestiEquipaggiamentoSRD,
+  estraiTestiStrumentiSRD,
 } from '../dati/letturaStrutturataSRD.js'
 import TestoCompendioSRD from '../components/TestoCompendioSRD.vue'
 
@@ -30,6 +31,7 @@ const schedeTalenti = ref([])
 const schedeOggettiMagici = ref([])
 const schedeGlossario = ref([])
 const testiEquipaggiamento = ref(new Map())
+const testiStrumenti = ref(new Map())
 const testoFonte = ref('')
 const voceFonte = ref(null)
 const erroreFonte = ref('')
@@ -63,8 +65,10 @@ async function caricaCategoria(categoriaRichiesta) {
             schedeOggettiMagici.value = estraiTestiOggettiMagiciSRD(
               archivio, estraiIndiceOggettiMagici(archivio),
             )
-          if (sezione === 'Equipaggiamento')
+          if (sezione === 'Equipaggiamento') {
             testiEquipaggiamento.value = estraiTestiEquipaggiamentoSRD(archivio, EQUIPAGGIAMENTO_AVVENTURA_SRD)
+            testiStrumenti.value = estraiTestiStrumentiSRD(archivio, STRUMENTI_SRD)
+          }
           if (sezione === 'Regole') {
             schedeGlossario.value = estraiGlossarioSRD(archivio)
             categorieCaricate.add('Condizioni')
@@ -126,6 +130,13 @@ const vociCompendio = computed(() => {
     dettagliCompleti: false,
   }))
   const schedeStrumenti = STRUMENTI_SRD.map((strumento) => ({
+    ...(testiStrumenti.value.has(strumento.nome)
+      ? {
+          descrizione: testiStrumenti.value.get(strumento.nome).testo,
+          descrizioneEstratta: true,
+          pagineFonte: testiStrumenti.value.get(strumento.nome).pagine,
+        }
+      : {}),
     id:
       'equip-strumento-' +
       strumento.nome
