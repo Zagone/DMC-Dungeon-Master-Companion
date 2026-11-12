@@ -52,3 +52,7 @@ L'editor di una sessione è stato suddiviso in tre sezioni navigabili: Impostazi
 - Aggiornato il README per riflettere le funzionalità R4.2 e distinguere test automatici da verifiche end-to-end.
 
 **Debito tecnico residuo:** `GestioneSessioni.vue` conserva ancora l'ampio template di preparazione e conduzione; ulteriori estrazioni di componenti visivi richiedono test manuali su focus, navigazione e persistenza. **Debito editoriale residuo:** classi, oggetti magici, varianti e descrizioni di equipaggiamento, trascrizioni normative e verifiche puntuali delle tabelle SRD. Non considerare la R4.2 né il Compendio editorialmente conclusi.
+
+## Uniformazione della formattazione — novembre 2026
+
+Applicato Prettier 3 ai file `src/**/*.{js,vue,css}` e `tests/**/*.js` mediante workflow GitHub Actions dedicato, dopo verifica di test automatici, ESLint, Oxlint e build. Commit di sola formattazione: `27ce30be7df8b03782d488ec6e3fbecab300f959`. Il file `src/views/DashboardView.vue` è temporaneamente escluso via `.prettierignore`: la sua espressione di template viene riscritta da Prettier in una forma che produce errore di parsing Vue durante la build. La Dashboard non è stata modificata. Esclusi inoltre gli archivi SRD, `dist/` e `node_modules/`. `package.json` espone `npm run format` e `npm run format:check`. La formattazione è distinta dal refactoring architetturale e non cambia intenzionalmente il comportamento applicativo.
