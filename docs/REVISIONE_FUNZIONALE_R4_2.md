@@ -43,3 +43,12 @@ Il form «Nuova sessione» è ora seguito immediatamente dall'elenco delle sessi
 ## Preparazione guidata delle sessioni
 
 L'editor di una sessione è stato suddiviso in tre sezioni navigabili: Impostazioni, Scene e Strumenti opzionali. La creazione si apre sulle impostazioni e l'utente può procedere verso le scene o navigare liberamente. Elementi interattivi e attività monitorate sono stati spostati dopo le scene e accompagnati da esempi concreti e spiegazioni sul loro funzionamento nella conduzione. L'intervento modifica soltanto la gerarchia e la visibilità dei pannelli, senza alterare il modello dati o il sistema di salvataggio. CI superata (run 43268821006). Da verificare in browser la navigazione da tastiera, il flusso di creazione scena e la leggibilità su mobile.
+
+## Refactoring e progressione del Compendio — novembre 2026
+
+- Estratte da `GestioneSessioni.vue` le operazioni di normalizzazione dei dati in `src/dati/preparazioneSessioni.js`, preservando la migrazione delle scene legacy, gli incontri, gli indizi e i collegamenti narrativi. Sono stati aggiunti test di regressione in `tests/preparazione-sessioni.test.js`.
+- Estratta la valutazione indicativa degli incontri in `src/dati/valutazioneIncontro.js`, con test delle soglie per livello e segnalazioni dei casi incompleti in `tests/valutazione-incontro.test.js`. L'interfaccia e il modello dati non cambiano.
+- Esteso l'indice dell'equipaggiamento d'avventura da 14 a 82 voci con peso e costo della tabella SRD (p. 108), senza attribuire alle schede nuove descrizioni non verificate. Rimane lavoro editoriale sulle regole d'uso e sulle altre sezioni del Compendio.
+- Aggiornato il README per riflettere le funzionalità R4.2 e distinguere test automatici da verifiche end-to-end.
+
+**Debito tecnico residuo:** `GestioneSessioni.vue` conserva ancora l'ampio template di preparazione e conduzione; ulteriori estrazioni di componenti visivi richiedono test manuali su focus, navigazione e persistenza. **Debito editoriale residuo:** classi, oggetti magici, varianti e descrizioni di equipaggiamento, trascrizioni normative e verifiche puntuali delle tabelle SRD. Non considerare la R4.2 né il Compendio editorialmente conclusi.
