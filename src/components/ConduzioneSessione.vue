@@ -1124,4 +1124,29 @@ const messaggio = computed(() => props.messaggio)
 }
 
 
+
+/* La navigazione delle scene passa a selettore su schermi stretti. */
+@media (max-width: 900px) {
+  .layout-conduzione {
+    grid-template-columns: 1fr;
+  }
+  .colonna-scene {
+    position: static;
+    max-height: none;
+  }
+  .elenco-scene {
+    display: none;
+  }
+  .selettore-mobile {
+    display: grid !important;
+  }
+}
+@media (max-width: 650px) {
+  .approfondimento-passo {
+    padding-left: 15px;
+  }
+  .riga-stato .dmc-campo {
+    max-width: unset;
+  }
+}
 </style>
