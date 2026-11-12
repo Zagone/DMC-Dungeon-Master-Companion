@@ -147,6 +147,7 @@ function salva() {
   <form
     class="editor-creatura dmc-pannello"
     aria-label="Editor creatura"
+    novalidate
     @submit.prevent="salva"
   >
     <header class="intestazione-editor">
