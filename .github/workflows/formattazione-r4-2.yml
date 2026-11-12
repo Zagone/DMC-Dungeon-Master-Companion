@@ -1,0 +1,62 @@
+name: DMC R4.2 - Formattazione sorgenti
+
+on:
+  push:
+    branches:
+      - feature/r4-2-gestione-dati-integrazione
+    paths:
+      - .github/workflows/formattazione-r4-2.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  formatta:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout branch R4.2
+        uses: actions/checkout@v4
+        with:
+          ref: feature/r4-2-gestione-dati-integrazione
+          persist-credentials: true
+
+      - name: Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Installa dipendenze
+        run: npm ci
+
+      - name: Formatta soltanto sorgenti applicativi e test
+        run: npx prettier --write "src/**/*.{js,vue,css}" "tests/**/*.js"
+
+      - name: Controlla spaziatura e diff
+        run: git diff --check
+
+      - name: Test automatici
+        run: node --test tests/*.test.js
+
+      - name: Verifica ESLint
+        run: npx eslint .
+
+      - name: Verifica Oxlint
+        run: npx oxlint .
+
+      - name: Build
+        run: npm run build
+
+      - name: Pubblica solo le modifiche di formattazione
+        run: |
+          git add src tests
+          if git diff --cached --quiet; then
+            echo "Tutti i sorgenti sono gia formattati."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "style(r4.2): uniforma formattazione Prettier dei sorgenti"
+          git push origin HEAD:feature/r4-2-gestione-dati-integrazione
