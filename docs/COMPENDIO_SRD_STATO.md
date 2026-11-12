@@ -1,5 +1,7 @@
 # Compendio SRD 5.2.1 — stato di integrazione R4.2
 
+> **Nota di lettura (R4.2):** questo documento è un registro cronologico dell'integrazione. La tabella di copertura seguente descrive la fase iniziale e non lo stato finale. Gli aggiornamenti più recenti, inclusi gli 82 oggetti di equipaggiamento d'avventura e le categorie strutturate, sono documentati nelle sezioni successive. La verifica editoriale dell'intero SRD non è conclusa.
+
 ## Obiettivo e decisioni UX
 
 Il compendio è una pagina autonoma `/#/compendio`, non un pannello della Dashboard. La struttura approvata prevede categorie, ricerca globale, filtri contestuali, ordinamento, elenco e schede espandibili. Il riferimento visivo fornito dall'utente è RollCamp, senza copiarne il design o gli asset. I collegamenti automatici nelle scene **sono sospesi**.
@@ -8,7 +10,7 @@ Il compendio è una pagina autonoma `/#/compendio`, non un pannello della Dashbo
 
 Il file di riferimento è `IT_SRD_CC_v5.2.1_copia.pdf`, versione italiana dell'SRD 5.2.1 fornita per il progetto. L'indice degli incantesimi è stato ricavato dalle intestazioni delle descrizioni, pp. 121–201. Le 15 condizioni sono quelle elencate a p. 206; le sintesi delle regole provengono dal Glossario delle regole, pp. 202–219. Le altre categorie contengono indici delle sezioni del documento, non schede normative complete.
 
-## Copertura effettiva
+## Copertura iniziale (storico prima delle integrazioni successive)
 
 | Categoria | Voci | Profondità attuale |
 |---|---:|---|
@@ -22,7 +24,7 @@ Il file di riferimento è `IT_SRD_CC_v5.2.1_copia.pdf`, versione italiana dell'S
 | Equipaggiamento | 9 | Indice delle sezioni, non dei singoli oggetti |
 | Oggetti magici | 6 | Indice delle sezioni, non dei singoli oggetti |
 
-Totale: **427 voci** di diversa granularità. Non rappresentano 427 schede complete. I mostri restano nel bestiario separato con 330 schede verificate, non duplicate nel compendio.
+Il totale iniziale era **427 voci** di diversa granularità; non rappresentava 427 schede complete e non deve essere usato come totale attuale, poiché le integrazioni successive hanno aggiunto numerose schede individuali. I mostri restano nel bestiario separato con 330 schede verificate, non duplicate nel compendio.
 
 ## Filtri e prestazioni
 
@@ -58,7 +60,7 @@ Gli **incantesimi** contengono 339 schede strutturate con descrizioni estratte d
 
 L'app ora carica gli incantesimi automaticamente da `public/compendio/incantesimi.json` e permette di aprire il testo della pagina SRD per le altre categorie, tramite `src/dati/caricamentoSezioniSRD.js`. Il loader usa fetch on demand e cache delle richieste. In mancanza dell'asset, le voci sintetiche già presenti continuano a essere visualizzate.
 
-**Azione indispensabile:** estrarre lo ZIP nella radice del progetto e committare la cartella `public/compendio` sul branch `feature/r4-2-gestione-dati-integrazione`. Gli asset JSON **non sono ancora nel repository remoto**. Non usare il vecchio ZIP che conteneva soltanto il file degli incantesimi nella radice di `public`.
+**Stato aggiornato:** la cartella `public/compendio/` con i nove archivi JSON e il manifest è già presente nel repository. La precedente istruzione di estrazione dello ZIP è superata e conservata solo come nota storica.
 
 **Lavoro residuo:** normalizzare e verificare le singole voci delle otto categorie, estrarre le tabelle in dati strutturati, correggere eventuali errori di estrazione e aggiungere test di corrispondenza testuale al PDF. Non dichiarare il compendio completo sulla sola base della presenza dei file.
 
