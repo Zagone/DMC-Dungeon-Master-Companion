@@ -24,14 +24,20 @@ function righePulite(testo) {
 }
 
 function raccoltaSezioni(archivio, titoli, paginaMinima = 0, paginaMassima = Infinity) {
-  const titoliPerChiave = new Map(titoli.map((titolo) => [chiaveSRD(titolo), titolo]))
+  // Il descrittore tra parentesi è parte dell'intestazione: senza di esso
+  // riferimenti interni come «Incapacitato» sarebbero falsi nuovi titoli.
+  const intestazione = (riga) => riga.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .toLocaleLowerCase('it-IT').replace(/\s+/g, ' ').trim()
+  const titoliPerChiave = new Map(titoli.map((titolo) => [intestazione(titolo), titolo]))
   const sezioni = []
+  const viste = new Set()
   let corrente = null
   for (const pagina of archivio?.pagine || []) {
     if (pagina.pagina < paginaMinima || pagina.pagina > paginaMassima) continue
     for (const riga of righePulite(pagina.testo)) {
-      const titolo = titoliPerChiave.get(chiaveSRD(riga))
-      if (titolo) {
+      const titolo = titoliPerChiave.get(intestazione(riga))
+      if (titolo && !viste.has(intestazione(titolo))) {
+        viste.add(intestazione(titolo))
         corrente = { titolo, pagina: pagina.pagina, righe: [], pagine: [pagina.pagina] }
         sezioni.push(corrente)
         continue
