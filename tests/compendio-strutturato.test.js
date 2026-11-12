@@ -7,8 +7,10 @@ import {
   estraiTestiSpecieSRD,
   estraiTestiOriginiSRD,
   estraiTestiOggettiMagiciSRD,
+  estraiTestiEquipaggiamentoSRD,
 } from '../src/dati/letturaStrutturataSRD.js'
 import { estraiIndiceOggettiMagici } from '../src/dati/indiceOggettiMagiciSRD.js'
+import { EQUIPAGGIAMENTO_AVVENTURA_SRD } from '../src/dati/equipaggiamentoAvventuraSRD.js'
 
 function archivio(nome) {
   return JSON.parse(readFileSync(new URL('../public/compendio/' + nome + '.json', import.meta.url), 'utf8'))
@@ -56,6 +58,15 @@ test('Gli oggetti magici delimitano le descrizioni anche con tipi specificati', 
   assert.match(ali.descrizione, /velocità di volo di 18 metri/i)
   assert.doesNotMatch(ali.descrizione, /Ammazzadraghi|Ammazzagiganti/i)
   assert.equal(ali.dettagliCompleti, false, 'La trascrizione automatica non è revisione editoriale')
+})
+
+test('Le descrizioni dell’equipaggiamento sono delimitate per singolo oggetto', () => {
+  const dati = estraiTestiEquipaggiamentoSRD(archivio('equipaggiamento'), EQUIPAGGIAMENTO_AVVENTURA_SRD)
+  assert.ok(dati.size >= 80)
+  const acido = dati.get('Acido')
+  assert.match(acido.testo, /2d6 danni da acido/i)
+  assert.doesNotMatch(acido.testo, /^Acqua santa \\(/m)
+  assert.match(dati.get('Corda').testo, /corda/i)
 })
 
 test('La lettura restituisce blocchi tipografici, non HTML o pagine grezze', () => {
