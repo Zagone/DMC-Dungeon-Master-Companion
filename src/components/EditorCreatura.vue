@@ -961,12 +961,15 @@ function salva() {
 /* Navigazione editor a sezioni: un solo pannello visibile, campi reattivi preservati. */
 .navigazione-sezioni {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 8px;
 }
 .navigazione-sezioni button {
-  justify-content: flex-start;
+  justify-content: center;
+  justify-self: stretch;
+  width: 100%;
   min-width: 0;
+  gap: 8px;
   text-align: left;
   padding: 11px;
   border: 1px solid var(--dmc-border-soft);
@@ -1014,6 +1017,11 @@ function salva() {
 }
 .riepilogo-editor p {
   line-height: 1.55;
+}
+@media (max-width: 1100px) {
+  .navigazione-sezioni {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 @media (max-width: 700px) {
   .navigazione-sezioni {
