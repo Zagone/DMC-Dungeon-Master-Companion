@@ -1,11 +1,6 @@
-
 <script setup>
 import { computed } from 'vue'
-import {
-  chiaviCaratteristiche,
-  gruppiRegole,
-  azioniDellaScheda,
-} from '../dati/modelloCreatura.js'
+import { chiaviCaratteristiche, gruppiRegole, azioniDellaScheda } from '../dati/modelloCreatura.js'
 
 const props = defineProps({
   creatura: {
@@ -41,11 +36,7 @@ const campiDifese = [
 ]
 
 function valore(dato) {
-  if (
-    dato === null ||
-    dato === undefined ||
-    dato === ''
-  ) {
+  if (dato === null || dato === undefined || dato === '') {
     return '—'
   }
 
@@ -53,11 +44,7 @@ function valore(dato) {
 }
 
 function segno(dato) {
-  if (
-    dato === null ||
-    dato === undefined ||
-    dato === ''
-  ) {
+  if (dato === null || dato === undefined || dato === '') {
     return '—'
   }
 
@@ -67,9 +54,7 @@ function segno(dato) {
     return '—'
   }
 
-  return numero >= 0
-    ? `+${numero}`
-    : String(numero)
+  return numero >= 0 ? `+${numero}` : String(numero)
 }
 
 function testo(dato) {
@@ -81,45 +66,29 @@ function testo(dato) {
 }
 
 function assenza(campo) {
-  return props.creatura.presenzaCampi?.[campo] ===
-    'assente_nella_scheda'
+  return props.creatura.presenzaCampi?.[campo] === 'assente_nella_scheda'
     ? 'Non presente nella scheda SRD'
     : 'Non indicato'
 }
 
 function gruppo(campo) {
-  return campo === 'azioni'
-    ? azioniDellaScheda(props.creatura)
-    : props.creatura[campo] || []
+  return campo === 'azioni' ? azioniDellaScheda(props.creatura) : props.creatura[campo] || []
 }
 
 const tassonomia = computed(() => {
   const c = props.creatura
 
-  if (
-    c.categoria === 'srd' &&
-    c.tassonomiaOriginale
-  ) {
+  if (c.categoria === 'srd' && c.tassonomiaOriginale) {
     return c.tassonomiaOriginale
   }
 
-  const taglia = c.taglie?.length
-    ? c.taglie.join(' o ')
-    : c.taglia
+  const taglia = c.taglie?.length ? c.taglie.join(' o ') : c.taglia
 
-  return [
-    c.tipo,
-    taglia,
-    c.allineamento,
-  ]
-    .filter(Boolean)
-    .join(' · ')
+  return [c.tipo, taglia, c.allineamento].filter(Boolean).join(' · ')
 })
 
 const iniziativa = computed(() =>
-  props.combattimento
-    ? props.creatura.bonusIniziativa
-    : props.creatura.iniziativa
+  props.combattimento ? props.creatura.bonusIniziativa : props.creatura.iniziativa,
 )
 
 const statistiche = computed(() => [
@@ -143,9 +112,7 @@ const statistiche = computed(() => [
     sigla: 'INI',
     valore: segno(iniziativa.value),
     dettaglio:
-      props.creatura.iniziativaPassiva != null
-        ? `Passiva ${props.creatura.iniziativaPassiva}`
-        : '',
+      props.creatura.iniziativaPassiva != null ? `Passiva ${props.creatura.iniziativaPassiva}` : '',
   },
   {
     id: 'gs',
@@ -174,24 +141,20 @@ const statistiche = computed(() => [
 ])
 
 const abilita = computed(() =>
-  (props.creatura.abilita || [])
-    .map(a => `${a.nome} ${segno(a.bonus)}`)
-    .join('; ')
+  (props.creatura.abilita || []).map((a) => `${a.nome} ${segno(a.bonus)}`).join('; '),
 )
 
 const sezioniRegole = computed(() =>
   gruppiRegole
-    .map(configurazione => ({
+    .map((configurazione) => ({
       ...configurazione,
       voci: gruppo(configurazione.campo),
     }))
-    .filter(sezione =>
-      sezione.voci.length > 0 ||
-      (
-        sezione.campo === 'azioniLeggendarie' &&
-        props.creatura.regoleAzioniLeggendarie
-      )
-    )
+    .filter(
+      (sezione) =>
+        sezione.voci.length > 0 ||
+        (sezione.campo === 'azioniLeggendarie' && props.creatura.regoleAzioniLeggendarie),
+    ),
 )
 
 function etichetteRegola(regola) {
@@ -199,8 +162,7 @@ function etichetteRegola(regola) {
 
   const risultato = []
 
-  const ricarica = String(regola.nome || '')
-    .match(/Ricarica\s*\d(?:\s*[–-]\s*\d)?/i)
+  const ricarica = String(regola.nome || '').match(/Ricarica\s*\d(?:\s*[–-]\s*\d)?/i)
 
   if (ricarica) {
     risultato.push(ricarica[0])
@@ -212,9 +174,7 @@ function etichetteRegola(regola) {
     risultato.push(cd[0].toUpperCase())
   }
 
-  const colpire = descrizione.match(
-    /[+-]\d+\s*a colpire/i
-  )
+  const colpire = descrizione.match(/[+-]\d+\s*a colpire/i)
 
   if (colpire) {
     risultato.push(colpire[0])
@@ -229,9 +189,7 @@ function esistonoDati(campi) {
 
     return Array.isArray(dato)
       ? dato.length > 0
-      : dato !== null &&
-          dato !== undefined &&
-          dato !== ''
+      : dato !== null && dato !== undefined && dato !== ''
   })
 }
 </script>
@@ -245,26 +203,17 @@ function esistonoDati(campi) {
         {{ tassonomia }}
       </p>
 
-      <p
-        v-if="creatura.sciame"
-        class="dettaglio-sciame"
-      >
+      <p v-if="creatura.sciame" class="dettaglio-sciame">
         Sciame ·
-        {{ creatura.sciame.tipoCreature }} ·
-        componenti: {{ creatura.sciame.tagliaCreature }}
+        {{ creatura.sciame.tipoCreature }} · componenti: {{ creatura.sciame.tagliaCreature }}
 
-        <span v-if="creatura.sciame.testoFonte">
-          · {{ creatura.sciame.testoFonte }}
-        </span>
+        <span v-if="creatura.sciame.testoFonte"> · {{ creatura.sciame.testoFonte }} </span>
       </p>
     </header>
 
     <!-- STATISTICHE PRINCIPALI -->
 
-    <section
-      class="sezione-statistiche"
-      aria-label="Statistiche principali"
-    >
+    <section class="sezione-statistiche" aria-label="Statistiche principali">
       <dl class="riepilogo">
         <div
           v-for="statistica in statistiche"
@@ -280,10 +229,7 @@ function esistonoDati(campi) {
             {{ statistica.valore }}
           </dd>
 
-          <dd
-            v-if="statistica.dettaglio"
-            class="dettaglio-statistica"
-          >
+          <dd v-if="statistica.dettaglio" class="dettaglio-statistica">
             {{ statistica.dettaglio }}
           </dd>
         </div>
@@ -309,11 +255,7 @@ function esistonoDati(campi) {
             <tr>
               <th scope="col">Valore</th>
 
-              <th
-                v-for="chiave in chiaviCaratteristiche"
-                :key="chiave"
-                scope="col"
-              >
+              <th v-for="chiave in chiaviCaratteristiche" :key="chiave" scope="col">
                 {{ nomiCaratteristiche[chiave] }}
               </th>
             </tr>
@@ -323,46 +265,24 @@ function esistonoDati(campi) {
             <tr>
               <th scope="row">Punteggio</th>
 
-              <td
-                v-for="chiave in chiaviCaratteristiche"
-                :key="chiave"
-                class="punteggio"
-              >
-                {{
-                  valore(
-                    creatura.caratteristiche?.[chiave]
-                  )
-                }}
+              <td v-for="chiave in chiaviCaratteristiche" :key="chiave" class="punteggio">
+                {{ valore(creatura.caratteristiche?.[chiave]) }}
               </td>
             </tr>
 
             <tr>
               <th scope="row">MOD</th>
 
-              <td
-                v-for="chiave in chiaviCaratteristiche"
-                :key="chiave"
-              >
-                {{
-                  segno(
-                    creatura.modificatori?.[chiave]
-                  )
-                }}
+              <td v-for="chiave in chiaviCaratteristiche" :key="chiave">
+                {{ segno(creatura.modificatori?.[chiave]) }}
               </td>
             </tr>
 
             <tr>
               <th scope="row">SALV</th>
 
-              <td
-                v-for="chiave in chiaviCaratteristiche"
-                :key="chiave"
-              >
-                {{
-                  segno(
-                    creatura.tiriSalvezza?.[chiave]
-                  )
-                }}
+              <td v-for="chiave in chiaviCaratteristiche" :key="chiave">
+                {{ segno(creatura.tiriSalvezza?.[chiave]) }}
               </td>
             </tr>
           </tbody>
@@ -376,51 +296,33 @@ function esistonoDati(campi) {
       <h4>Movimento e percezione</h4>
 
       <dl class="proprieta">
-        <template
-          v-for="[campo, titolo] in campiMovimento"
-          :key="campo"
-        >
+        <template v-for="[campo, titolo] in campiMovimento" :key="campo">
           <dt>{{ titolo }}</dt>
 
           <dd>
-            {{
-              testo(creatura[campo]) ||
-              assenza(campo)
-            }}
+            {{ testo(creatura[campo]) || assenza(campo) }}
           </dd>
         </template>
 
         <dt>Abilità</dt>
 
         <dd>
-          {{
-            abilita ||
-            assenza('abilita')
-          }}
+          {{ abilita || assenza('abilita') }}
         </dd>
       </dl>
     </section>
 
     <!-- DIFESE -->
 
-    <section
-      v-if="esistonoDati(campiDifese)"
-      class="sezione-proprieta"
-    >
+    <section v-if="esistonoDati(campiDifese)" class="sezione-proprieta">
       <h4>Difese e immunità</h4>
 
       <dl class="proprieta">
-        <template
-          v-for="[campo, titolo] in campiDifese"
-          :key="campo"
-        >
+        <template v-for="[campo, titolo] in campiDifese" :key="campo">
           <dt>{{ titolo }}</dt>
 
           <dd>
-            {{
-              testo(creatura[campo]) ||
-              assenza(campo)
-            }}
+            {{ testo(creatura[campo]) || assenza(campo) }}
           </dd>
         </template>
       </dl>
@@ -428,17 +330,11 @@ function esistonoDati(campi) {
 
     <!-- ALTRI DATI DIFENSIVI -->
 
-    <section
-      v-else
-      class="sezione-proprieta"
-    >
+    <section v-else class="sezione-proprieta">
       <h4>Difese e immunità</h4>
 
       <dl class="proprieta">
-        <template
-          v-for="[campo, titolo] in campiDifese"
-          :key="campo"
-        >
+        <template v-for="[campo, titolo] in campiDifese" :key="campo">
           <dt>{{ titolo }}</dt>
 
           <dd>
@@ -450,10 +346,7 @@ function esistonoDati(campi) {
 
     <!-- EQUIPAGGIAMENTO -->
 
-    <section
-      v-if="creatura.equipaggiamento"
-      class="sezione-proprieta"
-    >
+    <section v-if="creatura.equipaggiamento" class="sezione-proprieta">
       <h4>Equipaggiamento</h4>
 
       <p class="testo-regola">
@@ -462,10 +355,7 @@ function esistonoDati(campi) {
     </section>
 
     <div
-      v-else-if="
-        creatura.presenzaCampi?.equipaggiamento ===
-        'assente_nella_scheda'
-      "
+      v-else-if="creatura.presenzaCampi?.equipaggiamento === 'assente_nella_scheda'"
       class="informazione-assente"
     >
       <strong>Equipaggiamento:</strong>
@@ -474,28 +364,17 @@ function esistonoDati(campi) {
 
     <!-- NOTE SULLA FONTE -->
 
-    <aside
-      v-if="creatura.noteFonte?.length"
-      class="note-fonte"
-      aria-label="Note sulla fonte"
-    >
+    <aside v-if="creatura.noteFonte?.length" class="note-fonte" aria-label="Note sulla fonte">
       <h4>Note sulla fonte</h4>
 
-      <p
-        v-for="nota in creatura.noteFonte"
-        :key="nota.codice"
-      >
+      <p v-for="nota in creatura.noteFonte" :key="nota.codice">
         {{ nota.descrizione }}
       </p>
     </aside>
 
     <!-- CAPACITÀ E AZIONI -->
 
-    <section
-      v-for="sezione in sezioniRegole"
-      :key="sezione.campo"
-      class="gruppo-regole"
-    >
+    <section v-for="sezione in sezioniRegole" :key="sezione.campo" class="gruppo-regole">
       <header class="intestazione-regole">
         <h4>{{ sezione.titolo }}</h4>
 
@@ -505,29 +384,19 @@ function esistonoDati(campi) {
       </header>
 
       <p
-        v-if="
-          sezione.campo === 'azioniLeggendarie' &&
-          creatura.regoleAzioniLeggendarie
-        "
+        v-if="sezione.campo === 'azioniLeggendarie' && creatura.regoleAzioniLeggendarie"
         class="introduzione-regole"
       >
         {{ creatura.regoleAzioniLeggendarie }}
       </p>
 
-      <article
-        v-for="(regola, indice) in sezione.voci"
-        :key="indice"
-        class="regola"
-      >
+      <article v-for="(regola, indice) in sezione.voci" :key="indice" class="regola">
         <header class="intestazione-regola">
           <h5>
             {{ regola.nome }}
           </h5>
 
-          <div
-            v-if="etichetteRegola(regola).length"
-            class="etichette-regola"
-          >
+          <div v-if="etichetteRegola(regola).length" class="etichette-regola">
             <span
               v-for="etichetta in etichetteRegola(regola)"
               :key="etichetta"
@@ -546,10 +415,7 @@ function esistonoDati(campi) {
 
     <!-- NOTE PERSONALI -->
 
-    <section
-      v-if="creatura.note"
-      class="sezione-note"
-    >
+    <section v-if="creatura.note" class="sezione-note">
       <h4>Note personali</h4>
 
       <p class="testo-regola">
@@ -559,10 +425,7 @@ function esistonoDati(campi) {
 
     <!-- FONTE -->
 
-    <footer
-      v-if="creatura.fonte || creatura.derivataDa"
-      class="fonte"
-    >
+    <footer v-if="creatura.fonte || creatura.derivataDa" class="fonte">
       <span v-if="creatura.fonte">
         <strong>Fonte:</strong>
         {{ creatura.fonte }}

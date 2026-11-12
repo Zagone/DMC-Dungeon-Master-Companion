@@ -1,13 +1,13 @@
 const PERCORSI = Object.freeze({
-  'Incantesimi': 'incantesimi',
-  'Classi': 'classi',
-  'Specie': 'specie',
-  'Origini': 'origini',
-  'Talenti': 'talenti',
-  'Equipaggiamento': 'equipaggiamento',
+  Incantesimi: 'incantesimi',
+  Classi: 'classi',
+  Specie: 'specie',
+  Origini: 'origini',
+  Talenti: 'talenti',
+  Equipaggiamento: 'equipaggiamento',
   'Oggetti magici': 'oggetti-magici',
-  'Regole': 'regole',
-  'Condizioni': 'condizioni'
+  Regole: 'regole',
+  Condizioni: 'condizioni',
 })
 
 const cache = new Map()
@@ -17,7 +17,7 @@ export async function caricaSezioneSRD(categoria) {
   if (!percorso) throw new Error('Categoria SRD non riconosciuta.')
   if (!cache.has(percorso)) {
     const richiesta = fetch(`${import.meta.env?.BASE_URL || '/'}compendio/${percorso}.json`)
-      .then(async risposta => {
+      .then(async (risposta) => {
         if (!risposta.ok) throw new Error('Archivio della categoria non disponibile.')
         const dati = await risposta.json()
         if (!dati || dati.versione !== 1) throw new Error('Versione archivio non supportata.')
@@ -25,12 +25,17 @@ export async function caricaSezioneSRD(categoria) {
           if (dati.formato !== 'dmc-compendio-incantesimi' || !Array.isArray(dati.incantesimi)) {
             throw new Error('Formato incantesimi non valido.')
           }
-        } else if (dati.formato !== 'dmc-compendio-sezione' || dati.categoria !== percorso ||
-                   !Array.isArray(dati.pagine) || !dati.pagine.every(p => Number.isInteger(p.pagina) && typeof p.testo === 'string')) {
+        } else if (
+          dati.formato !== 'dmc-compendio-sezione' ||
+          dati.categoria !== percorso ||
+          !Array.isArray(dati.pagine) ||
+          !dati.pagine.every((p) => Number.isInteger(p.pagina) && typeof p.testo === 'string')
+        ) {
           throw new Error('Formato della sezione non valido.')
         }
         return dati
-      }).catch(errore => {
+      })
+      .catch((errore) => {
         cache.delete(percorso)
         throw errore
       })
@@ -41,7 +46,7 @@ export async function caricaSezioneSRD(categoria) {
 
 export function paginaSRD(sezione, numeroPagina) {
   if (!sezione || !Array.isArray(sezione.pagine)) return ''
-  return sezione.pagine.find(p => p.pagina === numeroPagina)?.testo || ''
+  return sezione.pagine.find((p) => p.pagina === numeroPagina)?.testo || ''
 }
 
 /**
@@ -56,14 +61,13 @@ const INIZI_CLASSI = Object.freeze([32, 35, 41, 46, 53, 55, 59, 66, 70, 75, 79, 
 export function estrattoVoceSRD(sezione, voce) {
   if (!voce || !Number.isInteger(voce.pagina)) return { testo: '', pagine: [] }
   const inizio = voce.pagina
-  const fine = voce.categoria === 'Classi'
-    ? (INIZI_CLASSI.find(p => p > inizio) || inizio + 1)
-    : inizio + 1
+  const fine =
+    voce.categoria === 'Classi' ? INIZI_CLASSI.find((p) => p > inizio) || inizio + 1 : inizio + 1
   const pagine = (sezione?.pagine || [])
-    .filter(p => p.pagina >= inizio && p.pagina < fine)
+    .filter((p) => p.pagina >= inizio && p.pagina < fine)
     .sort((a, b) => a.pagina - b.pagina)
   return {
-    testo: pagine.map(p => `[Pagina SRD ${p.pagina}]\n${p.testo}`).join('\n\n'),
-    pagine: pagine.map(p => p.pagina)
+    testo: pagine.map((p) => `[Pagina SRD ${p.pagina}]\n${p.testo}`).join('\n\n'),
+    pagine: pagine.map((p) => p.pagina),
   }
 }

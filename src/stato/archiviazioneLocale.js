@@ -4,7 +4,8 @@ export function scriviTransazione(modifiche, archivio = localStorage) {
   const prima = new Map()
   const scritte = []
   try {
-    for (const [chiave] of modifiche) if (!prima.has(chiave)) prima.set(chiave, archivio.getItem(chiave))
+    for (const [chiave] of modifiche)
+      if (!prima.has(chiave)) prima.set(chiave, archivio.getItem(chiave))
     for (const [chiave, valore] of modifiche) {
       if (valore === null) archivio.removeItem(chiave)
       else archivio.setItem(chiave, valore)
@@ -18,7 +19,9 @@ export function scriviTransazione(modifiche, archivio = localStorage) {
         const valore = prima.get(chiave)
         if (valore === null) archivio.removeItem(chiave)
         else archivio.setItem(chiave, valore)
-      } catch { ripristinato = false }
+      } catch {
+        ripristinato = false
+      }
     }
     return { successo: false, ripristinato, errore }
   }

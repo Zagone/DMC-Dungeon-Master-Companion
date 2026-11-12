@@ -29,22 +29,15 @@ export function usaModale(aperta, riferimento, chiudi) {
   }
 
   function controlli() {
-    return finestra
-      ? [...finestra.querySelectorAll(SELETTORE_FOCUS)]
-          .filter(puoRicevereFocus)
-      : []
+    return finestra ? [...finestra.querySelectorAll(SELETTORE_FOCUS)].filter(puoRicevereFocus) : []
   }
 
   function portaFocusDentro() {
     if (!finestra) return
 
-    const iniziale = finestra.querySelector(
-      '[data-focus-iniziale]'
-    )
+    const iniziale = finestra.querySelector('[data-focus-iniziale]')
 
-    const destinazione = puoRicevereFocus(iniziale)
-      ? iniziale
-      : controlli()[0] || finestra
+    const destinazione = puoRicevereFocus(iniziale) ? iniziale : controlli()[0] || finestra
 
     destinazione.focus()
   }
@@ -71,31 +64,18 @@ export function usaModale(aperta, riferimento, chiudi) {
       finestra.focus()
     } else if (
       evento.shiftKey &&
-      (
-        attivo === primo ||
-        attivo === finestra ||
-        !finestra.contains(attivo)
-      )
+      (attivo === primo || attivo === finestra || !finestra.contains(attivo))
     ) {
       evento.preventDefault()
       ultimo.focus()
-    } else if (
-      !evento.shiftKey &&
-      (
-        attivo === ultimo ||
-        !finestra.contains(attivo)
-      )
-    ) {
+    } else if (!evento.shiftKey && (attivo === ultimo || !finestra.contains(attivo))) {
       evento.preventDefault()
       primo.focus()
     }
   }
 
   function controllaFocus(evento) {
-    if (
-      finestra &&
-      !finestra.contains(evento.target)
-    ) {
+    if (finestra && !finestra.contains(evento.target)) {
       portaFocusDentro()
     }
   }
@@ -103,17 +83,9 @@ export function usaModale(aperta, riferimento, chiudi) {
   function disattiva(ripristinaFocus = true) {
     if (!finestra) return
 
-    document.removeEventListener(
-      'keydown',
-      gestisciTastiera,
-      true
-    )
+    document.removeEventListener('keydown', gestisciTastiera, true)
 
-    document.removeEventListener(
-      'focusin',
-      controllaFocus,
-      true
-    )
+    document.removeEventListener('focusin', controllaFocus, true)
 
     for (const [elemento, valore] of sfondo) {
       if (valore === null) {
@@ -124,11 +96,7 @@ export function usaModale(aperta, riferimento, chiudi) {
     }
 
     if (overflowPrecedente) {
-      document.body.style.setProperty(
-        'overflow',
-        overflowPrecedente,
-        prioritaOverflow
-      )
+      document.body.style.setProperty('overflow', overflowPrecedente, prioritaOverflow)
     } else {
       document.body.style.removeProperty('overflow')
     }
@@ -153,11 +121,9 @@ export function usaModale(aperta, riferimento, chiudi) {
 
     finestra = elemento
 
-    overflowPrecedente =
-      document.body.style.getPropertyValue('overflow')
+    overflowPrecedente = document.body.style.getPropertyValue('overflow')
 
-    prioritaOverflow =
-      document.body.style.getPropertyPriority('overflow')
+    prioritaOverflow = document.body.style.getPropertyPriority('overflow')
 
     document.body.style.setProperty('overflow', 'hidden')
 
@@ -167,17 +133,11 @@ export function usaModale(aperta, riferimento, chiudi) {
 
     while (nodo?.parentElement) {
       for (const fratello of nodo.parentElement.children) {
-        if (
-          fratello === nodo ||
-          ['SCRIPT', 'STYLE', 'LINK'].includes(fratello.tagName)
-        ) {
+        if (fratello === nodo || ['SCRIPT', 'STYLE', 'LINK'].includes(fratello.tagName)) {
           continue
         }
 
-        sfondo.push([
-          fratello,
-          fratello.getAttribute('inert'),
-        ])
+        sfondo.push([fratello, fratello.getAttribute('inert')])
 
         fratello.setAttribute('inert', '')
       }
@@ -187,17 +147,9 @@ export function usaModale(aperta, riferimento, chiudi) {
       if (nodo === document.body) break
     }
 
-    document.addEventListener(
-      'keydown',
-      gestisciTastiera,
-      true
-    )
+    document.addEventListener('keydown', gestisciTastiera, true)
 
-    document.addEventListener(
-      'focusin',
-      controllaFocus,
-      true
-    )
+    document.addEventListener('focusin', controllaFocus, true)
 
     portaFocusDentro()
   }
@@ -210,7 +162,7 @@ export function usaModale(aperta, riferimento, chiudi) {
         precedente = document.activeElement
       }
     },
-    { flush: 'sync' }
+    { flush: 'sync' },
   )
 
   watch(
@@ -222,7 +174,7 @@ export function usaModale(aperta, riferimento, chiudi) {
         disattiva()
       }
     },
-    { flush: 'post' }
+    { flush: 'post' },
   )
 
   onBeforeUnmount(() => disattiva(false))

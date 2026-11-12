@@ -1,13 +1,5 @@
-
 <script setup>
-import {
-  computed,
-  nextTick,
-  onBeforeUnmount,
-  onMounted,
-  ref,
-  watch,
-} from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 
 import {
   leggiArchivioCreature,
@@ -22,14 +14,9 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits([
-  'chiudi',
-  'manuale',
-])
+const emit = defineEmits(['chiudi', 'manuale'])
 
-const categoria = computed(() =>
-  props.categoria === 'png' ? 'png' : 'homebrew'
-)
+const categoria = computed(() => (props.categoria === 'png' ? 'png' : 'homebrew'))
 
 const CHIAVE_BOZZA = 'dmc-bozza-creazione-assistita-v2'
 
@@ -60,13 +47,7 @@ let overflowPrecedente = ''
 let inizializzazione = true
 let richiesta = 0
 
-const ruoli = [
-  'nemico comune',
-  'mini-boss',
-  'boss',
-  'alleato',
-  'PNG narrativo',
-]
+const ruoli = ['nemico comune', 'mini-boss', 'boss', 'alleato', 'PNG narrativo']
 
 const bozza = computed(() => ({
   nome: nome.value,
@@ -79,9 +60,7 @@ const bozza = computed(() => ({
   indicazioni: indicazioni.value,
 }))
 
-const chiave = computed(
-  () => `${CHIAVE_BOZZA}-${categoria.value}`
-)
+const chiave = computed(() => `${CHIAVE_BOZZA}-${categoria.value}`)
 
 function testo(valore, alternativa = 'Non specificato') {
   const risultato = String(valore ?? '').trim()
@@ -92,15 +71,11 @@ function recuperaBozza() {
   inizializzazione = true
 
   try {
-    const salvata = JSON.parse(
-      localStorage.getItem(chiave.value) || 'null'
-    )
+    const salvata = JSON.parse(localStorage.getItem(chiave.value) || 'null')
 
     if (salvata && typeof salvata === 'object') {
       nome.value = String(salvata.nome ?? '').slice(0, 100)
-      descrizione.value = String(
-        salvata.descrizione ?? ''
-      ).slice(0, 3000)
+      descrizione.value = String(salvata.descrizione ?? '').slice(0, 3000)
 
       ruolo.value = ruoli.includes(salvata.ruolo)
         ? salvata.ruolo
@@ -114,28 +89,16 @@ function recuperaBozza() {
       const l = Number(salvata.livelloGruppo)
 
       giocatori.value =
-        salvata.numeroGiocatori != null &&
-        Number.isInteger(n) && n >= 1 && n <= 20
-          ? n
-          : null
+        salvata.numeroGiocatori != null && Number.isInteger(n) && n >= 1 && n <= 20 ? n : null
 
       livello.value =
-        salvata.livelloGruppo != null &&
-        Number.isInteger(l) && l >= 1 && l <= 20
-          ? l
-          : null
+        salvata.livelloGruppo != null && Number.isInteger(l) && l >= 1 && l <= 20 ? l : null
 
-      complessita.value = [
-        'semplice',
-        'intermedia',
-        'avanzata',
-      ].includes(salvata.complessita)
+      complessita.value = ['semplice', 'intermedia', 'avanzata'].includes(salvata.complessita)
         ? salvata.complessita
         : 'intermedia'
 
-      indicazioni.value = String(
-        salvata.indicazioni ?? ''
-      ).slice(0, 2000)
+      indicazioni.value = String(salvata.indicazioni ?? '').slice(0, 2000)
     } else {
       azzeraBozza()
     }
@@ -150,10 +113,7 @@ function salvaBozza() {
   if (inizializzazione) return
 
   try {
-    localStorage.setItem(
-      chiave.value,
-      JSON.stringify(bozza.value)
-    )
+    localStorage.setItem(chiave.value, JSON.stringify(bozza.value))
   } catch {
     // La bozza non deve impedire la creazione.
   }
@@ -164,9 +124,7 @@ watch(bozza, salvaBozza, { deep: true })
 function azzeraBozza() {
   nome.value = ''
   descrizione.value = ''
-  ruolo.value = categoria.value === 'png'
-    ? 'PNG narrativo'
-    : 'nemico comune'
+  ruolo.value = categoria.value === 'png' ? 'PNG narrativo' : 'nemico comune'
   gs.value = ''
   giocatori.value = null
   livello.value = null
@@ -363,8 +321,7 @@ async function copiaPrompt() {
     await navigator.clipboard.writeText(prompt.value)
     messaggio.value = 'Prompt copiato negli appunti.'
   } catch {
-    errore.value =
-      'Copia automatica non riuscita. Seleziona e copia il prompt dall’anteprima.'
+    errore.value = 'Copia automatica non riuscita. Seleziona e copia il prompt dall’anteprima.'
   }
 }
 
@@ -390,12 +347,8 @@ async function leggiFile(evento) {
 
   const corrente = ++richiesta
 
-  if (
-    file.size === 0 ||
-    file.size > DIMENSIONE_MAX_CREATURE
-  ) {
-    errore.value =
-      'Seleziona un JSON non vuoto di dimensione massima 5 MB.'
+  if (file.size === 0 || file.size > DIMENSIONE_MAX_CREATURE) {
+    errore.value = 'Seleziona un JSON non vuoto di dimensione massima 5 MB.'
     return
   }
 
@@ -408,25 +361,19 @@ async function leggiFile(evento) {
 
     const risultato = leggiArchivioCreature(contenuto)
 
-    if (
-      !risultato ||
-      !Array.isArray(risultato.creature)
-    ) {
+    if (!risultato || !Array.isArray(risultato.creature)) {
       throw new Error('Archivio di creature non valido.')
     }
 
     archivio.value = risultato
     nomeFile.value = file.name
-    selezionate.value = risultato.creature.map(
-      (_, indice) => indice
-    )
+    selezionate.value = risultato.creature.map((_, indice) => indice)
 
     await nextTick()
     dialogo.value?.focus({ preventScroll: true })
   } catch (e) {
     if (corrente === richiesta) {
-      errore.value =
-        e.message || 'Impossibile leggere il JSON.'
+      errore.value = e.message || 'Impossibile leggere il JSON.'
     }
   } finally {
     if (corrente === richiesta) {
@@ -439,22 +386,15 @@ async function leggiFile(evento) {
 }
 
 function confermaImportazione() {
-  if (
-    !archivio.value ||
-    selezionate.value.length === 0
-  ) {
-    errore.value =
-      'Seleziona almeno una creatura da importare.'
+  if (!archivio.value || selezionate.value.length === 0) {
+    errore.value = 'Seleziona almeno una creatura da importare.'
     return
   }
 
   errore.value = ''
 
   try {
-    const quantita = importaArchivioCreature(
-      archivio.value,
-      selezionate.value
-    )
+    const quantita = importaArchivioCreature(archivio.value, selezionate.value)
 
     pulisciImportazione()
     messaggio.value =
@@ -466,8 +406,7 @@ function confermaImportazione() {
     // Chiudiamo soltanto dopo l'importazione riuscita.
     emit('chiudi')
   } catch (e) {
-    errore.value =
-      e.message || 'Importazione non riuscita.'
+    errore.value = e.message || 'Importazione non riuscita.'
   }
 }
 
@@ -493,29 +432,18 @@ function gestioneTastiera(evento) {
   if (evento.key !== 'Tab' || !dialogo.value) return
 
   const elementi = [
-    ...dialogo.value.querySelectorAll(
-      'button, input, select, textarea, a[href]'
-    ),
-  ].filter(el =>
-    !el.disabled &&
-    el.getClientRects().length > 0
-  )
+    ...dialogo.value.querySelectorAll('button, input, select, textarea, a[href]'),
+  ].filter((el) => !el.disabled && el.getClientRects().length > 0)
 
   if (!elementi.length) return
 
   const primo = elementi[0]
   const ultimo = elementi[elementi.length - 1]
 
-  if (
-    evento.shiftKey &&
-    document.activeElement === primo
-  ) {
+  if (evento.shiftKey && document.activeElement === primo) {
     evento.preventDefault()
     ultimo.focus()
-  } else if (
-    !evento.shiftKey &&
-    document.activeElement === ultimo
-  ) {
+  } else if (!evento.shiftKey && document.activeElement === ultimo) {
     evento.preventDefault()
     primo.focus()
   }
@@ -571,42 +499,25 @@ onBeforeUnmount(() => {
       <header class="intestazione">
         <div>
           <h3 id="titolo-creazione">
-            {{
-              categoria === 'png'
-                ? 'Nuovo PNG'
-                : 'Nuova creatura'
-            }}
+            {{ categoria === 'png' ? 'Nuovo PNG' : 'Nuova creatura' }}
           </h3>
           <p>Creazione personalizzata per DMC</p>
         </div>
 
-        <button class="dmc-btn dmc-btn--secondary" type="button" @click="chiudi">
-          Chiudi
-        </button>
+        <button class="dmc-btn dmc-btn--secondary" type="button" @click="chiudi">Chiudi</button>
       </header>
 
       <!-- SCELTA INIZIALE -->
 
       <div v-if="fase === 'scelta'" class="opzioni">
-        <button
-          type="button"
-          class="scelta dmc-pannello dmc-carta"
-          @click="emit('manuale')"
-        >
+        <button type="button" class="scelta dmc-pannello dmc-carta" @click="emit('manuale')">
           <strong>Crea da zero</strong>
           <span>Apri l'editor completo della scheda.</span>
         </button>
 
-        <button
-          type="button"
-          class="scelta dmc-pannello dmc-carta"
-          @click="fase = 'chatgpt'"
-        >
+        <button type="button" class="scelta dmc-pannello dmc-carta" @click="fase = 'chatgpt'">
           <strong>Crea con ChatGPT</strong>
-          <span>
-            Descrivi la creatura e genera un JSON
-            compatibile con DMC.
-          </span>
+          <span> Descrivi la creatura e genera un JSON compatibile con DMC. </span>
         </button>
       </div>
 
@@ -614,14 +525,14 @@ onBeforeUnmount(() => {
 
       <div v-else-if="fase === 'chatgpt'" class="contenuto">
         <p class="spiegazione">
-          Compila i dati disponibili. ChatGPT proporrà
-          le altre caratteristiche.
+          Compila i dati disponibili. ChatGPT proporrà le altre caratteristiche.
         </p>
 
         <div class="campi">
           <label>
             Nome
-            <input class="dmc-campo"
+            <input
+              class="dmc-campo"
               ref="primoCampo"
               v-model="nome"
               maxlength="100"
@@ -632,11 +543,7 @@ onBeforeUnmount(() => {
           <label>
             Ruolo
             <select class="dmc-campo" v-model="ruolo">
-              <option
-                v-for="opzione in ruoli"
-                :key="opzione"
-                :value="opzione"
-              >
+              <option v-for="opzione in ruoli" :key="opzione" :value="opzione">
                 {{ opzione }}
               </option>
             </select>
@@ -644,7 +551,8 @@ onBeforeUnmount(() => {
 
           <label class="ampio">
             Descrizione e concept
-            <textarea class="dmc-campo"
+            <textarea
+              class="dmc-campo"
               v-model="descrizione"
               rows="4"
               maxlength="3000"
@@ -654,11 +562,7 @@ onBeforeUnmount(() => {
 
           <label>
             GS desiderato
-            <input class="dmc-campo"
-              v-model="gs"
-              maxlength="12"
-              placeholder="Es. 1/2, 3, 9"
-            />
+            <input class="dmc-campo" v-model="gs" maxlength="12" placeholder="Es. 1/2, 3, 9" />
           </label>
 
           <label>
@@ -672,7 +576,8 @@ onBeforeUnmount(() => {
 
           <label>
             Numero di giocatori
-            <input class="dmc-campo"
+            <input
+              class="dmc-campo"
               v-model.number="giocatori"
               type="number"
               min="1"
@@ -683,7 +588,8 @@ onBeforeUnmount(() => {
 
           <label>
             Livello del gruppo
-            <input class="dmc-campo"
+            <input
+              class="dmc-campo"
               v-model.number="livello"
               type="number"
               min="1"
@@ -694,7 +600,8 @@ onBeforeUnmount(() => {
 
           <label class="ampio">
             Altre indicazioni
-            <textarea class="dmc-campo"
+            <textarea
+              class="dmc-campo"
               v-model="indicazioni"
               rows="3"
               maxlength="2000"
@@ -705,35 +612,17 @@ onBeforeUnmount(() => {
 
         <label>
           Anteprima del prompt
-          <textarea
-            class="anteprima dmc-campo"
-            :value="prompt"
-            rows="5"
-            readonly
-          ></textarea>
+          <textarea class="anteprima dmc-campo" :value="prompt" rows="5" readonly></textarea>
         </label>
 
         <div class="azioni">
-          <button class="dmc-btn dmc-btn--secondary"
-            type="button"
-            @click="fase = 'scelta'"
-          >
+          <button class="dmc-btn dmc-btn--secondary" type="button" @click="fase = 'scelta'">
             Indietro
           </button>
 
-          <button
-            type="button"
-            class="primario dmc-btn"
-            @click="copiaPrompt"
-          >
-            Copia prompt
-          </button>
+          <button type="button" class="primario dmc-btn" @click="copiaPrompt">Copia prompt</button>
 
-          <a
-            href="https://chatgpt.com/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+          <a href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer">
             Apri ChatGPT
           </a>
         </div>
@@ -741,30 +630,18 @@ onBeforeUnmount(() => {
         <div class="passaggio-importazione">
           <div>
             <strong>Hai ottenuto il JSON da ChatGPT?</strong>
-            <p>
-              Importalo direttamente qui senza chiudere
-              la creazione assistita.
-            </p>
+            <p>Importalo direttamente qui senza chiudere la creazione assistita.</p>
           </div>
 
-          <button
-            type="button"
-            class="primario dmc-btn"
-            @click="fase = 'importazione'"
-          >
+          <button type="button" class="primario dmc-btn" @click="fase = 'importazione'">
             Importa JSON
           </button>
         </div>
 
         <div class="barra-bozza">
-          <span>
-            La bozza viene salvata automaticamente.
-          </span>
+          <span> La bozza viene salvata automaticamente. </span>
 
-          <button class="dmc-btn dmc-btn--secondary"
-            type="button"
-            @click="cancellaBozza"
-          >
+          <button class="dmc-btn dmc-btn--secondary" type="button" @click="cancellaBozza">
             Cancella bozza
           </button>
         </div>
@@ -775,10 +652,7 @@ onBeforeUnmount(() => {
       <div v-else class="contenuto">
         <div class="testata-importazione">
           <h4>Importa il JSON generato</h4>
-          <p>
-            Il file viene controllato prima di
-            aggiungere le creature al Bestiario.
-          </p>
+          <p>Il file viene controllato prima di aggiungere le creature al Bestiario.</p>
         </div>
 
         <label>
@@ -791,15 +665,9 @@ onBeforeUnmount(() => {
           />
         </label>
 
-        <p v-if="caricamento" role="status">
-          Lettura e validazione del file...
-        </p>
+        <p v-if="caricamento" role="status">Lettura e validazione del file...</p>
 
-        <section
-          v-if="archivio"
-          class="anteprima-importazione"
-          aria-label="Anteprima importazione"
-        >
+        <section v-if="archivio" class="anteprima-importazione" aria-label="Anteprima importazione">
           <h4>Anteprima</h4>
 
           <p>
@@ -814,25 +682,17 @@ onBeforeUnmount(() => {
               :key="indice"
               class="voce-importazione"
             >
-              <input
-                v-model="selezionate"
-                type="checkbox"
-                :value="indice"
-              />
+              <input v-model="selezionate" type="checkbox" :value="indice" />
 
               <span>
                 <strong>{{ creatura.nome }}</strong>
-                <small>
-                  {{ creatura.categoria }} ·
-                  GS {{ creatura.gs || '—' }}
-                </small>
+                <small> {{ creatura.categoria }} · GS {{ creatura.gs || '—' }} </small>
               </span>
             </label>
           </div>
 
           <p class="nota">
-            Le schede selezionate saranno importate
-            come copie personali modificabili.
+            Le schede selezionate saranno importate come copie personali modificabili.
           </p>
 
           <button
@@ -846,10 +706,7 @@ onBeforeUnmount(() => {
           </button>
         </section>
 
-        <button class="dmc-btn dmc-btn--secondary"
-          type="button"
-          @click="tornaAllaCreazione"
-        >
+        <button class="dmc-btn dmc-btn--secondary" type="button" @click="tornaAllaCreazione">
           Torna alla creazione
         </button>
       </div>

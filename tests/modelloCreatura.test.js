@@ -1,6 +1,11 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { creaIstanza, modelloCreatura, normalizzaCreatura, utilizzabile } from '../src/dati/modelloCreatura.js'
+import {
+  creaIstanza,
+  modelloCreatura,
+  normalizzaCreatura,
+  utilizzabile,
+} from '../src/dati/modelloCreatura.js'
 
 test('istanze dello stesso mostro hanno ID distinti e PF indipendenti', () => {
   const base = { ...modelloCreatura(), id: 'lupo', nome: 'Lupo', ca: 13, pfMax: 11, iniziativa: 2 }
@@ -31,7 +36,8 @@ test('scheda non utilizzabile con CA o PF mancanti', () => {
 
 test('normalizzazione conserva campi personalizzati e separa le azioni', () => {
   const c = normalizzaCreatura({
-    nome: 'Creatura', campoHomebrew: 'persistente',
+    nome: 'Creatura',
+    campoHomebrew: 'persistente',
     attacchi: [{ nome: 'Morso' }],
   })
   assert.equal(c.campoHomebrew, 'persistente')

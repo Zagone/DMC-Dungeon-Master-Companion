@@ -1,4 +1,3 @@
-
 <script setup>
 import { computed, onBeforeUnmount, ref } from 'vue'
 import { campagne } from '../stato/statoCampagne.js'
@@ -14,7 +13,9 @@ async function caricaArchivio() {
 }
 
 let componenteAttivo = true
-onBeforeUnmount(() => { componenteAttivo = false })
+onBeforeUnmount(() => {
+  componenteAttivo = false
+})
 
 const PROMPT_CAMPAGNA = `Genera una campagna D&D in italiano come un solo file JSON valido, senza Markdown. Usa il formato DMC: {"formato":"dmc-archivio-campagne","versione":2,"creaturePersonali":[],"campagne":[...]}. Ogni campagna deve contenere nome, descrizione, stato:"preparazione", dati:{versione:1,personaggi:[],nemici:[],iniziativa:{round:1,turnoAttivo:null},sessioni:[],pngNarrativi:[],conduzione:null,note:"",bottino:[]}. Ogni sessione deve contenere id univoco, titolo, data:"", stato:"preparazione", obiettivi, resoconto:"", pgPrevisti:4, livelloPrevisto:2, scenaAttivaId:null, sceneVisitateIds:[], risorseNarrative:[], rituale:{descrizione:"",partecipanti:[]}, scene:[]. Ogni scena deve contenere id univoco, titolo, orario:"", descrizione, note:"", alternativa:"", personaggi:"", guida:[], indizi:[], pngIds:[], mostraRituale:false, incontro:{nemici:[],opzionale:false,richiedeCreature:[],suggerimentiPF:[],noteBilanciamento:""}. Non inventare ID di creature SRD. Il file sarà importato come NUOVA campagna, non aggiunto a una campagna esistente. Tema: [INSERISCI TEMA]. Numero sessioni: [NUMERO]. Rispondi solo con JSON.`
 const promptCopiato = ref(false)
@@ -23,9 +24,11 @@ async function copiaPromptCampagna() {
   try {
     await navigator.clipboard.writeText(PROMPT_CAMPAGNA)
     promptCopiato.value = true
-    messaggio.value = 'Prompt copiato. Incollalo in ChatGPT, personalizza tema e numero di sessioni e salva il JSON ottenuto.'
+    messaggio.value =
+      'Prompt copiato. Incollalo in ChatGPT, personalizza tema e numero di sessioni e salva il JSON ottenuto.'
   } catch {
-    errore.value = 'Copia non disponibile. Usa il prompt documentato in docs/GENERAZIONE_CAMPAGNE_CHATGPT.md.'
+    errore.value =
+      'Copia non disponibile. Usa il prompt documentato in docs/GENERAZIONE_CAMPAGNE_CHATGPT.md.'
   }
 }
 
@@ -45,18 +48,14 @@ const errore = ref('')
 
 const numeroCampagne = computed(() => campagne.value.length)
 
-const anteprima = computed(
-  () => archivioImportato.value?.campagne ?? []
+const anteprima = computed(() => archivioImportato.value?.campagne ?? [])
+
+const tuttoExport = computed(
+  () => numeroCampagne.value > 0 && selezioneExport.value.length === numeroCampagne.value,
 )
 
-const tuttoExport = computed(() =>
-  numeroCampagne.value > 0 &&
-  selezioneExport.value.length === numeroCampagne.value
-)
-
-const tuttoImport = computed(() =>
-  anteprima.value.length > 0 &&
-  selezioneImport.value.length === anteprima.value.length
+const tuttoImport = computed(
+  () => anteprima.value.length > 0 && selezioneImport.value.length === anteprima.value.length,
 )
 
 function pulisciFeedback() {
@@ -69,20 +68,16 @@ function cambiaEsportazione() {
   esportazioneAperta.value = !esportazioneAperta.value
 
   if (esportazioneAperta.value) {
-    selezioneExport.value = campagne.value.map(c => c.id)
+    selezioneExport.value = campagne.value.map((c) => c.id)
   }
 }
 
 function selezionaExport(tutte) {
-  selezioneExport.value = tutte
-    ? campagne.value.map(c => c.id)
-    : []
+  selezioneExport.value = tutte ? campagne.value.map((c) => c.id) : []
 }
 
 function selezionaImport(tutte) {
-  selezioneImport.value = tutte
-    ? anteprima.value.map((_, indice) => indice)
-    : []
+  selezioneImport.value = tutte ? anteprima.value.map((_, indice) => indice) : []
 }
 
 function apriFile() {
@@ -131,10 +126,7 @@ async function esportaCampagne() {
     if (!componenteAttivo) return
     const archivio = creaBackup(selezioneExport.value)
 
-    const blob = new Blob(
-      [JSON.stringify(archivio, null, 2)],
-      { type: 'application/json' }
-    )
+    const blob = new Blob([JSON.stringify(archivio, null, 2)], { type: 'application/json' })
 
     const url = URL.createObjectURL(blob)
     const collegamento = document.createElement('a')
@@ -149,8 +141,7 @@ async function esportaCampagne() {
     setTimeout(() => URL.revokeObjectURL(url), 1000)
 
     esportazioneAperta.value = false
-    messaggio.value =
-      `${archivio.campagne.length} campagne inserite nel backup.`
+    messaggio.value = `${archivio.campagne.length} campagne inserite nel backup.`
   } catch (e) {
     errore.value = e.message || 'Esportazione non riuscita.'
   } finally {
@@ -169,8 +160,7 @@ async function leggiBackup(evento) {
   nomeFile.value = file.name
 
   if (!file.size || file.size > DIMENSIONE_MAX) {
-    errore.value =
-      'Seleziona un file JSON valido, non vuoto e inferiore a 50 MB.'
+    errore.value = 'Seleziona un file JSON valido, non vuoto e inferiore a 50 MB.'
     return
   }
 
@@ -192,11 +182,9 @@ async function leggiBackup(evento) {
     verificaArchivio(archivio)
 
     archivioImportato.value = archivio
-    selezioneImport.value =
-      archivio.campagne.map((_, indice) => indice)
+    selezioneImport.value = archivio.campagne.map((_, indice) => indice)
 
-    messaggio.value =
-      `Backup letto: ${archivio.campagne.length} campagne trovate.`
+    messaggio.value = `Backup letto: ${archivio.campagne.length} campagne trovate.`
   } catch (e) {
     errore.value = e.message || 'Impossibile leggere il backup.'
     nomeFile.value = ''
@@ -206,11 +194,7 @@ async function leggiBackup(evento) {
 }
 
 async function importaCampagne() {
-  if (
-    occupato.value ||
-    !archivioImportato.value ||
-    !confermaImport.value
-  ) return
+  if (occupato.value || !archivioImportato.value || !confermaImport.value) return
 
   pulisciFeedback()
 
@@ -224,15 +208,11 @@ async function importaCampagne() {
   try {
     const { importaBackup } = await caricaArchivio()
     if (!componenteAttivo) return
-    const totale = importaBackup(
-      archivioImportato.value,
-      selezioneImport.value
-    )
+    const totale = importaBackup(archivioImportato.value, selezioneImport.value)
 
     annullaImport()
 
-    messaggio.value =
-      `${totale} campagne importate come copie indipendenti, con le schede personali e gli incontri.`
+    messaggio.value = `${totale} campagne importate come copie indipendenti, con le schede personali e gli incontri.`
   } catch (e) {
     errore.value = e.message || 'Importazione non riuscita.'
   } finally {
@@ -246,15 +226,11 @@ async function importaCampagne() {
   <section class="archivio-dmc dmc-pannello" :aria-busy="occupato">
     <header class="archivio-header">
       <div class="header-testo">
-        <span class="sopratitolo-archivio">
-          LA TUA LIBRERIA
-        </span>
+        <span class="sopratitolo-archivio"> LA TUA LIBRERIA </span>
 
         <h2>Archivio e backup</h2>
 
-        <p>
-          Proteggi le tue campagne, esportale o trasferiscile.
-        </p>
+        <p>Proteggi le tue campagne, esportale o trasferiscile.</p>
       </div>
 
       <span class="numero-campagne">
@@ -275,8 +251,8 @@ async function importaCampagne() {
           <h3>Esporta campagne</h3>
 
           <p>
-            Crea una copia delle campagne che scegli,
-            delle schede personali e degli incontri preparati.
+            Crea una copia delle campagne che scegli, delle schede personali e degli incontri
+            preparati.
           </p>
         </div>
 
@@ -287,11 +263,7 @@ async function importaCampagne() {
           @click="cambiaEsportazione"
         >
           <span>
-            {{
-              esportazioneAperta
-                ? 'Chiudi selezione'
-                : 'Seleziona campagne'
-            }}
+            {{ esportazioneAperta ? 'Chiudi selezione' : 'Seleziona campagne' }}
           </span>
 
           <span aria-hidden="true">
@@ -299,10 +271,7 @@ async function importaCampagne() {
           </span>
         </button>
 
-        <div
-          v-if="esportazioneAperta"
-          class="selezione-campagne"
-        >
+        <div v-if="esportazioneAperta" class="selezione-campagne">
           <label class="archivio-scelta scegli-tutte">
             <input
               type="checkbox"
@@ -314,17 +283,8 @@ async function importaCampagne() {
           </label>
 
           <div class="lista-selezione">
-            <label
-              v-for="c in campagne"
-              :key="c.id"
-              class="archivio-scelta"
-            >
-              <input
-                v-model="selezioneExport"
-                type="checkbox"
-                :value="c.id"
-                :disabled="occupato"
-              />
+            <label v-for="c in campagne" :key="c.id" class="archivio-scelta">
+              <input v-model="selezioneExport" type="checkbox" :value="c.id" :disabled="occupato" />
 
               <span class="nome-campagna">
                 {{ c.nome }}
@@ -340,11 +300,7 @@ async function importaCampagne() {
           >
             <span>
               Esporta {{ selezioneExport.length }}
-              {{
-                selezioneExport.length === 1
-                  ? 'campagna'
-                  : 'campagne'
-              }}
+              {{ selezioneExport.length === 1 ? 'campagna' : 'campagne' }}
             </span>
 
             <span aria-hidden="true">↓</span>
@@ -362,9 +318,7 @@ async function importaCampagne() {
         <div class="card-contenuto">
           <h3>Importa un backup</h3>
 
-          <p>
-            Carica un file DMC e scegli quali campagne recuperare.
-          </p>
+          <p>Carica un file DMC e scegli quali campagne recuperare.</p>
         </div>
 
         <input
@@ -396,19 +350,24 @@ async function importaCampagne() {
     <section class="archivio-generazione" aria-labelledby="archivio-generazione-titolo">
       <div>
         <h3 id="archivio-generazione-titolo">Crea una campagna con ChatGPT</h3>
-        <p>Usa un prompt compatibile con DMC, salva il JSON generato e importalo con «Seleziona backup». Le campagne vengono aggiunte come copie indipendenti.</p>
+        <p>
+          Usa un prompt compatibile con DMC, salva il JSON generato e importalo con «Seleziona
+          backup». Le campagne vengono aggiunte come copie indipendenti.
+        </p>
       </div>
-      <button type="button" class="archivio-btn secondario dmc-btn dmc-btn--secondary" :disabled="occupato" @click="copiaPromptCampagna">
+      <button
+        type="button"
+        class="archivio-btn secondario dmc-btn dmc-btn--secondary"
+        :disabled="occupato"
+        @click="copiaPromptCampagna"
+      >
         {{ promptCopiato ? 'Copia nuovamente il prompt' : 'Copia prompt per ChatGPT' }}
       </button>
     </section>
 
     <!-- ANTEPRIMA -->
 
-    <section
-      v-if="archivioImportato"
-      class="anteprima-backup dmc-pannello"
-    >
+    <section v-if="archivioImportato" class="anteprima-backup dmc-pannello">
       <header class="anteprima-header">
         <div>
           <h3>Anteprima del backup</h3>
@@ -417,11 +376,7 @@ async function importaCampagne() {
 
         <span class="numero-campagne">
           {{ anteprima.length }}
-          {{
-            anteprima.length === 1
-              ? 'campagna'
-              : 'campagne'
-          }}
+          {{ anteprima.length === 1 ? 'campagna' : 'campagne' }}
         </span>
       </header>
 
@@ -437,24 +392,14 @@ async function importaCampagne() {
         </label>
 
         <div class="lista-selezione">
-          <label
-            v-for="(voce, indice) in anteprima"
-            :key="indice"
-            class="archivio-scelta"
-          >
-            <input
-              v-model="selezioneImport"
-              type="checkbox"
-              :value="indice"
-              :disabled="occupato"
-            />
+          <label v-for="(voce, indice) in anteprima" :key="indice" class="archivio-scelta">
+            <input v-model="selezioneImport" type="checkbox" :value="indice" :disabled="occupato" />
 
             <span class="campagna-dettagli">
               <strong>{{ voce.nome }}</strong>
 
               <small>
-                {{ voce.dati.personaggi.length }} PG ·
-                {{ voce.dati.sessioni.length }} sessioni ·
+                {{ voce.dati.personaggi.length }} PG · {{ voce.dati.sessioni.length }} sessioni ·
                 {{ voce.dati.nemici.length }} nemici
               </small>
             </span>
@@ -463,40 +408,25 @@ async function importaCampagne() {
       </div>
 
       <p class="avviso-import">
-        Le campagne verranno aggiunte come nuove copie.
-        Nessuna campagna esistente sarà sovrascritta.
+        Le campagne verranno aggiunte come nuove copie. Nessuna campagna esistente sarà
+        sovrascritta.
       </p>
 
       <label class="archivio-conferma">
-        <input
-          v-model="confermaImport"
-          type="checkbox"
-          :disabled="occupato"
-        />
+        <input v-model="confermaImport" type="checkbox" :disabled="occupato" />
 
-        <span>
-          Confermo di voler aggiungere le campagne selezionate
-          alla libreria DMC.
-        </span>
+        <span> Confermo di voler aggiungere le campagne selezionate alla libreria DMC. </span>
       </label>
 
       <div class="azioni-import">
         <button
           type="button"
           class="archivio-btn principale dmc-btn"
-          :disabled="
-            !confermaImport ||
-            !selezioneImport.length ||
-            occupato
-          "
+          :disabled="!confermaImport || !selezioneImport.length || occupato"
           @click="importaCampagne"
         >
           Importa {{ selezioneImport.length }}
-          {{
-            selezioneImport.length === 1
-              ? 'campagna'
-              : 'campagne'
-          }}
+          {{ selezioneImport.length === 1 ? 'campagna' : 'campagne' }}
         </button>
 
         <button
@@ -510,25 +440,16 @@ async function importaCampagne() {
       </div>
     </section>
 
-    <p
-      v-if="errore"
-      class="feedback errore"
-      role="alert"
-    >
+    <p v-if="errore" class="feedback errore" role="alert">
       {{ errore }}
     </p>
 
-    <p
-      v-if="messaggio"
-      class="feedback successo"
-      role="status"
-    >
+    <p v-if="messaggio" class="feedback successo" role="status">
       {{ messaggio }}
     </p>
 
     <footer class="archivio-footer">
-      I backup vengono salvati sul tuo dispositivo.
-      Il Bestiario globale non è ancora incluso.
+      I backup vengono salvati sul tuo dispositivo. Il Bestiario globale non è ancora incluso.
     </footer>
   </section>
 </template>
@@ -911,10 +832,41 @@ async function importaCampagne() {
 </style>
 
 <style scoped>
-.archivio-generazione { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; padding: 16px 18px; border: 1px solid var(--dmc-border-soft); border-radius: var(--dmc-radius-sm); background: var(--dmc-surface-soft); }
-.archivio-generazione > div { flex: 1 1 320px; }
-.archivio-generazione h3 { margin: 0 0 6px; color: var(--dmc-amber); font-size: 17px; }
-.archivio-generazione p { margin: 0; max-width: 640px; color: var(--dmc-muted-light); font-size: 13px; line-height: 1.6; }
-.archivio-generazione .archivio-btn { flex: 0 1 240px; width: auto; min-width: 200px; justify-content: center; }
-@media (max-width: 600px) { .archivio-generazione .archivio-btn { flex: 1 1 100%; } }
+.archivio-generazione {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 16px 18px;
+  border: 1px solid var(--dmc-border-soft);
+  border-radius: var(--dmc-radius-sm);
+  background: var(--dmc-surface-soft);
+}
+.archivio-generazione > div {
+  flex: 1 1 320px;
+}
+.archivio-generazione h3 {
+  margin: 0 0 6px;
+  color: var(--dmc-amber);
+  font-size: 17px;
+}
+.archivio-generazione p {
+  margin: 0;
+  max-width: 640px;
+  color: var(--dmc-muted-light);
+  font-size: 13px;
+  line-height: 1.6;
+}
+.archivio-generazione .archivio-btn {
+  flex: 0 1 240px;
+  width: auto;
+  min-width: 200px;
+  justify-content: center;
+}
+@media (max-width: 600px) {
+  .archivio-generazione .archivio-btn {
+    flex: 1 1 100%;
+  }
+}
 </style>

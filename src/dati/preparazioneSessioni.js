@@ -25,14 +25,7 @@ export const sogliePerPG = {
 }
 
 export function preparaScena(scena, idUnivoco) {
-  for (const campo of [
-    'titolo',
-    'descrizione',
-    'note',
-    'alternativa',
-    'orario',
-    'personaggi',
-  ]) {
+  for (const campo of ['titolo', 'descrizione', 'note', 'alternativa', 'orario', 'personaggi']) {
     if (typeof scena[campo] !== 'string') {
       scena[campo] = ''
     }
@@ -43,34 +36,24 @@ export function preparaScena(scena, idUnivoco) {
   // I campi originali non vengono cancellati.
 
   if (!Array.isArray(scena.guida)) {
-    const eventi = Array.isArray(scena.eventi)
-      ? scena.eventi
-      : []
+    const eventi = Array.isArray(scena.eventi) ? scena.eventi : []
 
-    const compiti =
-      !eventi.length && Array.isArray(scena.compiti)
-        ? scena.compiti
-        : []
+    const compiti = !eventi.length && Array.isArray(scena.compiti) ? scena.compiti : []
 
-    const fasi = Array.isArray(scena.fasi)
-      ? scena.fasi
-      : []
+    const fasi = Array.isArray(scena.fasi) ? scena.fasi : []
 
     scena.guida = [
-      ...eventi.map(evento => ({
+      ...eventi.map((evento) => ({
         id: evento?.id || idUnivoco(),
 
-        testo:
-          typeof evento === 'string'
-            ? evento
-            : String(evento?.testo || ''),
+        testo: typeof evento === 'string' ? evento : String(evento?.testo || ''),
 
         condizione: '',
         narrazione: '',
         completato: evento?.completato === true,
       })),
 
-      ...compiti.map(compito => ({
+      ...compiti.map((compito) => ({
         id: idUnivoco(),
         testo: String(compito),
         condizione: '',
@@ -78,12 +61,10 @@ export function preparaScena(scena, idUnivoco) {
         completato: false,
       })),
 
-      ...fasi.map(fase => ({
+      ...fasi.map((fase) => ({
         id: fase?.id || idUnivoco(),
 
-        testo: String(
-          fase?.titolo || 'Intervento narrativo'
-        ),
+        testo: String(fase?.titolo || 'Intervento narrativo'),
 
         condizione: String(fase?.condizione || ''),
         narrazione: String(fase?.narrazione || ''),
@@ -93,10 +74,7 @@ export function preparaScena(scena, idUnivoco) {
   }
 
   scena.guida = scena.guida.filter(
-    passo =>
-      passo &&
-      typeof passo === 'object' &&
-      !Array.isArray(passo)
+    (passo) => passo && typeof passo === 'object' && !Array.isArray(passo),
   )
 
   for (const passo of scena.guida) {
@@ -125,7 +103,7 @@ export function preparaScena(scena, idUnivoco) {
     scena.indizi = []
   }
 
-  scena.indizi = scena.indizi.map(voce =>
+  scena.indizi = scena.indizi.map((voce) =>
     typeof voce === 'string'
       ? {
           id: idUnivoco(),
@@ -136,7 +114,7 @@ export function preparaScena(scena, idUnivoco) {
           ...voce,
           id: voce.id || idUnivoco(),
           testo: String(voce.testo || ''),
-        }
+        },
   )
 
   if (!Array.isArray(scena.pngIds)) {
@@ -147,10 +125,7 @@ export function preparaScena(scena, idUnivoco) {
     scena.mostraRituale = false
   }
 
-  if (
-    !scena.incontro ||
-    typeof scena.incontro !== 'object'
-  ) {
+  if (!scena.incontro || typeof scena.incontro !== 'object') {
     scena.incontro = {
       nemici: [],
     }
@@ -168,9 +143,7 @@ export function preparaScena(scena, idUnivoco) {
     scena.incontro.suggerimentiPF = []
   }
 
-  if (
-    typeof scena.incontro.noteBilanciamento !== 'string'
-  ) {
+  if (typeof scena.incontro.noteBilanciamento !== 'string') {
     scena.incontro.noteBilanciamento = ''
   }
 
@@ -192,10 +165,7 @@ export function preparaSessione(sessione, idUnivoco, numeroPersonaggi = 4) {
     sessione.risorseNarrative = []
   }
 
-  if (
-    !sessione.rituale ||
-    typeof sessione.rituale !== 'object'
-  ) {
+  if (!sessione.rituale || typeof sessione.rituale !== 'object') {
     sessione.rituale = {
       descrizione: '',
       partecipanti: [],
@@ -222,33 +192,21 @@ export function preparaSessione(sessione, idUnivoco, numeroPersonaggi = 4) {
     sessione.stato = 'preparazione'
   }
 
-  if (
-    !Number.isInteger(Number(sessione.pgPrevisti)) ||
-    Number(sessione.pgPrevisti) < 1
-  ) {
-    sessione.pgPrevisti =
-      numeroPersonaggi
+  if (!Number.isInteger(Number(sessione.pgPrevisti)) || Number(sessione.pgPrevisti) < 1) {
+    sessione.pgPrevisti = numeroPersonaggi
   }
 
   if (!sogliePerPG[Number(sessione.livelloPrevisto)]) {
     sessione.livelloPrevisto = 2
   }
 
-  if (
-    !sessione.scene.some(
-      scena => scena.id === sessione.scenaAttivaId
-    )
-  ) {
+  if (!sessione.scene.some((scena) => scena.id === sessione.scenaAttivaId)) {
     sessione.scenaAttivaId = null
   }
 
-  sessione.sceneVisitateIds =
-    sessione.sceneVisitateIds.filter(
-      id =>
-        sessione.scene.some(
-          scena => scena.id === id
-        )
-    )
+  sessione.sceneVisitateIds = sessione.sceneVisitateIds.filter((id) =>
+    sessione.scene.some((scena) => scena.id === id),
+  )
 
   for (const scena of sessione.scene) {
     preparaScena(scena, idUnivoco)
@@ -266,18 +224,11 @@ export function preparaSessione(sessione, idUnivoco, numeroPersonaggi = 4) {
       elemento.sceneIds = []
     }
 
-    elemento.sceneIds = elemento.sceneIds.filter(
-      id =>
-        sessione.scene.some(
-          scena => scena.id === id
-        )
+    elemento.sceneIds = elemento.sceneIds.filter((id) =>
+      sessione.scene.some((scena) => scena.id === id),
     )
 
-    if (
-      !['inattivo', 'pronto', 'utilizzato'].includes(
-        elemento.stato
-      )
-    ) {
+    if (!['inattivo', 'pronto', 'utilizzato'].includes(elemento.stato)) {
       elemento.stato = 'inattivo'
     }
   }
@@ -292,4 +243,3 @@ export function preparaSessione(sessione, idUnivoco, numeroPersonaggi = 4) {
     }
   }
 }
-

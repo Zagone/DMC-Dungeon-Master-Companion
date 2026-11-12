@@ -1,4 +1,3 @@
-
 <script setup>
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import CreazioneAssistitaCampagna from './CreazioneAssistitaCampagna.vue'
@@ -31,9 +30,7 @@ const emit = defineEmits(['vai-battaglia'])
 
 const dati = computed(() => datiCampagna.value)
 
-const sessioneInConduzione = computed(
-  () => conduzioneAttiva.value?.sessione || null
-)
+const sessioneInConduzione = computed(() => conduzioneAttiva.value?.sessione || null)
 
 const sessioneApertaId = ref(null)
 // Navigazione locale: non modifica i dati persistenti della sessione.
@@ -54,39 +51,30 @@ const ricercaCreatura = ref('')
 const creaturaSelezionataId = ref('')
 const quantitaCreatura = ref(1)
 
-
 // =====================================================
 // UTILITÀ
 // =====================================================
 
-const normalizza = valore =>
+const normalizza = (valore) =>
   String(valore || '')
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
     .trim()
     .toLocaleLowerCase('it')
 
-const titoloScena = (scena, indice) =>
-  scena?.titolo?.trim() || `Scena ${indice + 1}`
+const titoloScena = (scena, indice) => scena?.titolo?.trim() || `Scena ${indice + 1}`
 
-const testoIndizio = voce =>
-  typeof voce === 'string'
-    ? voce
-    : String(voce?.testo || '')
+const testoIndizio = (voce) => (typeof voce === 'string' ? voce : String(voce?.testo || ''))
 
-const nomeCreatura = voce =>
-  risolviVoceIncontro(voce)?.nome ||
-  voce.nome ||
-  'Creatura non disponibile'
+const nomeCreatura = (voce) =>
+  risolviVoceIncontro(voce)?.nome || voce.nome || 'Creatura non disponibile'
 
 function dataBreve(data) {
   if (!data) return 'Nessuna data'
 
   const valore = new Date(`${data}T12:00:00`)
 
-  return Number.isNaN(valore.getTime())
-    ? 'Data non valida'
-    : valore.toLocaleDateString('it-IT')
+  return Number.isNaN(valore.getTime()) ? 'Data non valida' : valore.toLocaleDateString('it-IT')
 }
 
 function aggiungi(lista, valori) {
@@ -97,7 +85,7 @@ function aggiungi(lista, valori) {
 }
 
 function rimuovi(lista, id) {
-  const indice = lista.findIndex(voce => voce.id === id)
+  const indice = lista.findIndex((voce) => voce.id === id)
 
   if (indice >= 0) {
     lista.splice(indice, 1)
@@ -107,10 +95,7 @@ function rimuovi(lista, id) {
 function sposta(lista, indice, direzione) {
   const destinazione = indice + direzione
 
-  if (
-    destinazione < 0 ||
-    destinazione >= lista.length
-  ) {
+  if (destinazione < 0 || destinazione >= lista.length) {
     return
   }
 
@@ -125,7 +110,6 @@ function sposta(lista, indice, direzione) {
 function preparaSessione(sessione) {
   normalizzaSessione(sessione, idUnivoco, dati.value?.personaggi?.length || 4)
 }
-
 
 function preparaCampagna() {
   if (!dati.value) return
@@ -169,19 +153,20 @@ function creaPNG() {
 
 const pngBestiarioCollegabili = computed(() =>
   (pngPersonalizzati.value || [])
-    .filter(p => !(dati.value?.pngNarrativi || []).some(n => n.creaturaId === p.id))
-    .sort((a, b) => a.nome.localeCompare(b.nome, 'it'))
+    .filter((p) => !(dati.value?.pngNarrativi || []).some((n) => n.creaturaId === p.id))
+    .sort((a, b) => a.nome.localeCompare(b.nome, 'it')),
 )
 
 const pngBestiarioConsultabili = computed(() =>
-  (creatureBestiario.value || []).filter(c => c.categoria === 'png')
-    .sort((a, b) => a.nome.localeCompare(b.nome, 'it'))
+  (creatureBestiario.value || [])
+    .filter((c) => c.categoria === 'png')
+    .sort((a, b) => a.nome.localeCompare(b.nome, 'it')),
 )
 
 function aggiungiPNGDaBestiario() {
   preparaCampagna()
   messaggioPNG.value = ''
-  const creatura = pngPersonalizzati.value.find(c => c.id === pngBestiarioSelezionato.value)
+  const creatura = pngPersonalizzati.value.find((c) => c.id === pngBestiarioSelezionato.value)
   const risultato = collegaPNGDaBestiario(dati.value?.pngNarrativi, creatura, idUnivoco)
   if (!risultato.successo) {
     messaggioPNG.value = risultato.motivo
@@ -189,21 +174,16 @@ function aggiungiPNGDaBestiario() {
   }
   pngApertoId.value = risultato.png.id
   pngBestiarioSelezionato.value = ''
-  messaggioPNG.value = 'PNG collegato alla campagna. Puoi aggiungere ruolo, personalità e informazioni narrative.'
+  messaggioPNG.value =
+    'PNG collegato alla campagna. Puoi aggiungere ruolo, personalità e informazioni narrative.'
 }
 
 function eliminaPNG(png) {
-  dati.value.pngNarrativi =
-    dati.value.pngNarrativi.filter(
-      elemento => elemento.id !== png.id
-    )
+  dati.value.pngNarrativi = dati.value.pngNarrativi.filter((elemento) => elemento.id !== png.id)
 
   for (const sessione of dati.value.sessioni || []) {
     for (const scena of sessione.scene || []) {
-      scena.pngIds =
-        (scena.pngIds || []).filter(
-          id => id !== png.id
-        )
+      scena.pngIds = (scena.pngIds || []).filter((id) => id !== png.id)
     }
   }
 
@@ -211,10 +191,8 @@ function eliminaPNG(png) {
   pngApertoId.value = null
 }
 
-const pngScena = scena =>
-  (dati.value?.pngNarrativi || []).filter(
-    png => (scena?.pngIds || []).includes(png.id)
-  )
+const pngScena = (scena) =>
+  (dati.value?.pngNarrativi || []).filter((png) => (scena?.pngIds || []).includes(png.id))
 
 // =====================================================
 // PREPARAZIONE DELLE SESSIONI
@@ -289,25 +267,16 @@ function creaScena(sessione) {
 }
 
 function eliminaScena(sessione, scena) {
-  sessione.scene = sessione.scene.filter(
-    elemento => elemento.id !== scena.id
-  )
+  sessione.scene = sessione.scene.filter((elemento) => elemento.id !== scena.id)
 
-  sessione.sceneVisitateIds =
-    (sessione.sceneVisitateIds || []).filter(
-      id => id !== scena.id
-    )
+  sessione.sceneVisitateIds = (sessione.sceneVisitateIds || []).filter((id) => id !== scena.id)
 
   for (const elemento of sessione.risorseNarrative || []) {
-    elemento.sceneIds =
-      (elemento.sceneIds || []).filter(
-        id => id !== scena.id
-      )
+    elemento.sceneIds = (elemento.sceneIds || []).filter((id) => id !== scena.id)
   }
 
   if (sessione.scenaAttivaId === scena.id) {
-    sessione.scenaAttivaId =
-      sessione.scene[0]?.id || null
+    sessione.scenaAttivaId = sessione.scene[0]?.id || null
 
     if (!sessione.scenaAttivaId) {
       interrompiConduzione(sessione.id)
@@ -328,10 +297,7 @@ function eliminaScena(sessione, scena) {
 function eliminaSessione(sessione) {
   interrompiConduzione(sessione.id)
 
-  dati.value.sessioni =
-    dati.value.sessioni.filter(
-      elemento => elemento.id !== sessione.id
-    )
+  dati.value.sessioni = dati.value.sessioni.filter((elemento) => elemento.id !== sessione.id)
 
   if (sessioneApertaId.value === sessione.id) {
     sessioneApertaId.value = null
@@ -344,55 +310,36 @@ function eliminaSessione(sessione) {
 // CONDUZIONE
 // =====================================================
 
-const scenaConsultata = sessione =>
-  sessione.scene.find(
-    scena => scena.id === scenaConsultataId.value
-  ) ||
-  sessione.scene.find(
-    scena => scena.id === sessione.scenaAttivaId
-  ) ||
+const scenaConsultata = (sessione) =>
+  sessione.scene.find((scena) => scena.id === scenaConsultataId.value) ||
+  sessione.scene.find((scena) => scena.id === sessione.scenaAttivaId) ||
   sessione.scene[0] ||
   null
 
-const indiceConsultato = sessione =>
-  sessione.scene.findIndex(
-    scena =>
-      scena.id === scenaConsultata(sessione)?.id
-  )
+const indiceConsultato = (sessione) =>
+  sessione.scene.findIndex((scena) => scena.id === scenaConsultata(sessione)?.id)
 
-const scenaVisitata = (sessione, id) =>
-  (sessione.sceneVisitateIds || []).includes(id)
+const scenaVisitata = (sessione, id) => (sessione.sceneVisitateIds || []).includes(id)
 
-const numeroSceneVisitate = sessione =>
-  sessione.scene.filter(
-    scena => scenaVisitata(sessione, scena.id)
-  ).length
+const numeroSceneVisitate = (sessione) =>
+  sessione.scene.filter((scena) => scenaVisitata(sessione, scena.id)).length
 
 function titoloScenaId(sessione, id) {
-  const indice = sessione.scene.findIndex(
-    scena => scena.id === id
-  )
+  const indice = sessione.scene.findIndex((scena) => scena.id === id)
 
-  return indice < 0
-    ? 'Nessuna scena'
-    : titoloScena(sessione.scene[indice], indice)
+  return indice < 0 ? 'Nessuna scena' : titoloScena(sessione.scene[indice], indice)
 }
 
 function focalizzaGuida(scena) {
   passoApertoId.value =
-    scena?.guida?.find(
-      passo =>
-        !passo.completato &&
-        (passo.narrazione || passo.condizione)
-    )?.id || null
+    scena?.guida?.find((passo) => !passo.completato && (passo.narrazione || passo.condizione))
+      ?.id || null
 
   schedaSupporto.value = null
 }
 
 function consultaScena(sessione, id) {
-  const scena = sessione.scene.find(
-    elemento => elemento.id === id
-  )
+  const scena = sessione.scene.find((elemento) => elemento.id === id)
 
   if (!scena) return
 
@@ -408,23 +355,13 @@ function consultaScena(sessione, id) {
 function cambiaScena(sessione, direzione) {
   const indice = indiceConsultato(sessione) + direzione
 
-  if (
-    indice >= 0 &&
-    indice < sessione.scene.length
-  ) {
-    consultaScena(
-      sessione,
-      sessione.scene[indice].id
-    )
+  if (indice >= 0 && indice < sessione.scene.length) {
+    consultaScena(sessione, sessione.scene[indice].id)
   }
 }
 
 function impostaScenaCorrente(sessione, id) {
-  if (
-    !sessione.scene.some(
-      scena => scena.id === id
-    )
-  ) {
+  if (!sessione.scene.some((scena) => scena.id === id)) {
     return
   }
 
@@ -433,11 +370,7 @@ function impostaScenaCorrente(sessione, id) {
 }
 
 function impostaVisitata(sessione, id, visitata) {
-  if (
-    !sessione.scene.some(
-      scena => scena.id === id
-    )
-  ) {
+  if (!sessione.scene.some((scena) => scena.id === id)) {
     return
   }
 
@@ -445,7 +378,7 @@ function impostaVisitata(sessione, id, visitata) {
 
   sessione.sceneVisitateIds = visitata
     ? [...new Set([...lista, id])]
-    : lista.filter(valore => valore !== id)
+    : lista.filter((valore) => valore !== id)
 }
 
 async function mostraConduzione() {
@@ -460,8 +393,7 @@ function entraInConduzione(sessione) {
   preparaSessione(sessione)
 
   if (!sessione.scene.length) {
-    messaggio.value =
-      'Aggiungi almeno una scena alla sessione.'
+    messaggio.value = 'Aggiungi almeno una scena alla sessione.'
 
     return
   }
@@ -476,10 +408,7 @@ function entraInConduzione(sessione) {
 
   sessioneApertaId.value = sessione.id
 
-  consultaScena(
-    sessione,
-    sessione.scenaAttivaId
-  )
+  consultaScena(sessione, sessione.scenaAttivaId)
 
   mostraConduzione()
 }
@@ -495,29 +424,20 @@ function esciDaConduzione() {
 }
 
 function toggleSupporto(nome) {
-  schedaSupporto.value =
-    schedaSupporto.value === nome
-      ? null
-      : nome
+  schedaSupporto.value = schedaSupporto.value === nome ? null : nome
 }
 
 const elementiScena = (sessione, scena) =>
-  (sessione.risorseNarrative || []).filter(
-    elemento =>
-      (elemento.sceneIds || []).includes(scena?.id)
+  (sessione.risorseNarrative || []).filter((elemento) =>
+    (elemento.sceneIds || []).includes(scena?.id),
   )
 
 const mostraStati = (sessione, scena) =>
   elementiScena(sessione, scena).length > 0 ||
-  (
-    scena?.mostraRituale &&
-    (sessione.rituale?.partecipanti || []).length > 0
-  )
+  (scena?.mostraRituale && (sessione.rituale?.partecipanti || []).length > 0)
 
-const attivitaInCorso = sessione =>
-  (sessione.rituale?.partecipanti || []).some(
-    partecipante => partecipante.attivo
-  )
+const attivitaInCorso = (sessione) =>
+  (sessione.rituale?.partecipanti || []).some((partecipante) => partecipante.attivo)
 
 // CORREZIONE DELLA SCHERMATA VUOTA:
 // inizializziamo i dati PRIMA del primo rendering.
@@ -531,17 +451,14 @@ watch(
   },
   {
     immediate: true,
-  }
+  },
 )
 
 onMounted(() => {
   const sessione = sessioneInConduzione.value
 
   if (sessione) {
-    scenaConsultataId.value =
-      sessione.scenaAttivaId ||
-      sessione.scene[0]?.id ||
-      null
+    scenaConsultataId.value = sessione.scenaAttivaId || sessione.scene[0]?.id || null
 
     focalizzaGuida(scenaConsultata(sessione))
     mostraConduzione()
@@ -555,42 +472,29 @@ onMounted(() => {
 const creatureDisponibili = computed(() =>
   (creatureBestiario.value || [])
     .filter(utilizzabile)
-    .filter(creatura =>
-      testoRicercaCreatura(creatura).includes(
-        normalizza(ricercaCreatura.value)
-      )
+    .filter((creatura) =>
+      testoRicercaCreatura(creatura).includes(normalizza(ricercaCreatura.value)),
     )
-    .sort(
-      (a, b) => a.nome.localeCompare(b.nome, 'it')
-    )
+    .sort((a, b) => a.nome.localeCompare(b.nome, 'it')),
 )
 
-const totaleNemici = scena =>
+const totaleNemici = (scena) =>
   (scena?.incontro?.nemici || []).reduce(
     (totale, voce) =>
-      totale + (
-        Number.isInteger(+voce.quantita) &&
-        +voce.quantita > 0
-          ? +voce.quantita
-          : 0
-      ),
-    0
+      totale + (Number.isInteger(+voce.quantita) && +voce.quantita > 0 ? +voce.quantita : 0),
+    0,
   )
 
 function creatureDaCollegare(scena) {
-  return (
-    scena?.incontro?.richiedeCreature || []
-  ).filter(nome =>
-    !(scena.incontro.nemici || []).some(voce => {
-      const scheda = risolviVoceIncontro(voce)
+  return (scena?.incontro?.richiedeCreature || []).filter(
+    (nome) =>
+      !(scena.incontro.nemici || []).some((voce) => {
+        const scheda = risolviVoceIncontro(voce)
 
-      return [
-        nomeCreatura(voce),
-        ...(scheda?.aliases || []),
-      ].some(alias =>
-        normalizza(alias).includes(normalizza(nome))
-      )
-    })
+        return [nomeCreatura(voce), ...(scheda?.aliases || [])].some((alias) =>
+          normalizza(alias).includes(normalizza(nome)),
+        )
+      }),
   )
 }
 
@@ -608,39 +512,23 @@ function aggiungiCreatura(scena) {
   const quantita = Number(quantitaCreatura.value)
 
   const creatura = creatureDisponibili.value.find(
-    elemento =>
-      elemento.id === creaturaSelezionataId.value
+    (elemento) => elemento.id === creaturaSelezionataId.value,
   )
 
-  if (
-    !creatura ||
-    !Number.isInteger(quantita) ||
-    quantita < 1 ||
-    quantita > 30
-  ) {
-    messaggio.value =
-      'Seleziona una creatura e una quantità da 1 a 30.'
+  if (!creatura || !Number.isInteger(quantita) || quantita < 1 || quantita > 30) {
+    messaggio.value = 'Seleziona una creatura e una quantità da 1 a 30.'
 
     return
   }
 
-  const presente = scena.incontro.nemici.find(
-    voce => voce.creaturaId === creatura.id
-  )
+  const presente = scena.incontro.nemici.find((voce) => voce.creaturaId === creatura.id)
 
   if (presente) {
-    presente.quantita = Math.min(
-      30,
-      Number(presente.quantita) + quantita
-    )
+    presente.quantita = Math.min(30, Number(presente.quantita) + quantita)
   } else {
-    const suggerimento =
-      scena.incontro.suggerimentiPF.find(
-        voce =>
-          normalizza(creatura.nome).includes(
-            normalizza(voce.nome)
-          )
-      )
+    const suggerimento = scena.incontro.suggerimentiPF.find((voce) =>
+      normalizza(creatura.nome).includes(normalizza(voce.nome)),
+    )
 
     scena.incontro.nemici.push({
       creaturaId: creatura.id,
@@ -658,12 +546,8 @@ function aggiungiCreatura(scena) {
 }
 
 function richiediCaricamento(scena) {
-  if (
-    creatureDaCollegare(scena).length ||
-    !totaleNemici(scena)
-  ) {
-    messaggio.value =
-      'Prima completa l’incontro e collega le creature richieste.'
+  if (creatureDaCollegare(scena).length || !totaleNemici(scena)) {
+    messaggio.value = 'Prima completa l’incontro e collega le creature richieste.'
 
     return
   }
@@ -681,14 +565,8 @@ function caricaIncontro(scena) {
     const creatura = risolviVoceIncontro(voce)
     const quantita = Number(voce.quantita)
 
-    if (
-      !utilizzabile(creatura) ||
-      !Number.isInteger(quantita) ||
-      quantita < 1 ||
-      quantita > 30
-    ) {
-      messaggio.value =
-        'Una o più creature non sono utilizzabili.'
+    if (!utilizzabile(creatura) || !Number.isInteger(quantita) || quantita < 1 || quantita > 30) {
+      messaggio.value = 'Una o più creature non sono utilizzabili.'
 
       return
     }
@@ -741,8 +619,7 @@ function caricaIncontro(scena) {
 
   conferma.value = null
 
-  messaggio.value =
-    `${istanze.length} nemici caricati.`
+  messaggio.value = `${istanze.length} nemici caricati.`
 
   emit('vai-battaglia')
 }
@@ -750,32 +627,21 @@ function caricaIncontro(scena) {
 
 <template>
   <section class="sessioni-dmc">
-
     <!-- ==========================================
          CONDUZIONE
     =========================================== -->
 
     <template v-if="sessioneInConduzione">
-
       <header class="testata-conduzione dmc-pannello">
         <div>
-          <small class="sopratitolo">
-            CONDUZIONE ATTIVA
-          </small>
+          <small class="sopratitolo"> CONDUZIONE ATTIVA </small>
 
-          <h2
-            ref="titoloConduzione"
-            tabindex="-1"
-          >
+          <h2 ref="titoloConduzione" tabindex="-1">
             {{ sessioneInConduzione.titolo }}
           </h2>
         </div>
 
-        <button
-          type="button"
-          class="dmc-btn dmc-btn--secondary"
-          @click="esciDaConduzione"
-        >
+        <button type="button" class="dmc-btn dmc-btn--secondary" @click="esciDaConduzione">
           Torna alla preparazione
         </button>
       </header>
@@ -785,19 +651,12 @@ function caricaIncontro(scena) {
           Scena corrente dei giocatori:
 
           <strong>
-            {{
-              titoloScenaId(
-                sessioneInConduzione,
-                sessioneInConduzione.scenaAttivaId
-              )
-            }}
+            {{ titoloScenaId(sessioneInConduzione, sessioneInConduzione.scenaAttivaId) }}
           </strong>
         </span>
 
         <small>
-          {{
-            numeroSceneVisitate(sessioneInConduzione)
-          }}
+          {{ numeroSceneVisitate(sessioneInConduzione) }}
           /
           {{ sessioneInConduzione.scene.length }}
           visitate
@@ -805,11 +664,9 @@ function caricaIncontro(scena) {
       </div>
 
       <div class="layout-conduzione">
-
         <!-- NAVIGAZIONE LATERALE -->
 
         <aside class="colonna-scene dmc-pannello">
-
           <div class="intestazione">
             <strong>Scene</strong>
 
@@ -818,32 +675,20 @@ function caricaIncontro(scena) {
             </small>
           </div>
 
-          <nav
-            class="elenco-scene"
-            aria-label="Scene della sessione"
-          >
+          <nav class="elenco-scene" aria-label="Scene della sessione">
             <button
               v-for="(scena, indice) in sessioneInConduzione.scene"
               :key="scena.id"
               type="button"
               class="voce-scena"
               :class="{
-                selezionata:
-                  scenaConsultata(sessioneInConduzione)?.id === scena.id,
-                corrente:
-                  sessioneInConduzione.scenaAttivaId === scena.id
+                selezionata: scenaConsultata(sessioneInConduzione)?.id === scena.id,
+                corrente: sessioneInConduzione.scenaAttivaId === scena.id,
               }"
               :aria-current="
-                scenaConsultata(sessioneInConduzione)?.id === scena.id
-                  ? 'page'
-                  : undefined
+                scenaConsultata(sessioneInConduzione)?.id === scena.id ? 'page' : undefined
               "
-              @click="
-                consultaScena(
-                  sessioneInConduzione,
-                  scena.id
-                )
-              "
+              @click="consultaScena(sessioneInConduzione, scena.id)"
             >
               <span>
                 {{ indice + 1 }}.
@@ -851,21 +696,14 @@ function caricaIncontro(scena) {
               </span>
 
               <small
-                v-if="
-                  sessioneInConduzione.scenaAttivaId === scena.id
-                "
+                v-if="sessioneInConduzione.scenaAttivaId === scena.id"
                 class="etichetta in-corso"
               >
                 In corso
               </small>
 
               <small
-                v-if="
-                  scenaVisitata(
-                    sessioneInConduzione,
-                    scena.id
-                  )
-                "
+                v-if="scenaVisitata(sessioneInConduzione, scena.id)"
                 class="etichetta visitata"
               >
                 Visitata
@@ -878,15 +716,8 @@ function caricaIncontro(scena) {
 
             <select
               class="dmc-campo"
-              :value="
-                scenaConsultata(sessioneInConduzione)?.id
-              "
-              @change="
-                consultaScena(
-                  sessioneInConduzione,
-                  $event.target.value
-                )
-              "
+              :value="scenaConsultata(sessioneInConduzione)?.id"
+              @change="consultaScena(sessioneInConduzione, $event.target.value)"
             >
               <option
                 v-for="(scena, indice) in sessioneInConduzione.scene"
@@ -901,32 +732,18 @@ function caricaIncontro(scena) {
 
         <!-- SCENA CONSULTATA -->
 
-        <main
-          v-if="scenaConsultata(sessioneInConduzione)"
-          class="scena-in-conduzione"
-        >
-
+        <main v-if="scenaConsultata(sessioneInConduzione)" class="scena-in-conduzione">
           <div class="testata-scena">
             <div>
               <small>
                 SCENA
-                {{
-                  indiceConsultato(sessioneInConduzione) + 1
-                }}
+                {{ indiceConsultato(sessioneInConduzione) + 1 }}
                 DI
-                {{
-                  sessioneInConduzione.scene.length
-                }}
+                {{ sessioneInConduzione.scene.length }}
 
-                <template
-                  v-if="
-                    scenaConsultata(sessioneInConduzione).orario
-                  "
-                >
+                <template v-if="scenaConsultata(sessioneInConduzione).orario">
                   ·
-                  {{
-                    scenaConsultata(sessioneInConduzione).orario
-                  }}
+                  {{ scenaConsultata(sessioneInConduzione).orario }}
                 </template>
               </small>
 
@@ -934,28 +751,24 @@ function caricaIncontro(scena) {
                 {{
                   titoloScena(
                     scenaConsultata(sessioneInConduzione),
-                    indiceConsultato(sessioneInConduzione)
+                    indiceConsultato(sessioneInConduzione),
                   )
                 }}
               </h3>
             </div>
 
             <div class="azioni-scena">
-
               <label class="check-inline">
                 <input
                   type="checkbox"
                   :checked="
-                    scenaVisitata(
-                      sessioneInConduzione,
-                      scenaConsultata(sessioneInConduzione).id
-                    )
+                    scenaVisitata(sessioneInConduzione, scenaConsultata(sessioneInConduzione).id)
                   "
                   @change="
                     impostaVisitata(
                       sessioneInConduzione,
                       scenaConsultata(sessioneInConduzione).id,
-                      $event.target.checked
+                      $event.target.checked,
                     )
                   "
                 />
@@ -967,13 +780,12 @@ function caricaIncontro(scena) {
                 type="button"
                 class="dmc-btn dmc-btn--secondary"
                 :disabled="
-                  sessioneInConduzione.scenaAttivaId ===
-                  scenaConsultata(sessioneInConduzione).id
+                  sessioneInConduzione.scenaAttivaId === scenaConsultata(sessioneInConduzione).id
                 "
                 @click="
                   impostaScenaCorrente(
                     sessioneInConduzione,
-                    scenaConsultata(sessioneInConduzione).id
+                    scenaConsultata(sessioneInConduzione).id,
                   )
                 "
               >
@@ -984,10 +796,7 @@ function caricaIncontro(scena) {
 
           <!-- NARRAZIONE -->
 
-          <section
-            class="narrazione dmc-pannello"
-            aria-label="Descrizione narrativa"
-          >
+          <section class="narrazione dmc-pannello" aria-label="Descrizione narrativa">
             <h4>Da narrare</h4>
 
             <p class="testo-narrativo">
@@ -1000,56 +809,41 @@ function caricaIncontro(scena) {
 
           <!-- GUIDA ALLA CONDUZIONE -->
 
-          <section
-            class="guida dmc-pannello"
-            aria-label="Guida alla conduzione"
-          >
+          <section class="guida dmc-pannello" aria-label="Guida alla conduzione">
             <header class="intestazione">
               <h4>Guida alla conduzione</h4>
 
               <small>
                 {{
-                  scenaConsultata(sessioneInConduzione).guida.filter(
-                    passo => passo.completato
-                  ).length
+                  scenaConsultata(sessioneInConduzione).guida.filter((passo) => passo.completato)
+                    .length
                 }}
                 /
-                {{
-                  scenaConsultata(sessioneInConduzione).guida.length
-                }}
+                {{ scenaConsultata(sessioneInConduzione).guida.length }}
                 svolti
               </small>
             </header>
 
-            <p
-              v-if="
-                !scenaConsultata(sessioneInConduzione).guida.length
-              "
-              class="testo-secondario"
-            >
+            <p v-if="!scenaConsultata(sessioneInConduzione).guida.length" class="testo-secondario">
               Nessun passaggio preparato per questa scena.
             </p>
 
             <div class="lista-guida">
-
               <article
                 v-for="(passo, indice) in scenaConsultata(sessioneInConduzione).guida"
                 :key="passo.id"
                 class="passaggio"
                 :class="{
                   svolto: passo.completato,
-                  aperto: passoApertoId === passo.id
+                  aperto: passoApertoId === passo.id,
                 }"
               >
                 <div class="riga-passaggio">
-
                   <label class="check-passo">
                     <input
                       type="checkbox"
                       v-model="passo.completato"
-                      :aria-label="
-                        `Completa passaggio ${indice + 1}`
-                      "
+                      :aria-label="`Completa passaggio ${indice + 1}`"
                     />
 
                     <span class="numero">
@@ -1057,57 +851,31 @@ function caricaIncontro(scena) {
                     </span>
 
                     <span class="testo-passo">
-                      {{
-                        passo.testo ||
-                        `Passaggio ${indice + 1}`
-                      }}
+                      {{ passo.testo || `Passaggio ${indice + 1}` }}
                     </span>
                   </label>
 
                   <button
-                    v-if="
-                      passo.narrazione ||
-                      passo.condizione
-                    "
+                    v-if="passo.narrazione || passo.condizione"
                     type="button"
                     class="dettagli-passo"
-                    :aria-expanded="
-                      passoApertoId === passo.id
-                    "
-                    @click="
-                      passoApertoId =
-                        passoApertoId === passo.id
-                          ? null
-                          : passo.id
-                    "
+                    :aria-expanded="passoApertoId === passo.id"
+                    @click="passoApertoId = passoApertoId === passo.id ? null : passo.id"
                   >
-                    {{
-                      passoApertoId === passo.id
-                        ? 'Chiudi'
-                        : 'Leggi'
-                    }}
+                    {{ passoApertoId === passo.id ? 'Chiudi' : 'Leggi' }}
                   </button>
                 </div>
 
                 <div
-                  v-if="
-                    passoApertoId === passo.id &&
-                    (passo.narrazione || passo.condizione)
-                  "
+                  v-if="passoApertoId === passo.id && (passo.narrazione || passo.condizione)"
                   class="approfondimento-passo"
                 >
-                  <p
-                    v-if="passo.condizione"
-                    class="condizione"
-                  >
+                  <p v-if="passo.condizione" class="condizione">
                     <strong>Quando:</strong>
                     {{ passo.condizione }}
                   </p>
 
-                  <p
-                    v-if="passo.narrazione"
-                    class="testo-narrativo"
-                  >
+                  <p v-if="passo.narrazione" class="testo-narrativo">
                     {{ passo.narrazione }}
                   </p>
                 </div>
@@ -1120,114 +888,75 @@ function caricaIncontro(scena) {
           <section
             v-if="
               scenaConsultata(sessioneInConduzione).indizi.length ||
-              pngScena(
-                scenaConsultata(sessioneInConduzione)
-              ).length ||
+              pngScena(scenaConsultata(sessioneInConduzione)).length ||
               scenaConsultata(sessioneInConduzione).personaggi ||
               scenaConsultata(sessioneInConduzione).alternativa ||
               scenaConsultata(sessioneInConduzione).note ||
-              mostraStati(
-                sessioneInConduzione,
-                scenaConsultata(sessioneInConduzione)
-              )
+              mostraStati(sessioneInConduzione, scenaConsultata(sessioneInConduzione))
             "
             class="supporto"
             aria-label="Informazioni di supporto"
           >
-
             <div class="schede-supporto">
-
               <button
-                v-if="
-                  scenaConsultata(sessioneInConduzione).indizi.length
-                "
+                v-if="scenaConsultata(sessioneInConduzione).indizi.length"
                 type="button"
                 class="scheda-tab"
-                :aria-pressed="
-                  schedaSupporto === 'indizi'
-                "
+                :aria-pressed="schedaSupporto === 'indizi'"
                 @click="toggleSupporto('indizi')"
               >
                 Indizi ·
-                {{
-                  scenaConsultata(sessioneInConduzione).indizi.length
-                }}
+                {{ scenaConsultata(sessioneInConduzione).indizi.length }}
               </button>
 
               <button
                 v-if="
-                  pngScena(
-                    scenaConsultata(sessioneInConduzione)
-                  ).length ||
+                  pngScena(scenaConsultata(sessioneInConduzione)).length ||
                   scenaConsultata(sessioneInConduzione).personaggi
                 "
                 type="button"
                 class="scheda-tab"
-                :aria-pressed="
-                  schedaSupporto === 'png'
-                "
+                :aria-pressed="schedaSupporto === 'png'"
                 @click="toggleSupporto('png')"
               >
                 Personaggi
               </button>
 
               <button
-                v-if="
-                  scenaConsultata(sessioneInConduzione).alternativa
-                "
+                v-if="scenaConsultata(sessioneInConduzione).alternativa"
                 type="button"
                 class="scheda-tab"
-                :aria-pressed="
-                  schedaSupporto === 'alternative'
-                "
+                :aria-pressed="schedaSupporto === 'alternative'"
                 @click="toggleSupporto('alternative')"
               >
                 Alternative
               </button>
 
               <button
-                v-if="
-                  mostraStati(
-                    sessioneInConduzione,
-                    scenaConsultata(sessioneInConduzione)
-                  )
-                "
+                v-if="mostraStati(sessioneInConduzione, scenaConsultata(sessioneInConduzione))"
                 type="button"
                 class="scheda-tab"
-                :aria-pressed="
-                  schedaSupporto === 'stati'
-                "
+                :aria-pressed="schedaSupporto === 'stati'"
                 @click="toggleSupporto('stati')"
               >
                 Elementi di scena
               </button>
 
               <button
-                v-if="
-                  scenaConsultata(sessioneInConduzione).note
-                "
+                v-if="scenaConsultata(sessioneInConduzione).note"
                 type="button"
                 class="scheda-tab"
-                :aria-pressed="
-                  schedaSupporto === 'note'
-                "
+                :aria-pressed="schedaSupporto === 'note'"
                 @click="toggleSupporto('note')"
               >
                 Note DM
               </button>
             </div>
 
-            <div
-              v-if="schedaSupporto"
-              class="contenuto-supporto dmc-pannello"
-            >
-
+            <div v-if="schedaSupporto" class="contenuto-supporto dmc-pannello">
               <!-- INDIZI -->
 
-              <ul
-                v-if="schedaSupporto === 'indizi'"
-                class="lista-indizi"
-              >
+              <ul v-if="schedaSupporto === 'indizi'" class="lista-indizi">
                 <li
                   v-for="(indizio, indice) in scenaConsultata(sessioneInConduzione).indizi"
                   :key="indizio?.id || indice"
@@ -1238,34 +967,20 @@ function caricaIncontro(scena) {
 
               <!-- PERSONAGGI -->
 
-              <div
-                v-else-if="schedaSupporto === 'png'"
-                class="elementi-supporto"
-              >
-                <p
-                  v-if="
-                    scenaConsultata(sessioneInConduzione).personaggi
-                  "
-                  class="testo-pre"
-                >
-                  {{
-                    scenaConsultata(sessioneInConduzione).personaggi
-                  }}
+              <div v-else-if="schedaSupporto === 'png'" class="elementi-supporto">
+                <p v-if="scenaConsultata(sessioneInConduzione).personaggi" class="testo-pre">
+                  {{ scenaConsultata(sessioneInConduzione).personaggi }}
                 </p>
 
                 <details
-                  v-for="png in pngScena(
-                    scenaConsultata(sessioneInConduzione)
-                  )"
+                  v-for="png in pngScena(scenaConsultata(sessioneInConduzione))"
                   :key="png.id"
                   class="dettaglio-png"
                 >
                   <summary>
                     <strong>{{ png.nome }}</strong>
 
-                    <small v-if="png.ruolo">
-                      · {{ png.ruolo }}
-                    </small>
+                    <small v-if="png.ruolo"> · {{ png.ruolo }} </small>
                   </summary>
 
                   <p v-if="png.personalita">
@@ -1292,42 +1007,23 @@ function caricaIncontro(scena) {
 
               <!-- ALTERNATIVE -->
 
-              <p
-                v-else-if="
-                  schedaSupporto === 'alternative'
-                "
-                class="testo-pre"
-              >
-                {{
-                  scenaConsultata(sessioneInConduzione).alternativa
-                }}
+              <p v-else-if="schedaSupporto === 'alternative'" class="testo-pre">
+                {{ scenaConsultata(sessioneInConduzione).alternativa }}
               </p>
 
               <!-- NOTE DEL DM -->
 
-              <p
-                v-else-if="
-                  schedaSupporto === 'note'
-                "
-                class="testo-pre"
-              >
-                {{
-                  scenaConsultata(sessioneInConduzione).note
-                }}
+              <p v-else-if="schedaSupporto === 'note'" class="testo-pre">
+                {{ scenaConsultata(sessioneInConduzione).note }}
               </p>
 
               <!-- ELEMENTI INTERATTIVI -->
 
-              <div
-                v-else-if="
-                  schedaSupporto === 'stati'
-                "
-                class="elementi-supporto"
-              >
+              <div v-else-if="schedaSupporto === 'stati'" class="elementi-supporto">
                 <div
                   v-for="elemento in elementiScena(
                     sessioneInConduzione,
-                    scenaConsultata(sessioneInConduzione)
+                    scenaConsultata(sessioneInConduzione),
                   )"
                   :key="elemento.id"
                   class="riga-stato"
@@ -1343,21 +1039,13 @@ function caricaIncontro(scena) {
                   <select
                     v-model="elemento.stato"
                     class="dmc-campo"
-                    :aria-label="
-                      `Stato di ${elemento.nome}`
-                    "
+                    :aria-label="`Stato di ${elemento.nome}`"
                   >
-                    <option value="inattivo">
-                      Non attivo
-                    </option>
+                    <option value="inattivo">Non attivo</option>
 
-                    <option value="pronto">
-                      Disponibile
-                    </option>
+                    <option value="pronto">Disponibile</option>
 
-                    <option value="utilizzato">
-                      Utilizzato
-                    </option>
+                    <option value="utilizzato">Utilizzato</option>
                   </select>
                 </div>
 
@@ -1370,19 +1058,10 @@ function caricaIncontro(scena) {
                   "
                   class="monitoraggio"
                 >
-                  <strong>
-                    Attività monitorata
-                  </strong>
+                  <strong> Attività monitorata </strong>
 
-                  <p
-                    v-if="
-                      sessioneInConduzione.rituale.descrizione
-                    "
-                    class="testo-pre"
-                  >
-                    {{
-                      sessioneInConduzione.rituale.descrizione
-                    }}
+                  <p v-if="sessioneInConduzione.rituale.descrizione" class="testo-pre">
+                    {{ sessioneInConduzione.rituale.descrizione }}
                   </p>
 
                   <label
@@ -1392,22 +1071,13 @@ function caricaIncontro(scena) {
                   >
                     <input
                       type="checkbox"
-                      :checked="
-                        !partecipante.attivo
-                      "
-                      @change="
-                        partecipante.attivo =
-                          !$event.target.checked
-                      "
+                      :checked="!partecipante.attivo"
+                      @change="partecipante.attivo = !$event.target.checked"
                     />
 
                     {{ partecipante.nome }}
                     ·
-                    {{
-                      partecipante.attivo
-                        ? 'Attivo'
-                        : 'Interrotto'
-                    }}
+                    {{ partecipante.attivo ? 'Attivo' : 'Interrotto' }}
                   </label>
 
                   <small>
@@ -1426,9 +1096,7 @@ function caricaIncontro(scena) {
 
           <section
             v-if="
-              totaleNemici(
-                scenaConsultata(sessioneInConduzione)
-              ) ||
+              totaleNemici(scenaConsultata(sessioneInConduzione)) ||
               scenaConsultata(sessioneInConduzione).incontro?.noteBilanciamento
             "
             class="incontro-rapido dmc-pannello"
@@ -1438,26 +1106,15 @@ function caricaIncontro(scena) {
                 <h4>
                   Incontro
                   {{
-                    scenaConsultata(sessioneInConduzione).incontro?.opzionale
-                      ? '· facoltativo'
-                      : ''
+                    scenaConsultata(sessioneInConduzione).incontro?.opzionale ? '· facoltativo' : ''
                   }}
                 </h4>
 
                 <small>
-                  {{
-                    totaleNemici(
-                      scenaConsultata(sessioneInConduzione)
-                    )
-                  }}
+                  {{ totaleNemici(scenaConsultata(sessioneInConduzione)) }}
                   nemici ·
 
-                  {{
-                    difficolta(
-                      scenaConsultata(sessioneInConduzione),
-                      sessioneInConduzione
-                    )
-                  }}
+                  {{ difficolta(scenaConsultata(sessioneInConduzione), sessioneInConduzione) }}
                 </small>
               </div>
 
@@ -1465,37 +1122,21 @@ function caricaIncontro(scena) {
                 type="button"
                 class="dmc-btn"
                 :disabled="
-                  !totaleNemici(
-                    scenaConsultata(sessioneInConduzione)
-                  ) ||
-                  creatureDaCollegare(
-                    scenaConsultata(sessioneInConduzione)
-                  ).length > 0
+                  !totaleNemici(scenaConsultata(sessioneInConduzione)) ||
+                  creatureDaCollegare(scenaConsultata(sessioneInConduzione)).length > 0
                 "
-                @click="
-                  richiediCaricamento(
-                    scenaConsultata(sessioneInConduzione)
-                  )
-                "
+                @click="richiediCaricamento(scenaConsultata(sessioneInConduzione))"
               >
                 Carica in Battaglia
               </button>
             </div>
 
             <p
-              v-if="
-                creatureDaCollegare(
-                  scenaConsultata(sessioneInConduzione)
-                ).length
-              "
+              v-if="creatureDaCollegare(scenaConsultata(sessioneInConduzione)).length"
               class="attenzione"
             >
               Da collegare:
-              {{
-                creatureDaCollegare(
-                  scenaConsultata(sessioneInConduzione)
-                ).join(', ')
-              }}
+              {{ creatureDaCollegare(scenaConsultata(sessioneInConduzione)).join(', ') }}
             </p>
 
             <details class="dettaglio-incontro">
@@ -1511,48 +1152,32 @@ function caricaIncontro(scena) {
               </p>
 
               <p
-                v-if="
-                  scenaConsultata(sessioneInConduzione).incontro?.noteBilanciamento
-                "
+                v-if="scenaConsultata(sessioneInConduzione).incontro?.noteBilanciamento"
                 class="testo-pre"
               >
-                {{
-                  scenaConsultata(sessioneInConduzione).incontro.noteBilanciamento
-                }}
+                {{ scenaConsultata(sessioneInConduzione).incontro.noteBilanciamento }}
               </p>
             </details>
 
             <div
-              v-if="
-                conferma ===
-                `carica-${scenaConsultata(sessioneInConduzione).id}`
-              "
+              v-if="conferma === `carica-${scenaConsultata(sessioneInConduzione).id}`"
               class="conferma"
             >
               <p>
-                Avviare un nuovo combattimento sostituendo i nemici presenti?
-                Il round e le iniziative saranno azzerati.
-                I PF e le condizioni dei PG resteranno invariati.
+                Avviare un nuovo combattimento sostituendo i nemici presenti? Il round e le
+                iniziative saranno azzerati. I PF e le condizioni dei PG resteranno invariati.
               </p>
 
               <div class="azioni">
                 <button
                   type="button"
                   class="dmc-btn"
-                  @click="
-                    caricaIncontro(
-                      scenaConsultata(sessioneInConduzione)
-                    )
-                  "
+                  @click="caricaIncontro(scenaConsultata(sessioneInConduzione))"
                 >
                   Conferma
                 </button>
 
-                <button
-                  type="button"
-                  class="dmc-btn dmc-btn--secondary"
-                  @click="conferma = null"
-                >
+                <button type="button" class="dmc-btn dmc-btn--secondary" @click="conferma = null">
                   Annulla
                 </button>
               </div>
@@ -1581,15 +1206,8 @@ function caricaIncontro(scena) {
             <button
               type="button"
               class="dmc-btn dmc-btn--secondary"
-              :disabled="
-                indiceConsultato(sessioneInConduzione) <= 0
-              "
-              @click="
-                cambiaScena(
-                  sessioneInConduzione,
-                  -1
-                )
-              "
+              :disabled="indiceConsultato(sessioneInConduzione) <= 0"
+              @click="cambiaScena(sessioneInConduzione, -1)"
             >
               ← Precedente
             </button>
@@ -1598,15 +1216,9 @@ function caricaIncontro(scena) {
               type="button"
               class="dmc-btn dmc-btn--secondary"
               :disabled="
-                indiceConsultato(sessioneInConduzione) >=
-                sessioneInConduzione.scene.length - 1
+                indiceConsultato(sessioneInConduzione) >= sessioneInConduzione.scene.length - 1
               "
-              @click="
-                cambiaScena(
-                  sessioneInConduzione,
-                  1
-                )
-              "
+              @click="cambiaScena(sessioneInConduzione, 1)"
             >
               Successiva →
             </button>
@@ -1614,11 +1226,7 @@ function caricaIncontro(scena) {
         </main>
       </div>
 
-      <p
-        v-if="messaggio"
-        class="messaggio"
-        role="status"
-      >
+      <p v-if="messaggio" class="messaggio" role="status">
         {{ messaggio }}
       </p>
     </template>
@@ -1628,15 +1236,11 @@ function caricaIncontro(scena) {
     =========================================== -->
 
     <template v-else>
-
       <header class="intestazione testata-preparazione">
         <div>
           <h2>Sessioni</h2>
 
-          <p>
-            Prepara le scene e le informazioni
-            per la conduzione.
-          </p>
+          <p>Prepara le scene e le informazioni per la conduzione.</p>
         </div>
 
         <small>
@@ -1647,10 +1251,7 @@ function caricaIncontro(scena) {
 
       <!-- NUOVA SESSIONE -->
 
-      <form
-        class="nuova-sessione"
-        @submit.prevent="creaSessione"
-      >
+      <form class="nuova-sessione" @submit.prevent="creaSessione">
         <label class="campo-flessibile">
           Nuova sessione
 
@@ -1663,22 +1264,12 @@ function caricaIncontro(scena) {
           />
         </label>
 
-        <button
-          type="submit"
-          class="dmc-btn"
-        >
-          + Crea sessione
-        </button>
+        <button type="submit" class="dmc-btn">+ Crea sessione</button>
       </form>
 
       <!-- ELENCO DELLE SESSIONI -->
 
-      <p
-        v-if="!dati?.sessioni?.length"
-        class="testo-secondario"
-      >
-        Non ci sono ancora sessioni.
-      </p>
+      <p v-if="!dati?.sessioni?.length" class="testo-secondario">Non ci sono ancora sessioni.</p>
 
       <article
         v-for="(sessione, indiceSessione) in dati?.sessioni || []"
@@ -1696,15 +1287,11 @@ function caricaIncontro(scena) {
             </small>
 
             <h3>
-              {{
-                sessione.titolo ||
-                'Sessione senza titolo'
-              }}
+              {{ sessione.titolo || 'Sessione senza titolo' }}
             </h3>
           </div>
 
           <div class="azioni">
-
             <button
               v-if="sessione.scene.length"
               type="button"
@@ -1717,38 +1304,22 @@ function caricaIncontro(scena) {
             <button
               type="button"
               class="dmc-btn dmc-btn--secondary"
-              @click="
-                sessioneApertaId =
-                  sessioneApertaId === sessione.id
-                    ? null
-                    : sessione.id
-              "
+              @click="sessioneApertaId = sessioneApertaId === sessione.id ? null : sessione.id"
             >
-              {{
-                sessioneApertaId === sessione.id
-                  ? 'Chiudi'
-                  : 'Prepara'
-              }}
+              {{ sessioneApertaId === sessione.id ? 'Chiudi' : 'Prepara' }}
             </button>
 
             <button
               type="button"
               class="dmc-btn dmc-btn--danger"
-              @click="
-                conferma = `s-${sessione.id}`
-              "
+              @click="conferma = `s-${sessione.id}`"
             >
               Elimina
             </button>
           </div>
         </header>
 
-        <div
-          v-if="
-            conferma === `s-${sessione.id}`
-          "
-          class="conferma"
-        >
+        <div v-if="conferma === `s-${sessione.id}`" class="conferma">
           Eliminare la sessione e tutte le sue scene?
 
           <div class="azioni">
@@ -1760,11 +1331,7 @@ function caricaIncontro(scena) {
               Conferma
             </button>
 
-            <button
-              type="button"
-              class="dmc-btn dmc-btn--secondary"
-              @click="conferma = null"
-            >
+            <button type="button" class="dmc-btn dmc-btn--secondary" @click="conferma = null">
               Annulla
             </button>
           </div>
@@ -1772,962 +1339,740 @@ function caricaIncontro(scena) {
 
         <!-- EDITOR SESSIONE -->
 
-        <div
-          v-if="
-            sessioneApertaId === sessione.id
-          "
-          class="editor-sessione"
-        >
-
+        <div v-if="sessioneApertaId === sessione.id" class="editor-sessione">
           <nav class="passi-preparazione" aria-label="Preparazione della sessione">
-            <button v-for="passo in [
-              { id: 'base', nome: '1. Impostazioni' },
-              { id: 'scene', nome: '2. Scene' },
-              { id: 'extra', nome: '3. Strumenti opzionali' }
-            ]" :key="passo.id" type="button"
+            <button
+              v-for="passo in [
+                { id: 'base', nome: '1. Impostazioni' },
+                { id: 'scene', nome: '2. Scene' },
+                { id: 'extra', nome: '3. Strumenti opzionali' },
+              ]"
+              :key="passo.id"
+              type="button"
               class="dmc-btn dmc-btn--secondary"
               :class="{ 'passo-attivo': (sezionePreparazione[sessione.id] || 'base') === passo.id }"
-              :aria-current="(sezionePreparazione[sessione.id] || 'base') === passo.id ? 'step' : undefined"
-              @click="sezionePreparazione[sessione.id] = passo.id"
-            >{{ passo.nome }}</button>
-          </nav>
-          <section v-show="(sezionePreparazione[sessione.id] || 'base') === 'base'" class="passo-editor">
-            <p class="guida-preparazione"><strong>Per iniziare:</strong> definisci data, numero e livello dei personaggi, poi scrivi che cosa vorresti accadesse nella sessione. Il resoconto si può completare dopo aver giocato.</p>
-          <details class="editor-espandibile">
-            <summary>
-              Impostazioni della sessione
-            </summary>
-
-            <div class="interno-details griglia-campi">
-
-              <label>
-                Titolo
-
-                <input
-                  v-model="sessione.titolo"
-                  class="dmc-campo"
-                />
-              </label>
-
-              <label>
-                Data
-
-                <input
-                  v-model="sessione.data"
-                  class="dmc-campo"
-                  type="date"
-                />
-              </label>
-
-              <label>
-                Numero PG
-
-                <input
-                  v-model.number="sessione.pgPrevisti"
-                  class="dmc-campo"
-                  type="number"
-                  min="1"
-                  max="20"
-                />
-              </label>
-
-              <label>
-                Livello PG
-
-                <input
-                  v-model.number="sessione.livelloPrevisto"
-                  class="dmc-campo"
-                  type="number"
-                  min="1"
-                  max="20"
-                />
-              </label>
-
-              <label>
-                Stato
-
-                <select
-                  v-model="sessione.stato"
-                  class="dmc-campo"
-                >
-                  <option value="preparazione">
-                    In preparazione
-                  </option>
-
-                  <option value="svolta">
-                    Svolta
-                  </option>
-                </select>
-              </label>
-
-              <label>
-                Obiettivi
-
-                <textarea
-                  v-model="sessione.obiettivi"
-                  class="dmc-campo"
-                  rows="3"
-                ></textarea>
-              </label>
-
-              <label>
-                Resoconto
-
-                <textarea
-                  v-model="sessione.resoconto"
-                  class="dmc-campo"
-                  rows="3"
-                ></textarea>
-              </label>
-            </div>
-          </details>
-
-            <div class="navigazione-preparazione">
-              <button type="button" class="dmc-btn" @click="sezionePreparazione[sessione.id] = 'scene'">Continua: prepara le scene →</button>
-            </div>
-          </section>
-          <section v-show="sezionePreparazione[sessione.id] === 'scene'" class="passo-editor">
-          <p class="guida-preparazione"><strong>Costruisci la sessione:</strong> aggiungi una scena per ogni momento significativo. Per ciascuna indica cosa accade, eventuali indizi e incontri. Puoi tornare a modificarle in qualsiasi momento.</p>
-          <!-- SCENE -->
-
-          <div class="intestazione">
-            <h4>
-              Scene · {{ sessione.scene.length }}
-            </h4>
-
-            <button
-              type="button"
-              class="dmc-btn"
-              @click="creaScena(sessione)"
-            >
-              + Nuova scena
-            </button>
-          </div>
-
-          <article
-            v-for="(scena, indice) in sessione.scene"
-            :key="scena.id"
-            class="scena-editor"
-          >
-            <header class="intestazione">
-              <div>
-                <small>
-                  SCENA {{ indice + 1 }}
-                </small>
-
-                <h4>
-                  {{ titoloScena(scena, indice) }}
-                </h4>
-              </div>
-
-              <div class="azioni">
-
-                <button
-                  type="button"
-                  class="dmc-btn dmc-btn--secondary"
-                  :disabled="indice === 0"
-                  :aria-label="
-                    `Sposta ${titoloScena(scena, indice)} su`
-                  "
-                  @click="
-                    sposta(
-                      sessione.scene,
-                      indice,
-                      -1
-                    )
-                  "
-                >
-                  ↑
-                </button>
-
-                <button
-                  type="button"
-                  class="dmc-btn dmc-btn--secondary"
-                  :disabled="
-                    indice === sessione.scene.length - 1
-                  "
-                  :aria-label="
-                    `Sposta ${titoloScena(scena, indice)} giù`
-                  "
-                  @click="
-                    sposta(
-                      sessione.scene,
-                      indice,
-                      1
-                    )
-                  "
-                >
-                  ↓
-                </button>
-
-                <button
-                  type="button"
-                  class="dmc-btn dmc-btn--secondary"
-                  @click="
-                    scenaApertaId =
-                      scenaApertaId === scena.id
-                        ? null
-                        : scena.id
-                  "
-                >
-                  {{
-                    scenaApertaId === scena.id
-                      ? 'Chiudi'
-                      : 'Modifica'
-                  }}
-                </button>
-
-                <button
-                  type="button"
-                  class="dmc-btn dmc-btn--danger"
-                  @click="
-                    conferma = `sc-${scena.id}`
-                  "
-                >
-                  Elimina
-                </button>
-              </div>
-            </header>
-
-            <div
-              v-if="
-                conferma === `sc-${scena.id}`
+              :aria-current="
+                (sezionePreparazione[sessione.id] || 'base') === passo.id ? 'step' : undefined
               "
-              class="conferma"
+              @click="sezionePreparazione[sessione.id] = passo.id"
             >
-              Eliminare questa scena?
+              {{ passo.nome }}
+            </button>
+          </nav>
+          <section
+            v-show="(sezionePreparazione[sessione.id] || 'base') === 'base'"
+            class="passo-editor"
+          >
+            <p class="guida-preparazione">
+              <strong>Per iniziare:</strong> definisci data, numero e livello dei personaggi, poi
+              scrivi che cosa vorresti accadesse nella sessione. Il resoconto si può completare dopo
+              aver giocato.
+            </p>
+            <details class="editor-espandibile">
+              <summary>Impostazioni della sessione</summary>
 
-              <div class="azioni">
-                <button
-                  type="button"
-                  class="dmc-btn dmc-btn--danger"
-                  @click="
-                    eliminaScena(
-                      sessione,
-                      scena
-                    )
-                  "
-                >
-                  Conferma
-                </button>
-
-                <button
-                  type="button"
-                  class="dmc-btn dmc-btn--secondary"
-                  @click="conferma = null"
-                >
-                  Annulla
-                </button>
-              </div>
-            </div>
-
-            <!-- EDITOR SCENA -->
-
-            <div
-              v-if="scenaApertaId === scena.id"
-              class="editor-scena"
-            >
-
-              <div class="griglia-campi">
-
+              <div class="interno-details griglia-campi">
                 <label>
                   Titolo
 
+                  <input v-model="sessione.titolo" class="dmc-campo" />
+                </label>
+
+                <label>
+                  Data
+
+                  <input v-model="sessione.data" class="dmc-campo" type="date" />
+                </label>
+
+                <label>
+                  Numero PG
+
                   <input
-                    v-model="scena.titolo"
+                    v-model.number="sessione.pgPrevisti"
                     class="dmc-campo"
+                    type="number"
+                    min="1"
+                    max="20"
                   />
                 </label>
 
                 <label>
-                  Orario indicativo (facoltativo)
+                  Livello PG
 
                   <input
-                    v-model="scena.orario"
+                    v-model.number="sessione.livelloPrevisto"
                     class="dmc-campo"
-                    placeholder="Es. 0:25–0:50"
+                    type="number"
+                    min="1"
+                    max="20"
                   />
-                </label>
-              </div>
-
-              <label>
-                Descrizione narrativa
-
-                <textarea
-                  v-model="scena.descrizione"
-                  class="dmc-campo"
-                  rows="5"
-                  placeholder="Ciò che il DM può leggere o parafrasare ai giocatori."
-                ></textarea>
-              </label>
-
-              <!-- GUIDA UNIFICATA -->
-
-              <section class="editor-guida">
-                <header class="intestazione">
-                  <h4>
-                    Guida alla conduzione
-                  </h4>
-
-                  <button
-                    type="button"
-                    class="dmc-btn"
-                    @click="
-                      aggiungi(
-                        scena.guida,
-                        {
-                          testo: '',
-                          condizione: '',
-                          narrazione: '',
-                          completato: false
-                        }
-                      )
-                    "
-                  >
-                    + Passaggio
-                  </button>
-                </header>
-
-                <p class="testo-secondario">
-                  Ordina le attività come vuoi affrontarle.
-                  Un passaggio può avere un testo da narrare
-                  e una condizione, senza creare
-                  una sezione separata.
-                </p>
-
-                <div
-                  v-for="(passo, indicePasso) in scena.guida"
-                  :key="passo.id"
-                  class="riga-guida-editor"
-                >
-                  <div class="riga-editor">
-
-                    <label class="campo-flessibile">
-                      Passaggio {{ indicePasso + 1 }}
-
-                      <input
-                        v-model="passo.testo"
-                        class="dmc-campo"
-                      />
-                    </label>
-
-                    <button
-                      type="button"
-                      class="dmc-btn dmc-btn--secondary"
-                      :disabled="
-                        indicePasso === 0
-                      "
-                      @click="
-                        sposta(
-                          scena.guida,
-                          indicePasso,
-                          -1
-                        )
-                      "
-                    >
-                      ↑
-                    </button>
-
-                    <button
-                      type="button"
-                      class="dmc-btn dmc-btn--secondary"
-                      :disabled="
-                        indicePasso ===
-                        scena.guida.length - 1
-                      "
-                      @click="
-                        sposta(
-                          scena.guida,
-                          indicePasso,
-                          1
-                        )
-                      "
-                    >
-                      ↓
-                    </button>
-
-                    <button
-                      type="button"
-                      class="dmc-btn dmc-btn--danger"
-                      @click="
-                        rimuovi(
-                          scena.guida,
-                          passo.id
-                        )
-                      "
-                    >
-                      ×
-                    </button>
-                  </div>
-
-                  <details class="dettagli-editor">
-                    <summary>
-                      Condizione e narrazione (facoltative)
-                    </summary>
-
-                    <div class="interno-details">
-
-                      <label>
-                        Quando attivarlo
-
-                        <input
-                          v-model="passo.condizione"
-                          class="dmc-campo"
-                        />
-                      </label>
-
-                      <label>
-                        Testo da leggere
-
-                        <textarea
-                          v-model="passo.narrazione"
-                          class="dmc-campo"
-                          rows="3"
-                        ></textarea>
-                      </label>
-
-                      <label class="check-inline">
-                        <input
-                          type="checkbox"
-                          v-model="passo.completato"
-                        />
-
-                        Già svolto
-                      </label>
-                    </div>
-                  </details>
-                </div>
-              </section>
-
-              <!-- INDIZI E INFORMAZIONI -->
-
-              <details class="editor-espandibile">
-                <summary>
-                  Indizi e informazioni
-                </summary>
-
-                <div class="interno-details">
-
-                  <button
-                    type="button"
-                    class="dmc-btn dmc-btn--secondary"
-                    @click="
-                      aggiungi(
-                        scena.indizi,
-                        {
-                          testo: '',
-                          rivelato: false
-                        }
-                      )
-                    "
-                  >
-                    + Indizio
-                  </button>
-
-                  <div
-                    v-for="indizio in scena.indizi"
-                    :key="indizio.id"
-                    class="riga-editor"
-                  >
-
-                    <label class="campo-flessibile">
-                      Indizio
-
-                      <input
-                        v-model="indizio.testo"
-                        class="dmc-campo"
-                      />
-                    </label>
-
-                    <button
-                      type="button"
-                      class="dmc-btn dmc-btn--danger"
-                      @click="
-                        rimuovi(
-                          scena.indizi,
-                          indizio.id
-                        )
-                      "
-                    >
-                      ×
-                    </button>
-                  </div>
-
-                  <label>
-                    Alternativa narrativa
-
-                    <textarea
-                      v-model="scena.alternativa"
-                      class="dmc-campo"
-                      rows="3"
-                    ></textarea>
-                  </label>
-
-                  <label>
-                    Informazioni su personaggi e incontri
-
-                    <textarea
-                      v-model="scena.personaggi"
-                      class="dmc-campo"
-                      rows="2"
-                    ></textarea>
-                  </label>
-
-                  <label>
-                    Altri appunti del DM
-
-                    <textarea
-                      v-model="scena.note"
-                      class="dmc-campo"
-                      rows="3"
-                    ></textarea>
-                  </label>
-                </div>
-              </details>
-
-              <!-- PNG PRESENTI -->
-
-              <details class="editor-espandibile">
-                <summary>
-                  PNG presenti
-                </summary>
-
-                <div class="interno-details">
-
-                  <p
-                    v-if="
-                      !dati?.pngNarrativi?.length
-                    "
-                    class="testo-secondario"
-                  >
-                    Crea prima i PNG nel registro
-                    della campagna.
-                  </p>
-
-                  <label
-                    v-for="png in dati?.pngNarrativi || []"
-                    :key="png.id"
-                    class="check-inline"
-                  >
-                    <input
-                      type="checkbox"
-                      v-model="scena.pngIds"
-                      :value="png.id"
-                    />
-
-                    {{ png.nome }}
-                  </label>
-                </div>
-              </details>
-
-              <!-- ATTIVITÀ MONITORATA -->
-
-              <details
-                v-if="
-                  sessione.rituale?.partecipanti?.length
-                "
-                class="editor-espandibile"
-              >
-                <summary>
-                  Attività monitorata in questa scena
-                </summary>
-
-                <div class="interno-details">
-                  <label class="check-inline">
-                    <input
-                      type="checkbox"
-                      v-model="scena.mostraRituale"
-                    />
-
-                    Rendi visibile l'attività
-                    nella Conduzione
-                  </label>
-                </div>
-              </details>
-
-              <!-- INCONTRO -->
-
-              <details class="editor-espandibile">
-                <summary>
-                  Incontro ·
-                  {{ totaleNemici(scena) }}
-                  nemici
-                </summary>
-
-                <div class="interno-details">
-
-                  <label class="check-inline">
-                    <input
-                      type="checkbox"
-                      v-model="scena.incontro.opzionale"
-                    />
-
-                    Incontro facoltativo
-                  </label>
-
-                  <p class="testo-secondario">
-                    {{
-                      difficolta(
-                        scena,
-                        sessione
-                      )
-                    }}
-                  </p>
-
-                  <label>
-                    Indicazioni per il DM
-
-                    <textarea
-                      v-model="scena.incontro.noteBilanciamento"
-                      class="dmc-campo"
-                      rows="2"
-                    ></textarea>
-                  </label>
-
-                  <p
-                    v-if="
-                      creatureDaCollegare(scena).length
-                    "
-                    class="attenzione"
-                  >
-                    Da collegare:
-                    {{
-                      creatureDaCollegare(scena).join(', ')
-                    }}
-                  </p>
-
-                  <label>
-                    Ricerca nel Bestiario
-
-                    <input
-                      v-model="ricercaCreatura"
-                      class="dmc-campo"
-                      placeholder="Cerca creatura"
-                    />
-                  </label>
-
-                  <div class="composizione-incontro">
-
-                    <label>
-                      Creatura
-
-                      <select
-                        v-model="creaturaSelezionataId"
-                        class="dmc-campo"
-                      >
-                        <option value="">
-                          Seleziona
-                        </option>
-
-                        <option
-                          v-for="creatura in creatureDisponibili"
-                          :key="creatura.id"
-                          :value="creatura.id"
-                        >
-                          {{ creatura.nome }}
-                          · CA {{ creatura.ca }}
-                          · {{ creatura.pfMax }} PF
-                        </option>
-                      </select>
-                    </label>
-
-                    <label>
-                      Quantità
-
-                      <input
-                        v-model.number="quantitaCreatura"
-                        class="dmc-campo"
-                        type="number"
-                        min="1"
-                        max="30"
-                      />
-                    </label>
-
-                    <button
-                      type="button"
-                      class="dmc-btn"
-                      :disabled="
-                        !creaturaSelezionataId
-                      "
-                      @click="
-                        aggiungiCreatura(scena)
-                      "
-                    >
-                      Aggiungi
-                    </button>
-                  </div>
-
-                  <div
-                    v-for="voce in scena.incontro.nemici"
-                    :key="voce.creaturaId"
-                    class="riga-editor"
-                  >
-                    <strong class="campo-flessibile">
-                      {{ nomeCreatura(voce) }}
-                    </strong>
-
-                    <label>
-                      Quantità
-
-                      <input
-                        v-model.number="voce.quantita"
-                        class="dmc-campo"
-                        type="number"
-                        min="1"
-                        max="30"
-                      />
-                    </label>
-
-                    <label>
-                      PF (facoltativi)
-
-                      <input
-                        v-model.number="voce.pfIncontro"
-                        class="dmc-campo"
-                        type="number"
-                        min="1"
-                        max="999"
-                        placeholder="PF base"
-                      />
-                    </label>
-
-                    <button
-                      type="button"
-                      class="dmc-btn dmc-btn--danger"
-                      @click="
-                        scena.incontro.nemici =
-                          scena.incontro.nemici.filter(
-                            elemento =>
-                              elemento.creaturaId !==
-                              voce.creaturaId
-                          )
-                      "
-                    >
-                      ×
-                    </button>
-                  </div>
-                </div>
-              </details>
-            </div>
-          </article>
-            <div class="navigazione-preparazione">
-              <button type="button" class="dmc-btn dmc-btn--secondary" @click="sezionePreparazione[sessione.id] = 'base'">← Impostazioni</button>
-              <button type="button" class="dmc-btn" @click="sezionePreparazione[sessione.id] = 'extra'">Strumenti opzionali →</button>
-            </div>
-          </section>
-          <section v-show="sezionePreparazione[sessione.id] === 'extra'" class="passo-editor">
-          <!-- ELEMENTI INTERATTIVI -->
-          <p class="guida-preparazione"><strong>Non sono obbligatori.</strong> Usa questi strumenti solo se hai meccanismi da attivare, oggetti da usare o un'attività collettiva da seguire durante la conduzione. Per una sessione tradizionale sono sufficienti le scene.</p>
-
-          <details class="editor-espandibile">
-            <summary>
-              Elementi interattivi
-
-              <small>
-                facoltativi · per scena
-              </small>
-            </summary>
-
-            <div class="interno-details">
-              <p class="testo-secondario">
-                Esempio: una leva che apre una porta, un altare da attivare o una trappola da disinnescare. Imposta il nome, descrivi cosa cambia e scegli in quali scene compare. Durante la conduzione potrai aggiornarne lo stato.
-              </p>
-
-              <button
-                type="button"
-                class="dmc-btn dmc-btn--secondary"
-                @click="
-                  aggiungi(
-                    sessione.risorseNarrative,
-                    {
-                      nome: '',
-                      effetto: '',
-                      stato: 'inattivo',
-                      sceneIds: []
-                    }
-                  )
-                "
-              >
-                + Elemento
-              </button>
-
-              <div
-                v-for="elemento in sessione.risorseNarrative"
-                :key="elemento.id"
-                class="scheda-secondaria"
-              >
-
-                <label>
-                  Nome
-
-                  <input
-                    v-model="elemento.nome"
-                    class="dmc-campo"
-                  />
-                </label>
-
-                <label>
-                  Descrizione/effetto
-
-                  <textarea
-                    v-model="elemento.effetto"
-                    class="dmc-campo"
-                    rows="2"
-                  ></textarea>
                 </label>
 
                 <label>
                   Stato
 
-                  <select
-                    v-model="elemento.stato"
-                    class="dmc-campo"
-                  >
-                    <option value="inattivo">
-                      Non attivo
-                    </option>
+                  <select v-model="sessione.stato" class="dmc-campo">
+                    <option value="preparazione">In preparazione</option>
 
-                    <option value="pronto">
-                      Disponibile
-                    </option>
-
-                    <option value="utilizzato">
-                      Utilizzato
-                    </option>
+                    <option value="svolta">Svolta</option>
                   </select>
                 </label>
 
-                <fieldset class="collegamenti">
-                  <legend>
-                    Mostra nelle scene
-                  </legend>
+                <label>
+                  Obiettivi
 
-                  <label
-                    v-for="(scena, indice) in sessione.scene"
-                    :key="scena.id"
-                    class="check-inline"
-                  >
-                    <input
-                      type="checkbox"
-                      v-model="elemento.sceneIds"
-                      :value="scena.id"
-                    />
+                  <textarea v-model="sessione.obiettivi" class="dmc-campo" rows="3"></textarea>
+                </label>
 
-                    {{ titoloScena(scena, indice) }}
-                  </label>
-                </fieldset>
+                <label>
+                  Resoconto
 
-                <button
-                  type="button"
-                  class="dmc-btn dmc-btn--danger"
-                  @click="
-                    rimuovi(
-                      sessione.risorseNarrative,
-                      elemento.id
-                    )
-                  "
-                >
-                  Elimina elemento
-                </button>
+                  <textarea v-model="sessione.resoconto" class="dmc-campo" rows="3"></textarea>
+                </label>
               </div>
+            </details>
+
+            <div class="navigazione-preparazione">
+              <button
+                type="button"
+                class="dmc-btn"
+                @click="sezionePreparazione[sessione.id] = 'scene'"
+              >
+                Continua: prepara le scene →
+              </button>
             </div>
-          </details>
+          </section>
+          <section v-show="sezionePreparazione[sessione.id] === 'scene'" class="passo-editor">
+            <p class="guida-preparazione">
+              <strong>Costruisci la sessione:</strong> aggiungi una scena per ogni momento
+              significativo. Per ciascuna indica cosa accade, eventuali indizi e incontri. Puoi
+              tornare a modificarle in qualsiasi momento.
+            </p>
+            <!-- SCENE -->
 
-          <!-- ATTIVITÀ MONITORATA -->
+            <div class="intestazione">
+              <h4>Scene · {{ sessione.scene.length }}</h4>
 
-          <details class="editor-espandibile">
-            <summary>
-              Attività monitorata
+              <button type="button" class="dmc-btn" @click="creaScena(sessione)">
+                + Nuova scena
+              </button>
+            </div>
 
-              <small>facoltativa</small>
-            </summary>
+            <article v-for="(scena, indice) in sessione.scene" :key="scena.id" class="scena-editor">
+              <header class="intestazione">
+                <div>
+                  <small> SCENA {{ indice + 1 }} </small>
 
-            <div class="interno-details">
-              <p class="testo-secondario">
-                Esempio: un rituale in cui tre personaggi devono mantenere la concentrazione, oppure una fuga in cui diversi partecipanti possono essere interrotti. Descrivi l'attività, aggiungi i partecipanti e, nelle singole scene, abilita «Attività monitorata in questa scena». Non serve per i normali incontri di combattimento.
-              </p>
+                  <h4>
+                    {{ titoloScena(scena, indice) }}
+                  </h4>
+                </div>
 
-              <label>
-                Descrizione
+                <div class="azioni">
+                  <button
+                    type="button"
+                    class="dmc-btn dmc-btn--secondary"
+                    :disabled="indice === 0"
+                    :aria-label="`Sposta ${titoloScena(scena, indice)} su`"
+                    @click="sposta(sessione.scene, indice, -1)"
+                  >
+                    ↑
+                  </button>
 
-                <textarea
-                  v-model="sessione.rituale.descrizione"
-                  class="dmc-campo"
-                  rows="2"
-                ></textarea>
-              </label>
+                  <button
+                    type="button"
+                    class="dmc-btn dmc-btn--secondary"
+                    :disabled="indice === sessione.scene.length - 1"
+                    :aria-label="`Sposta ${titoloScena(scena, indice)} giù`"
+                    @click="sposta(sessione.scene, indice, 1)"
+                  >
+                    ↓
+                  </button>
 
+                  <button
+                    type="button"
+                    class="dmc-btn dmc-btn--secondary"
+                    @click="scenaApertaId = scenaApertaId === scena.id ? null : scena.id"
+                  >
+                    {{ scenaApertaId === scena.id ? 'Chiudi' : 'Modifica' }}
+                  </button>
+
+                  <button
+                    type="button"
+                    class="dmc-btn dmc-btn--danger"
+                    @click="conferma = `sc-${scena.id}`"
+                  >
+                    Elimina
+                  </button>
+                </div>
+              </header>
+
+              <div v-if="conferma === `sc-${scena.id}`" class="conferma">
+                Eliminare questa scena?
+
+                <div class="azioni">
+                  <button
+                    type="button"
+                    class="dmc-btn dmc-btn--danger"
+                    @click="eliminaScena(sessione, scena)"
+                  >
+                    Conferma
+                  </button>
+
+                  <button type="button" class="dmc-btn dmc-btn--secondary" @click="conferma = null">
+                    Annulla
+                  </button>
+                </div>
+              </div>
+
+              <!-- EDITOR SCENA -->
+
+              <div v-if="scenaApertaId === scena.id" class="editor-scena">
+                <div class="griglia-campi">
+                  <label>
+                    Titolo
+
+                    <input v-model="scena.titolo" class="dmc-campo" />
+                  </label>
+
+                  <label>
+                    Orario indicativo (facoltativo)
+
+                    <input v-model="scena.orario" class="dmc-campo" placeholder="Es. 0:25–0:50" />
+                  </label>
+                </div>
+
+                <label>
+                  Descrizione narrativa
+
+                  <textarea
+                    v-model="scena.descrizione"
+                    class="dmc-campo"
+                    rows="5"
+                    placeholder="Ciò che il DM può leggere o parafrasare ai giocatori."
+                  ></textarea>
+                </label>
+
+                <!-- GUIDA UNIFICATA -->
+
+                <section class="editor-guida">
+                  <header class="intestazione">
+                    <h4>Guida alla conduzione</h4>
+
+                    <button
+                      type="button"
+                      class="dmc-btn"
+                      @click="
+                        aggiungi(scena.guida, {
+                          testo: '',
+                          condizione: '',
+                          narrazione: '',
+                          completato: false,
+                        })
+                      "
+                    >
+                      + Passaggio
+                    </button>
+                  </header>
+
+                  <p class="testo-secondario">
+                    Ordina le attività come vuoi affrontarle. Un passaggio può avere un testo da
+                    narrare e una condizione, senza creare una sezione separata.
+                  </p>
+
+                  <div
+                    v-for="(passo, indicePasso) in scena.guida"
+                    :key="passo.id"
+                    class="riga-guida-editor"
+                  >
+                    <div class="riga-editor">
+                      <label class="campo-flessibile">
+                        Passaggio {{ indicePasso + 1 }}
+
+                        <input v-model="passo.testo" class="dmc-campo" />
+                      </label>
+
+                      <button
+                        type="button"
+                        class="dmc-btn dmc-btn--secondary"
+                        :disabled="indicePasso === 0"
+                        @click="sposta(scena.guida, indicePasso, -1)"
+                      >
+                        ↑
+                      </button>
+
+                      <button
+                        type="button"
+                        class="dmc-btn dmc-btn--secondary"
+                        :disabled="indicePasso === scena.guida.length - 1"
+                        @click="sposta(scena.guida, indicePasso, 1)"
+                      >
+                        ↓
+                      </button>
+
+                      <button
+                        type="button"
+                        class="dmc-btn dmc-btn--danger"
+                        @click="rimuovi(scena.guida, passo.id)"
+                      >
+                        ×
+                      </button>
+                    </div>
+
+                    <details class="dettagli-editor">
+                      <summary>Condizione e narrazione (facoltative)</summary>
+
+                      <div class="interno-details">
+                        <label>
+                          Quando attivarlo
+
+                          <input v-model="passo.condizione" class="dmc-campo" />
+                        </label>
+
+                        <label>
+                          Testo da leggere
+
+                          <textarea
+                            v-model="passo.narrazione"
+                            class="dmc-campo"
+                            rows="3"
+                          ></textarea>
+                        </label>
+
+                        <label class="check-inline">
+                          <input type="checkbox" v-model="passo.completato" />
+
+                          Già svolto
+                        </label>
+                      </div>
+                    </details>
+                  </div>
+                </section>
+
+                <!-- INDIZI E INFORMAZIONI -->
+
+                <details class="editor-espandibile">
+                  <summary>Indizi e informazioni</summary>
+
+                  <div class="interno-details">
+                    <button
+                      type="button"
+                      class="dmc-btn dmc-btn--secondary"
+                      @click="
+                        aggiungi(scena.indizi, {
+                          testo: '',
+                          rivelato: false,
+                        })
+                      "
+                    >
+                      + Indizio
+                    </button>
+
+                    <div v-for="indizio in scena.indizi" :key="indizio.id" class="riga-editor">
+                      <label class="campo-flessibile">
+                        Indizio
+
+                        <input v-model="indizio.testo" class="dmc-campo" />
+                      </label>
+
+                      <button
+                        type="button"
+                        class="dmc-btn dmc-btn--danger"
+                        @click="rimuovi(scena.indizi, indizio.id)"
+                      >
+                        ×
+                      </button>
+                    </div>
+
+                    <label>
+                      Alternativa narrativa
+
+                      <textarea v-model="scena.alternativa" class="dmc-campo" rows="3"></textarea>
+                    </label>
+
+                    <label>
+                      Informazioni su personaggi e incontri
+
+                      <textarea v-model="scena.personaggi" class="dmc-campo" rows="2"></textarea>
+                    </label>
+
+                    <label>
+                      Altri appunti del DM
+
+                      <textarea v-model="scena.note" class="dmc-campo" rows="3"></textarea>
+                    </label>
+                  </div>
+                </details>
+
+                <!-- PNG PRESENTI -->
+
+                <details class="editor-espandibile">
+                  <summary>PNG presenti</summary>
+
+                  <div class="interno-details">
+                    <p v-if="!dati?.pngNarrativi?.length" class="testo-secondario">
+                      Crea prima i PNG nel registro della campagna.
+                    </p>
+
+                    <label
+                      v-for="png in dati?.pngNarrativi || []"
+                      :key="png.id"
+                      class="check-inline"
+                    >
+                      <input type="checkbox" v-model="scena.pngIds" :value="png.id" />
+
+                      {{ png.nome }}
+                    </label>
+                  </div>
+                </details>
+
+                <!-- ATTIVITÀ MONITORATA -->
+
+                <details v-if="sessione.rituale?.partecipanti?.length" class="editor-espandibile">
+                  <summary>Attività monitorata in questa scena</summary>
+
+                  <div class="interno-details">
+                    <label class="check-inline">
+                      <input type="checkbox" v-model="scena.mostraRituale" />
+
+                      Rendi visibile l'attività nella Conduzione
+                    </label>
+                  </div>
+                </details>
+
+                <!-- INCONTRO -->
+
+                <details class="editor-espandibile">
+                  <summary>
+                    Incontro ·
+                    {{ totaleNemici(scena) }}
+                    nemici
+                  </summary>
+
+                  <div class="interno-details">
+                    <label class="check-inline">
+                      <input type="checkbox" v-model="scena.incontro.opzionale" />
+
+                      Incontro facoltativo
+                    </label>
+
+                    <p class="testo-secondario">
+                      {{ difficolta(scena, sessione) }}
+                    </p>
+
+                    <label>
+                      Indicazioni per il DM
+
+                      <textarea
+                        v-model="scena.incontro.noteBilanciamento"
+                        class="dmc-campo"
+                        rows="2"
+                      ></textarea>
+                    </label>
+
+                    <p v-if="creatureDaCollegare(scena).length" class="attenzione">
+                      Da collegare:
+                      {{ creatureDaCollegare(scena).join(', ') }}
+                    </p>
+
+                    <label>
+                      Ricerca nel Bestiario
+
+                      <input
+                        v-model="ricercaCreatura"
+                        class="dmc-campo"
+                        placeholder="Cerca creatura"
+                      />
+                    </label>
+
+                    <div class="composizione-incontro">
+                      <label>
+                        Creatura
+
+                        <select v-model="creaturaSelezionataId" class="dmc-campo">
+                          <option value="">Seleziona</option>
+
+                          <option
+                            v-for="creatura in creatureDisponibili"
+                            :key="creatura.id"
+                            :value="creatura.id"
+                          >
+                            {{ creatura.nome }}
+                            · CA {{ creatura.ca }} · {{ creatura.pfMax }} PF
+                          </option>
+                        </select>
+                      </label>
+
+                      <label>
+                        Quantità
+
+                        <input
+                          v-model.number="quantitaCreatura"
+                          class="dmc-campo"
+                          type="number"
+                          min="1"
+                          max="30"
+                        />
+                      </label>
+
+                      <button
+                        type="button"
+                        class="dmc-btn"
+                        :disabled="!creaturaSelezionataId"
+                        @click="aggiungiCreatura(scena)"
+                      >
+                        Aggiungi
+                      </button>
+                    </div>
+
+                    <div
+                      v-for="voce in scena.incontro.nemici"
+                      :key="voce.creaturaId"
+                      class="riga-editor"
+                    >
+                      <strong class="campo-flessibile">
+                        {{ nomeCreatura(voce) }}
+                      </strong>
+
+                      <label>
+                        Quantità
+
+                        <input
+                          v-model.number="voce.quantita"
+                          class="dmc-campo"
+                          type="number"
+                          min="1"
+                          max="30"
+                        />
+                      </label>
+
+                      <label>
+                        PF (facoltativi)
+
+                        <input
+                          v-model.number="voce.pfIncontro"
+                          class="dmc-campo"
+                          type="number"
+                          min="1"
+                          max="999"
+                          placeholder="PF base"
+                        />
+                      </label>
+
+                      <button
+                        type="button"
+                        class="dmc-btn dmc-btn--danger"
+                        @click="
+                          scena.incontro.nemici = scena.incontro.nemici.filter(
+                            (elemento) => elemento.creaturaId !== voce.creaturaId,
+                          )
+                        "
+                      >
+                        ×
+                      </button>
+                    </div>
+                  </div>
+                </details>
+              </div>
+            </article>
+            <div class="navigazione-preparazione">
               <button
                 type="button"
                 class="dmc-btn dmc-btn--secondary"
-                @click="
-                  aggiungi(
-                    sessione.rituale.partecipanti,
-                    {
-                      nome: 'Partecipante',
-                      attivo: true
-                    }
-                  )
-                "
+                @click="sezionePreparazione[sessione.id] = 'base'"
               >
-                + Partecipante
+                ← Impostazioni
               </button>
-
-              <div
-                v-for="partecipante in sessione.rituale.partecipanti"
-                :key="partecipante.id"
-                class="riga-editor"
+              <button
+                type="button"
+                class="dmc-btn"
+                @click="sezionePreparazione[sessione.id] = 'extra'"
               >
-                <label class="campo-flessibile">
-                  Nome
+                Strumenti opzionali →
+              </button>
+            </div>
+          </section>
+          <section v-show="sezionePreparazione[sessione.id] === 'extra'" class="passo-editor">
+            <!-- ELEMENTI INTERATTIVI -->
+            <p class="guida-preparazione">
+              <strong>Non sono obbligatori.</strong> Usa questi strumenti solo se hai meccanismi da
+              attivare, oggetti da usare o un'attività collettiva da seguire durante la conduzione.
+              Per una sessione tradizionale sono sufficienti le scene.
+            </p>
 
-                  <input
-                    v-model="partecipante.nome"
+            <details class="editor-espandibile">
+              <summary>
+                Elementi interattivi
+
+                <small> facoltativi · per scena </small>
+              </summary>
+
+              <div class="interno-details">
+                <p class="testo-secondario">
+                  Esempio: una leva che apre una porta, un altare da attivare o una trappola da
+                  disinnescare. Imposta il nome, descrivi cosa cambia e scegli in quali scene
+                  compare. Durante la conduzione potrai aggiornarne lo stato.
+                </p>
+
+                <button
+                  type="button"
+                  class="dmc-btn dmc-btn--secondary"
+                  @click="
+                    aggiungi(sessione.risorseNarrative, {
+                      nome: '',
+                      effetto: '',
+                      stato: 'inattivo',
+                      sceneIds: [],
+                    })
+                  "
+                >
+                  + Elemento
+                </button>
+
+                <div
+                  v-for="elemento in sessione.risorseNarrative"
+                  :key="elemento.id"
+                  class="scheda-secondaria"
+                >
+                  <label>
+                    Nome
+
+                    <input v-model="elemento.nome" class="dmc-campo" />
+                  </label>
+
+                  <label>
+                    Descrizione/effetto
+
+                    <textarea v-model="elemento.effetto" class="dmc-campo" rows="2"></textarea>
+                  </label>
+
+                  <label>
+                    Stato
+
+                    <select v-model="elemento.stato" class="dmc-campo">
+                      <option value="inattivo">Non attivo</option>
+
+                      <option value="pronto">Disponibile</option>
+
+                      <option value="utilizzato">Utilizzato</option>
+                    </select>
+                  </label>
+
+                  <fieldset class="collegamenti">
+                    <legend>Mostra nelle scene</legend>
+
+                    <label
+                      v-for="(scena, indice) in sessione.scene"
+                      :key="scena.id"
+                      class="check-inline"
+                    >
+                      <input type="checkbox" v-model="elemento.sceneIds" :value="scena.id" />
+
+                      {{ titoloScena(scena, indice) }}
+                    </label>
+                  </fieldset>
+
+                  <button
+                    type="button"
+                    class="dmc-btn dmc-btn--danger"
+                    @click="rimuovi(sessione.risorseNarrative, elemento.id)"
+                  >
+                    Elimina elemento
+                  </button>
+                </div>
+              </div>
+            </details>
+
+            <!-- ATTIVITÀ MONITORATA -->
+
+            <details class="editor-espandibile">
+              <summary>
+                Attività monitorata
+
+                <small>facoltativa</small>
+              </summary>
+
+              <div class="interno-details">
+                <p class="testo-secondario">
+                  Esempio: un rituale in cui tre personaggi devono mantenere la concentrazione,
+                  oppure una fuga in cui diversi partecipanti possono essere interrotti. Descrivi
+                  l'attività, aggiungi i partecipanti e, nelle singole scene, abilita «Attività
+                  monitorata in questa scena». Non serve per i normali incontri di combattimento.
+                </p>
+
+                <label>
+                  Descrizione
+
+                  <textarea
+                    v-model="sessione.rituale.descrizione"
                     class="dmc-campo"
-                  />
-                </label>
-
-                <label class="check-inline">
-                  <input
-                    type="checkbox"
-                    :checked="
-                      !partecipante.attivo
-                    "
-                    @change="
-                      partecipante.attivo =
-                        !$event.target.checked
-                    "
-                  />
-
-                  Interrotto
+                    rows="2"
+                  ></textarea>
                 </label>
 
                 <button
                   type="button"
-                  class="dmc-btn dmc-btn--danger"
+                  class="dmc-btn dmc-btn--secondary"
                   @click="
-                    rimuovi(
-                      sessione.rituale.partecipanti,
-                      partecipante.id
-                    )
+                    aggiungi(sessione.rituale.partecipanti, {
+                      nome: 'Partecipante',
+                      attivo: true,
+                    })
                   "
                 >
-                  ×
+                  + Partecipante
                 </button>
+
+                <div
+                  v-for="partecipante in sessione.rituale.partecipanti"
+                  :key="partecipante.id"
+                  class="riga-editor"
+                >
+                  <label class="campo-flessibile">
+                    Nome
+
+                    <input v-model="partecipante.nome" class="dmc-campo" />
+                  </label>
+
+                  <label class="check-inline">
+                    <input
+                      type="checkbox"
+                      :checked="!partecipante.attivo"
+                      @change="partecipante.attivo = !$event.target.checked"
+                    />
+
+                    Interrotto
+                  </label>
+
+                  <button
+                    type="button"
+                    class="dmc-btn dmc-btn--danger"
+                    @click="rimuovi(sessione.rituale.partecipanti, partecipante.id)"
+                  >
+                    ×
+                  </button>
+                </div>
               </div>
-            </div>
-          </details>
+            </details>
 
             <div class="navigazione-preparazione">
-              <button type="button" class="dmc-btn dmc-btn--secondary" @click="sezionePreparazione[sessione.id] = 'scene'">← Torna alle scene</button>
+              <button
+                type="button"
+                class="dmc-btn dmc-btn--secondary"
+                @click="sezionePreparazione[sessione.id] = 'scene'"
+              >
+                ← Torna alle scene
+              </button>
             </div>
           </section>
         </div>
       </article>
 
       <!-- STRUMENTI SECONDARI: dopo la preparazione delle sessioni. -->
-      <details class="dmc-pannello" style="margin:16px 0">
-        <summary style="padding:16px;cursor:pointer;color:var(--dmc-amber)">Crea sessioni con ChatGPT</summary>
+      <details class="dmc-pannello" style="margin: 16px 0">
+        <summary style="padding: 16px; cursor: pointer; color: var(--dmc-amber)">
+          Crea sessioni con ChatGPT
+        </summary>
         <CreazioneAssistitaCampagna modalita="sessioni" />
       </details>
 
@@ -2744,11 +2089,7 @@ function caricaIncontro(scena) {
         </summary>
 
         <div class="interno-details">
-
-          <form
-            class="nuova-sessione"
-            @submit.prevent="creaPNG"
-          >
+          <form class="nuova-sessione" @submit.prevent="creaPNG">
             <label class="campo-flessibile">
               Nome del PNG
 
@@ -2761,29 +2102,42 @@ function caricaIncontro(scena) {
               />
             </label>
 
-            <button
-              type="submit"
-              class="dmc-btn"
-            >
-              + Aggiungi PNG
-            </button>
+            <button type="submit" class="dmc-btn">+ Aggiungi PNG</button>
           </form>
 
-          <div class="nuova-sessione" style="margin:12px 0;padding:14px;border:1px solid var(--dmc-border-soft);border-radius:8px">
+          <div
+            class="nuova-sessione"
+            style="
+              margin: 12px 0;
+              padding: 14px;
+              border: 1px solid var(--dmc-border-soft);
+              border-radius: 8px;
+            "
+          >
             <label class="campo-flessibile">
               Aggiungi dal Bestiario (PNG personalizzati)
               <select v-model="pngBestiarioSelezionato" class="dmc-campo">
                 <option value="">Seleziona un PNG già creato…</option>
-                <option v-for="creatura in pngBestiarioCollegabili" :key="creatura.id" :value="creatura.id">
+                <option
+                  v-for="creatura in pngBestiarioCollegabili"
+                  :key="creatura.id"
+                  :value="creatura.id"
+                >
                   {{ creatura.nome }}
                 </option>
               </select>
             </label>
-            <button type="button" class="dmc-btn dmc-btn--secondary" :disabled="!pngBestiarioSelezionato" @click="aggiungiPNGDaBestiario">
+            <button
+              type="button"
+              class="dmc-btn dmc-btn--secondary"
+              :disabled="!pngBestiarioSelezionato"
+              @click="aggiungiPNGDaBestiario"
+            >
               + Collega PNG
             </button>
             <p v-if="!pngPersonalizzati.length" class="testo-secondario">
-              Nessun PNG personale nel Bestiario. Puoi crearne uno nella sezione Bestiario e collegarlo qui.
+              Nessun PNG personale nel Bestiario. Puoi crearne uno nella sezione Bestiario e
+              collegarlo qui.
             </p>
             <p v-else-if="!pngBestiarioCollegabili.length" class="testo-secondario">
               Tutti i PNG personali del Bestiario sono già collegati a questa campagna.
@@ -2791,11 +2145,7 @@ function caricaIncontro(scena) {
             <p v-if="messaggioPNG" role="status">{{ messaggioPNG }}</p>
           </div>
 
-          <article
-            v-for="png in dati?.pngNarrativi || []"
-            :key="png.id"
-            class="scheda-secondaria"
-          >
+          <article v-for="png in dati?.pngNarrativi || []" :key="png.id" class="scheda-secondaria">
             <div class="intestazione">
               <strong>
                 {{ png.nome }}
@@ -2805,135 +2155,86 @@ function caricaIncontro(scena) {
                 <button
                   type="button"
                   class="dmc-btn dmc-btn--secondary"
-                  @click="
-                    pngApertoId =
-                      pngApertoId === png.id
-                        ? null
-                        : png.id
-                  "
+                  @click="pngApertoId = pngApertoId === png.id ? null : png.id"
                 >
-                  {{
-                    pngApertoId === png.id
-                      ? 'Chiudi'
-                      : 'Scheda'
-                  }}
+                  {{ pngApertoId === png.id ? 'Chiudi' : 'Scheda' }}
                 </button>
 
                 <button
                   type="button"
                   class="dmc-btn dmc-btn--danger"
-                  @click="
-                    conferma = `png-${png.id}`
-                  "
+                  @click="conferma = `png-${png.id}`"
                 >
                   Elimina
                 </button>
               </div>
             </div>
 
-            <div
-              v-if="
-                conferma === `png-${png.id}`
-              "
-              class="conferma"
-            >
-              Eliminare questo PNG e i suoi
-              collegamenti alle scene?
+            <div v-if="conferma === `png-${png.id}`" class="conferma">
+              Eliminare questo PNG e i suoi collegamenti alle scene?
 
               <div class="azioni">
-                <button
-                  type="button"
-                  class="dmc-btn dmc-btn--danger"
-                  @click="eliminaPNG(png)"
-                >
+                <button type="button" class="dmc-btn dmc-btn--danger" @click="eliminaPNG(png)">
                   Conferma
                 </button>
 
-                <button
-                  type="button"
-                  class="dmc-btn dmc-btn--secondary"
-                  @click="conferma = null"
-                >
+                <button type="button" class="dmc-btn dmc-btn--secondary" @click="conferma = null">
                   Annulla
                 </button>
               </div>
             </div>
 
-            <div
-              v-if="pngApertoId === png.id"
-              class="griglia-campi"
-            >
+            <div v-if="pngApertoId === png.id" class="griglia-campi">
               <label>
                 Nome
 
-                <input
-                  v-model="png.nome"
-                  class="dmc-campo"
-                />
+                <input v-model="png.nome" class="dmc-campo" />
               </label>
 
               <label>
                 Ruolo
 
-                <input
-                  v-model="png.ruolo"
-                  class="dmc-campo"
-                />
+                <input v-model="png.ruolo" class="dmc-campo" />
               </label>
 
               <label>
                 Personalità
 
-                <textarea
-                  v-model="png.personalita"
-                  class="dmc-campo"
-                  rows="2"
-                ></textarea>
+                <textarea v-model="png.personalita" class="dmc-campo" rows="2"></textarea>
               </label>
 
               <label>
                 Obiettivo
 
-                <textarea
-                  v-model="png.obiettivo"
-                  class="dmc-campo"
-                  rows="2"
-                ></textarea>
+                <textarea v-model="png.obiettivo" class="dmc-campo" rows="2"></textarea>
               </label>
 
               <label>
                 Segreto
 
-                <textarea
-                  v-model="png.segreto"
-                  class="dmc-campo"
-                  rows="2"
-                ></textarea>
+                <textarea v-model="png.segreto" class="dmc-campo" rows="2"></textarea>
               </label>
 
               <label>
                 Informazioni e dialoghi
 
-                <textarea
-                  v-model="png.informazioni"
-                  class="dmc-campo"
-                  rows="3"
-                ></textarea>
+                <textarea v-model="png.informazioni" class="dmc-campo" rows="3"></textarea>
               </label>
 
               <label>
                 Collegamento al Bestiario (facoltativo)
 
-                <select
-                  v-model="png.creaturaId"
-                  class="dmc-campo"
-                >
-                  <option v-if="png.creaturaId && !pngBestiarioConsultabili.some(c => c.id === png.creaturaId)" :value="png.creaturaId">
+                <select v-model="png.creaturaId" class="dmc-campo">
+                  <option
+                    v-if="
+                      png.creaturaId &&
+                      !pngBestiarioConsultabili.some((c) => c.id === png.creaturaId)
+                    "
+                    :value="png.creaturaId"
+                  >
                     Riferimento non più disponibile ({{ png.creaturaId }})
                   </option>
-                  <option value="">
-                    Nessuno
-                  </option>
+                  <option value="">Nessuno</option>
 
                   <option
                     v-for="creatura in pngBestiarioConsultabili"
@@ -2949,11 +2250,7 @@ function caricaIncontro(scena) {
         </div>
       </details>
 
-      <p
-        v-if="messaggio"
-        class="messaggio"
-        role="status"
-      >
+      <p v-if="messaggio" class="messaggio" role="status">
         {{ messaggio }}
       </p>
     </template>
@@ -3092,7 +2389,7 @@ function caricaIncontro(scena) {
 
 .sopratitolo {
   font-size: 11px;
-  letter-spacing: .08em;
+  letter-spacing: 0.08em;
 }
 
 .stato-sessione {
@@ -3243,7 +2540,7 @@ function caricaIncontro(scena) {
 }
 
 .passaggio.svolto .testo-passo {
-  opacity: .65;
+  opacity: 0.65;
   text-decoration: line-through;
 }
 
@@ -3499,12 +2796,11 @@ function caricaIncontro(scena) {
 
 .griglia-campi {
   display: grid;
-  grid-template-columns:
-    repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 11px;
 }
 
-.griglia-campi label:nth-child(n+5) {
+.griglia-campi label:nth-child(n + 5) {
   grid-column: 1 / -1;
 }
 
@@ -3539,8 +2835,7 @@ function caricaIncontro(scena) {
 
 .composizione-incontro {
   display: grid;
-  grid-template-columns:
-    minmax(0, 1fr) 90px auto;
+  grid-template-columns: minmax(0, 1fr) 90px auto;
   align-items: end;
   gap: 9px;
 }
@@ -3576,8 +2871,7 @@ function caricaIncontro(scena) {
   }
 
   .composizione-incontro {
-    grid-template-columns:
-      minmax(0, 1fr) 75px;
+    grid-template-columns: minmax(0, 1fr) 75px;
   }
 
   .composizione-incontro > button {
@@ -3594,11 +2888,49 @@ function caricaIncontro(scena) {
 }
 
 /* Percorso guidato della preparazione, senza alterare il modello dati. */
-.passi-preparazione {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}
-.passi-preparazione .dmc-btn {white-space:normal;text-align:center;min-height:44px;}
-.passi-preparazione .passo-attivo {border-color:var(--dmc-amber);color:var(--dmc-amber-light);background:var(--dmc-surface-soft);}
-.passo-editor {display:grid;gap:12px;min-width:0;}
-.guida-preparazione {margin:0;padding:12px 14px;border-left:3px solid var(--dmc-amber);border-radius:6px;background:var(--dmc-ink);color:var(--dmc-cream);font-size:13px;line-height:1.6;}
-.navigazione-preparazione {display:flex;justify-content:flex-end;flex-wrap:wrap;gap:8px;padding-top:8px;}
-@media(max-width:650px){.passi-preparazione{grid-template-columns:1fr;}.navigazione-preparazione .dmc-btn{flex:1 1 auto;}}
+.passi-preparazione {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.passi-preparazione .dmc-btn {
+  white-space: normal;
+  text-align: center;
+  min-height: 44px;
+}
+.passi-preparazione .passo-attivo {
+  border-color: var(--dmc-amber);
+  color: var(--dmc-amber-light);
+  background: var(--dmc-surface-soft);
+}
+.passo-editor {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+.guida-preparazione {
+  margin: 0;
+  padding: 12px 14px;
+  border-left: 3px solid var(--dmc-amber);
+  border-radius: 6px;
+  background: var(--dmc-ink);
+  color: var(--dmc-cream);
+  font-size: 13px;
+  line-height: 1.6;
+}
+.navigazione-preparazione {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-top: 8px;
+}
+@media (max-width: 650px) {
+  .passi-preparazione {
+    grid-template-columns: 1fr;
+  }
+  .navigazione-preparazione .dmc-btn {
+    flex: 1 1 auto;
+  }
+}
 </style>

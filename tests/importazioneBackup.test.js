@@ -4,12 +4,19 @@ import assert from 'node:assert/strict'
 const valori = new Map()
 let erroreSu = null
 globalThis.localStorage = {
-  getItem(k) { return valori.get(k) ?? null },
+  getItem(k) {
+    return valori.get(k) ?? null
+  },
   setItem(k, v) {
-    if (erroreSu === k) { erroreSu = null; throw new Error('Quota simulata') }
+    if (erroreSu === k) {
+      erroreSu = null
+      throw new Error('Quota simulata')
+    }
     valori.set(k, String(v))
   },
-  removeItem(k) { valori.delete(k) },
+  removeItem(k) {
+    valori.delete(k)
+  },
 }
 const { campagne } = await import('../src/stato/statoCampagne.js')
 const { creaturePersonali } = await import('../src/stato/statoBestiario.js')
@@ -17,24 +24,48 @@ const { creaBackup, importaBackup, FORMATO_ARCHIVIO } = await import('../src/sta
 
 function archivioValido(versione = 2) {
   return {
-    formato: FORMATO_ARCHIVIO, versione,
-    campagne: [{
-      nome: 'Importata',
-      descrizione: 'Descrizione',
-      stato: 'preparazione',
-      dati: {
-        personaggi: [], nemici: [], note: 'Nota preservata',
-        iniziativa: { round: 1, turnoAttivo: null },
-        sessioni: [{ id: 's1', nome: 'Prima sessione', scene: [{
-          id: 'sc1', nome: 'Scena',
-          incontro: { nemici: [{ creaturaId: 'mostro-personale', quantita: 2 }] },
-        }] }],
+    formato: FORMATO_ARCHIVIO,
+    versione,
+    campagne: [
+      {
+        nome: 'Importata',
+        descrizione: 'Descrizione',
+        stato: 'preparazione',
+        dati: {
+          personaggi: [],
+          nemici: [],
+          note: 'Nota preservata',
+          iniziativa: { round: 1, turnoAttivo: null },
+          sessioni: [
+            {
+              id: 's1',
+              nome: 'Prima sessione',
+              scene: [
+                {
+                  id: 'sc1',
+                  nome: 'Scena',
+                  incontro: { nemici: [{ creaturaId: 'mostro-personale', quantita: 2 }] },
+                },
+              ],
+            },
+          ],
+        },
       },
-    }],
-    ...(versione === 2 ? { creaturePersonali: [{
-      id: 'mostro-personale', nome: 'Mostro personale', categoria: 'homebrew',
-      statoScheda: 'pronta', ca: 12, pfMax: 10,
-    }] } : {}),
+    ],
+    ...(versione === 2
+      ? {
+          creaturePersonali: [
+            {
+              id: 'mostro-personale',
+              nome: 'Mostro personale',
+              categoria: 'homebrew',
+              statoScheda: 'pronta',
+              ca: 12,
+              pfMax: 10,
+            },
+          ],
+        }
+      : {}),
   }
 }
 
@@ -47,7 +78,10 @@ test('importazione completa v2: campagne, sessioni, incontri e bestiario', () =>
   assert.equal(dati.note, 'Nota preservata')
   assert.equal(dati.sessioni[0].scene[0].incontro.nemici[0].quantita, 2)
   assert.equal(dati.sessioni[0].scene[0].incontro.nemici[0].istantanea.nome, 'Mostro personale')
-  assert.equal(dati.sessioni[0].scene[0].incontro.nemici[0].creaturaId, creaturePersonali.value[0].id)
+  assert.equal(
+    dati.sessioni[0].scene[0].incontro.nemici[0].creaturaId,
+    creaturePersonali.value[0].id,
+  )
   assert.equal(creaBackup([c.id]).campagne[0].dati.note, 'Nota preservata')
 })
 
@@ -55,7 +89,10 @@ test('importazione duplicata: nuovi ID campagna senza sovrascrittura', () => {
   assert.equal(importaBackup(archivioValido(), [0]), 1)
   assert.equal(campagne.value.length, 2)
   assert.notEqual(campagne.value[0].id, campagne.value[1].id)
-  assert.equal(JSON.parse(valori.get('dmc_dati_campagna_v1_' + campagne.value[0].id)).note, 'Nota preservata')
+  assert.equal(
+    JSON.parse(valori.get('dmc_dati_campagna_v1_' + campagne.value[0].id)).note,
+    'Nota preservata',
+  )
 })
 
 test('importazione fallita: rollback di bestiario, metadati e dati', () => {
@@ -96,19 +133,26 @@ test('importazione: indici di selezione non validi non modificano i dati', () =>
 test('importazione backup: il collegamento PNG al Bestiario segue la rimappatura degli ID', () => {
   const archivio = archivioValido()
   archivio.creaturePersonali[0].categoria = 'png'
-  archivio.campagne[0].dati.pngNarrativi = [{
-    id:'png-campagna', nome:'Mostro personale', creaturaId:'mostro-personale',
-    ruolo:'Alleato', personalita:'Riservato', obiettivo:'Proteggere il villaggio',
-    segreto:'', informazioni:''
-  }]
+  archivio.campagne[0].dati.pngNarrativi = [
+    {
+      id: 'png-campagna',
+      nome: 'Mostro personale',
+      creaturaId: 'mostro-personale',
+      ruolo: 'Alleato',
+      personalita: 'Riservato',
+      obiettivo: 'Proteggere il villaggio',
+      segreto: '',
+      informazioni: '',
+    },
+  ]
   // Il bestiario contiene già una scheda con lo stesso ID, che viene preservata:
   // l'importazione deve associare il PNG narrativo alla nuova scheda.
   archivio.creaturePersonali[0].nome = 'Versione modificata del PNG'
   const prima = creaturePersonali.value.length
-  assert.equal(importaBackup(archivio,[0]),1)
-  assert.equal(creaturePersonali.value.length,prima + 1)
-  const nuova = creaturePersonali.value.find(c => c.nome === 'Versione modificata del PNG')
+  assert.equal(importaBackup(archivio, [0]), 1)
+  assert.equal(creaturePersonali.value.length, prima + 1)
+  const nuova = creaturePersonali.value.find((c) => c.nome === 'Versione modificata del PNG')
   const dati = JSON.parse(valori.get('dmc_dati_campagna_v1_' + campagne.value.at(-1).id))
-  assert.equal(dati.pngNarrativi[0].creaturaId,nuova.id)
-  assert.equal(dati.pngNarrativi[0].obiettivo,'Proteggere il villaggio')
+  assert.equal(dati.pngNarrativi[0].creaturaId, nuova.id)
+  assert.equal(dati.pngNarrativi[0].obiettivo, 'Proteggere il villaggio')
 })

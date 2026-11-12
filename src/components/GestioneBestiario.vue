@@ -1,10 +1,24 @@
-
 <script setup>
 import { computed, ref, watch, nextTick, onBeforeUnmount } from 'vue'
-import { creatureBestiario, creatureSRD, erroreBestiario, avvisoMigrazione, nuovaCreatura, nuovoPNG, salvaCreatura, eliminaCreatura, duplicaComeHomebrew } from '../stato/statoBestiario.js'
+import {
+  creatureBestiario,
+  creatureSRD,
+  erroreBestiario,
+  avvisoMigrazione,
+  nuovaCreatura,
+  nuovoPNG,
+  salvaCreatura,
+  eliminaCreatura,
+  duplicaComeHomebrew,
+} from '../stato/statoBestiario.js'
 import { utilizzabile, copiaDati } from '../dati/modelloCreatura.js'
 import { statoCatalogoSRD } from '../dati/catalogoSRD.js'
-import { creaArchivioCreature, leggiArchivioCreature, importaArchivioCreature, DIMENSIONE_MAX_CREATURE } from '../stato/archivioCreature.js'
+import {
+  creaArchivioCreature,
+  leggiArchivioCreature,
+  importaArchivioCreature,
+  DIMENSIONE_MAX_CREATURE,
+} from '../stato/archivioCreature.js'
 import SchedaCreatura from './SchedaCreatura.vue'
 import EditorCreatura from './EditorCreatura.vue'
 import SceltaCreazioneCreatura from './SceltaCreazioneCreatura.vue'
@@ -52,74 +66,67 @@ const categorie = [
   { id: 'png', nome: 'PNG personalizzati' },
 ]
 
-const normalizza = s =>
+const normalizza = (s) =>
   String(s || '')
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
     .toLocaleLowerCase('it')
 
-const numerogs = s => {
-  const v = String(s || '').split('/').map(Number)
-  return v.length === 2
-    ? v[0] / v[1]
-    : Number(s || Infinity)
+const numerogs = (s) => {
+  const v = String(s || '')
+    .split('/')
+    .map(Number)
+  return v.length === 2 ? v[0] / v[1] : Number(s || Infinity)
 }
 
 const base = computed(() =>
   creatureBestiario.value.filter(
-    c => categoria.value === 'tutte' || c.categoria === categoria.value
-  )
+    (c) => categoria.value === 'tutte' || c.categoria === categoria.value,
+  ),
 )
 
 const tipi = computed(() =>
-  [...new Set(base.value.map(c => c.tipo).filter(Boolean))]
-    .sort((a, b) => a.localeCompare(b, 'it'))
+  [...new Set(base.value.map((c) => c.tipo).filter(Boolean))].sort((a, b) =>
+    a.localeCompare(b, 'it'),
+  ),
 )
 
 const gradi = computed(() =>
-  [...new Set(base.value.map(c => c.gs).filter(v => v !== '' && v != null))]
-    .sort((a, b) => numerogs(a) - numerogs(b))
+  [...new Set(base.value.map((c) => c.gs).filter((v) => v !== '' && v != null))].sort(
+    (a, b) => numerogs(a) - numerogs(b),
+  ),
 )
 
 const filtrate = computed(() =>
   base.value
-    .filter(c =>
-      (!tipo.value || c.tipo === tipo.value) &&
-      (!gs.value || String(c.gs) === gs.value) &&
-      (
-        stato.value === 'tutte' ||
-        (
-          stato.value === 'pronte'
-            ? utilizzabile(c)
-            : !utilizzabile(c)
-        )
-      ) &&
-      normalizza([
-        c.nome,
-        c.nomeOriginale,
-        c.tipo,
-        ...(c.aliases || []),
-        ...(c.riferimentiLegacy?.aliasesApplicativiNonAttestatiNelPDF || []),
-      ].join(' ')).includes(normalizza(ricerca.value))
+    .filter(
+      (c) =>
+        (!tipo.value || c.tipo === tipo.value) &&
+        (!gs.value || String(c.gs) === gs.value) &&
+        (stato.value === 'tutte' ||
+          (stato.value === 'pronte' ? utilizzabile(c) : !utilizzabile(c))) &&
+        normalizza(
+          [
+            c.nome,
+            c.nomeOriginale,
+            c.tipo,
+            ...(c.aliases || []),
+            ...(c.riferimentiLegacy?.aliasesApplicativiNonAttestatiNelPDF || []),
+          ].join(' '),
+        ).includes(normalizza(ricerca.value)),
     )
     .sort((a, b) =>
       ordine.value === 'gs'
-        ? numerogs(a.gs) - numerogs(b.gs) ||
-          a.nome.localeCompare(b.nome, 'it')
-        : a.nome.localeCompare(b.nome, 'it')
-    )
+        ? numerogs(a.gs) - numerogs(b.gs) || a.nome.localeCompare(b.nome, 'it')
+        : a.nome.localeCompare(b.nome, 'it'),
+    ),
 )
 
-const visibili = computed(() =>
-  filtrate.value.slice(0, limite.value)
-)
+const visibili = computed(() => filtrate.value.slice(0, limite.value))
 
-watch(
-  [ricerca, categoria, tipo, gs, stato, ordine],
-  () => {
-    limite.value = 30
-  }
-)
+watch([ricerca, categoria, tipo, gs, stato, ordine], () => {
+  limite.value = 30
+})
 
 watch(categoria, () => {
   tipo.value = ''
@@ -129,7 +136,7 @@ watch(categoria, () => {
 function conta(id) {
   return id === 'tutte'
     ? creatureBestiario.value.length
-    : creatureBestiario.value.filter(c => c.categoria === id).length
+    : creatureBestiario.value.filter((c) => c.categoria === id).length
 }
 
 function pulisci() {
@@ -149,9 +156,7 @@ async function salva(c) {
   errore.value = ''
 
   if (!salvaCreatura(c)) {
-    errore.value =
-      erroreBestiario.value ||
-      'La scheda non può essere salvata.'
+    errore.value = erroreBestiario.value || 'La scheda non può essere salvata.'
     return
   }
 
@@ -165,9 +170,7 @@ function duplica(c) {
   const copia = duplicaComeHomebrew(c.id)
 
   if (!copia) {
-    errore.value =
-      erroreBestiario.value ||
-      'Duplicazione non riuscita.'
+    errore.value = erroreBestiario.value || 'Duplicazione non riuscita.'
     return
   }
 
@@ -182,14 +185,11 @@ function elimina(c) {
   pulisci()
 
   if (!eliminaCreatura(c.id)) {
-    errore.value =
-      erroreBestiario.value ||
-      'Eliminazione non riuscita.'
+    errore.value = erroreBestiario.value || 'Eliminazione non riuscita.'
     return
   }
 
-  messaggio.value =
-    'Scheda eliminata. Le copie negli incontri già preparati sono conservate.'
+  messaggio.value = 'Scheda eliminata. Le copie negli incontri già preparati sono conservate.'
 }
 
 function esporta(c) {
@@ -199,18 +199,16 @@ function esporta(c) {
     const archivio = creaArchivioCreature([c.id])
 
     const url = URL.createObjectURL(
-      new Blob(
-        [JSON.stringify(archivio, null, 2)],
-        { type: 'application/json' }
-      )
+      new Blob([JSON.stringify(archivio, null, 2)], { type: 'application/json' }),
     )
 
-    const nome = c.nome
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/[^a-zA-Z0-9]+/g, '-')
-      .replace(/^-|-$/g, '')
-      .slice(0, 80) || 'creatura'
+    const nome =
+      c.nome
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-zA-Z0-9]+/g, '-')
+        .replace(/^-|-$/g, '')
+        .slice(0, 80) || 'creatura'
 
     const link = document.createElement('a')
     link.href = url
@@ -224,8 +222,7 @@ function esporta(c) {
 
     messaggio.value = `Scheda di ${c.nome} esportata.`
   } catch (e) {
-    errore.value =
-      e.message || 'Esportazione non riuscita.'
+    errore.value = e.message || 'Esportazione non riuscita.'
   }
 }
 
@@ -251,8 +248,7 @@ async function leggiFileCreature(evento) {
   const richiesta = ++richiestaImportazione
 
   if (!file.size || file.size > DIMENSIONE_MAX_CREATURE) {
-    errore.value =
-      'Seleziona un file JSON non vuoto e non superiore a 5 MB.'
+    errore.value = 'Seleziona un file JSON non vuoto e non superiore a 5 MB.'
     return
   }
 
@@ -266,8 +262,7 @@ async function leggiFileCreature(evento) {
     const archivio = leggiArchivioCreature(testo)
 
     archivioImportato.value = archivio
-    selezioneImportazione.value =
-      archivio.creature.map((_, i) => i)
+    selezioneImportazione.value = archivio.creature.map((_, i) => i)
     nomeFileImportato.value = file.name
 
     await nextTick()
@@ -282,8 +277,7 @@ async function leggiFileCreature(evento) {
     })
   } catch (e) {
     if (richiesta === richiestaImportazione) {
-      errore.value =
-        e.message || 'Impossibile leggere le schede.'
+      errore.value = e.message || 'Impossibile leggere le schede.'
     }
   } finally {
     if (richiesta === richiestaImportazione) {
@@ -300,10 +294,7 @@ function confermaImportazione() {
   errore.value = ''
 
   try {
-    const n = importaArchivioCreature(
-      archivioImportato.value,
-      selezioneImportazione.value
-    )
+    const n = importaArchivioCreature(archivioImportato.value, selezioneImportazione.value)
 
     annullaImportazione()
 
@@ -313,12 +304,12 @@ function confermaImportazione() {
     gs.value = ''
     stato.value = 'tutte'
 
-    messaggio.value = n === 1
-      ? '1 scheda importata come nuova copia personale.'
-      : `${n} schede importate come nuove copie personali.`
+    messaggio.value =
+      n === 1
+        ? '1 scheda importata come nuova copia personale.'
+        : `${n} schede importate come nuove copie personali.`
   } catch (e) {
-    errore.value =
-      e.message || 'Importazione non riuscita.'
+    errore.value = e.message || 'Importazione non riuscita.'
   }
 }
 </script>
@@ -328,32 +319,23 @@ function confermaImportazione() {
     <header class="intestazione">
       <div>
         <h2>Bestiario</h2>
-        <p>
-          {{ creatureSRD.length }} schede SRD ·
-          catalogo condiviso tra le campagne
-        </p>
+        <p>{{ creatureSRD.length }} schede SRD · catalogo condiviso tra le campagne</p>
       </div>
 
       <div class="azioni">
-        <button class="dmc-btn dmc-btn--secondary"
+        <button
+          class="dmc-btn dmc-btn--secondary"
           type="button"
           @click="selettoreImportazione?.click()"
         >
           Importa creature
         </button>
 
-        <button class="dmc-btn dmc-btn--secondary"
-          type="button"
-          @click="nuovaCategoria = 'png'"
-        >
+        <button class="dmc-btn dmc-btn--secondary" type="button" @click="nuovaCategoria = 'png'">
           + Nuovo PNG
         </button>
 
-        <button
-          type="button"
-          class="primario dmc-btn"
-          @click="nuovaCategoria = 'homebrew'"
-        >
+        <button type="button" class="primario dmc-btn" @click="nuovaCategoria = 'homebrew'">
           + Nuova creatura
         </button>
       </div>
@@ -375,33 +357,19 @@ function confermaImportazione() {
       @change="leggiFileCreature"
     />
 
-    <p
-      v-if="erroreBestiario || errore"
-      role="alert"
-      class="feedback errore"
-    >
+    <p v-if="erroreBestiario || errore" role="alert" class="feedback errore">
       {{ erroreBestiario || errore }}
     </p>
 
-    <p
-      v-if="avvisoMigrazione"
-      role="status"
-      class="feedback"
-    >
+    <p v-if="avvisoMigrazione" role="status" class="feedback">
       {{ avvisoMigrazione }}
     </p>
 
-    <p
-      v-if="messaggio"
-      role="status"
-      class="feedback"
-    >
+    <p v-if="messaggio" role="status" class="feedback">
       {{ messaggio }}
     </p>
 
-    <p v-if="letturaImportazione" role="status">
-      Lettura delle schede in corso…
-    </p>
+    <p v-if="letturaImportazione" role="status">Lettura delle schede in corso…</p>
 
     <section
       v-if="archivioImportato"
@@ -412,46 +380,35 @@ function confermaImportazione() {
     >
       <header class="intestazione">
         <div>
-          <h3 id="titolo-importazione-creature">
-            Importa creature
-          </h3>
+          <h3 id="titolo-importazione-creature">Importa creature</h3>
           <p>
             {{ nomeFileImportato }} ·
             {{ archivioImportato.creature.length }}
-            {{
-              archivioImportato.creature.length === 1
-                ? 'scheda'
-                : 'schede'
-            }}
+            {{ archivioImportato.creature.length === 1 ? 'scheda' : 'schede' }}
           </p>
         </div>
 
-        <button class="dmc-btn dmc-btn--secondary"
-          type="button"
-          @click="annullaImportazione"
-        >
+        <button class="dmc-btn dmc-btn--secondary" type="button" @click="annullaImportazione">
           Annulla importazione
         </button>
       </header>
 
       <p>
-        Le schede selezionate saranno aggiunte come nuove
-        copie personali. Le schede esistenti e gli incontri
-        preparati rimarranno invariati.
+        Le schede selezionate saranno aggiunte come nuove copie personali. Le schede esistenti e gli
+        incontri preparati rimarranno invariati.
       </p>
 
       <div class="azioni">
-        <button class="dmc-btn dmc-btn--secondary"
+        <button
+          class="dmc-btn dmc-btn--secondary"
           type="button"
-          @click="
-            selezioneImportazione =
-              archivioImportato.creature.map((_, i) => i)
-          "
+          @click="selezioneImportazione = archivioImportato.creature.map((_, i) => i)"
         >
           Seleziona tutte
         </button>
 
-        <button class="dmc-btn dmc-btn--secondary"
+        <button
+          class="dmc-btn dmc-btn--secondary"
           type="button"
           @click="selezioneImportazione = []"
         >
@@ -460,11 +417,7 @@ function confermaImportazione() {
       </div>
 
       <div class="lista-importazione">
-        <label
-          v-for="(c, i) in archivioImportato.creature"
-          :key="c.id"
-          class="scelta-importazione"
-        >
+        <label v-for="(c, i) in archivioImportato.creature" :key="c.id" class="scelta-importazione">
           <input
             v-model="selezioneImportazione"
             type="checkbox"
@@ -475,17 +428,9 @@ function confermaImportazione() {
           <span>
             <strong>{{ c.nome }}</strong>
             <small>
-              {{
-                c.categoria === 'png'
-                  ? 'PNG personale'
-                  : 'Homebrew'
-              }}
+              {{ c.categoria === 'png' ? 'PNG personale' : 'Homebrew' }}
               ·
-              {{
-                c.statoScheda === 'pronta'
-                  ? 'Pronta'
-                  : 'Bozza'
-              }}
+              {{ c.statoScheda === 'pronta' ? 'Pronta' : 'Bozza' }}
             </small>
           </span>
         </label>
@@ -498,19 +443,11 @@ function confermaImportazione() {
         @click="confermaImportazione"
       >
         Importa {{ selezioneImportazione.length }}
-        {{
-          selezioneImportazione.length === 1
-            ? 'scheda'
-            : 'schede'
-        }}
+        {{ selezioneImportazione.length === 1 ? 'scheda' : 'schede' }}
       </button>
     </section>
 
-    <div
-      v-if="editor"
-      ref="titoloEditor"
-      class="contenitore-editor"
-    >
+    <div v-if="editor" ref="titoloEditor" class="contenitore-editor">
       <EditorCreatura
         :key="editor.id || editor.categoria"
         :creatura="editor"
@@ -519,11 +456,9 @@ function confermaImportazione() {
       />
     </div>
 
-    <nav
-      class="categorie"
-      aria-label="Categorie del Bestiario"
-    >
-      <button class="dmc-btn dmc-btn--secondary"
+    <nav class="categorie" aria-label="Categorie del Bestiario">
+      <button
+        class="dmc-btn dmc-btn--secondary"
         v-for="c in categorie"
         :key="c.id"
         type="button"
@@ -538,7 +473,8 @@ function confermaImportazione() {
     <div class="filtri dmc-pannello">
       <label class="ricerca">
         Cerca una creatura
-        <input class="dmc-campo"
+        <input
+          class="dmc-campo"
           v-model="ricerca"
           type="search"
           placeholder="Nome, alias o tipo…"
@@ -549,10 +485,7 @@ function confermaImportazione() {
         Tipo
         <select class="dmc-campo" v-model="tipo">
           <option value="">Tutti i tipi</option>
-          <option
-            v-for="t in tipi"
-            :key="t"
-          >
+          <option v-for="t in tipi" :key="t">
             {{ t }}
           </option>
         </select>
@@ -562,11 +495,7 @@ function confermaImportazione() {
         GS
         <select class="dmc-campo" v-model="gs">
           <option value="">Tutti i GS</option>
-          <option
-            v-for="g in gradi"
-            :key="g"
-            :value="String(g)"
-          >
+          <option v-for="g in gradi" :key="g" :value="String(g)">
             {{ g }}
           </option>
         </select>
@@ -575,15 +504,9 @@ function confermaImportazione() {
       <label>
         Stato
         <select class="dmc-campo" v-model="stato">
-          <option value="tutte">
-            Tutte le schede
-          </option>
-          <option value="pronte">
-            Pronte per gli incontri
-          </option>
-          <option value="bozze">
-            Bozze / incomplete
-          </option>
+          <option value="tutte">Tutte le schede</option>
+          <option value="pronte">Pronte per gli incontri</option>
+          <option value="bozze">Bozze / incomplete</option>
         </select>
       </label>
 
@@ -597,8 +520,7 @@ function confermaImportazione() {
     </div>
 
     <p role="status" class="risultati">
-      {{ filtrate.length }} risultati ·
-      {{ visibili.length }} visualizzati
+      {{ filtrate.length }} risultati · {{ visibili.length }} visualizzati
     </p>
 
     <div class="catalogo">
@@ -626,75 +548,45 @@ function confermaImportazione() {
             <p>
               {{ c.tipo }}
               ·
-              {{
-                c.taglie?.length
-                  ? c.taglie.join(' o ')
-                  : c.taglia || 'Taglia non indicata'
-              }}
+              {{ c.taglie?.length ? c.taglie.join(' o ') : c.taglia || 'Taglia non indicata' }}
               · GS
-              {{
-                c.gs === '' || c.gs == null
-                  ? '—'
-                  : c.gs
-              }}
+              {{ c.gs === '' || c.gs == null ? '—' : c.gs }}
             </p>
           </div>
 
-          <span
-            class="stato"
-            :class="{ bozza: !utilizzabile(c) }"
-          >
-            {{
-              utilizzabile(c)
-                ? 'Pronta'
-                : 'Bozza'
-            }}
+          <span class="stato" :class="{ bozza: !utilizzabile(c) }">
+            {{ utilizzabile(c) ? 'Pronta' : 'Bozza' }}
           </span>
         </header>
 
         <p class="dati-rapidi">
-          CA {{ c.ca ?? '—' }}
-          · PF {{ c.pfMax ?? '—' }}
-          <span v-if="c.noteFonte?.length">
-            · Nota sulla fonte
-          </span>
+          CA {{ c.ca ?? '—' }} · PF {{ c.pfMax ?? '—' }}
+          <span v-if="c.noteFonte?.length"> · Nota sulla fonte </span>
         </p>
 
         <div class="azioni">
-          <button class="dmc-btn dmc-btn--secondary"
+          <button
+            class="dmc-btn dmc-btn--secondary"
             type="button"
             :aria-expanded="selezionata === c.id"
             :aria-controls="`dettaglio-${c.id}`"
-            @click="
-              selezionata =
-                selezionata === c.id ? null : c.id
-            "
+            @click="selezionata = selezionata === c.id ? null : c.id"
           >
-            {{
-              selezionata === c.id
-                ? 'Chiudi scheda'
-                : 'Apri scheda'
-            }}
+            {{ selezionata === c.id ? 'Chiudi scheda' : 'Apri scheda' }}
             <span class="sr-only">
               {{ c.nome }}
             </span>
           </button>
 
-          <button class="dmc-btn dmc-btn--secondary"
-            type="button"
-            @click="duplica(c)"
-          >
-            {{
-              c.categoria === 'srd'
-                ? 'Duplica come homebrew'
-                : 'Duplica'
-            }}
+          <button class="dmc-btn dmc-btn--secondary" type="button" @click="duplica(c)">
+            {{ c.categoria === 'srd' ? 'Duplica come homebrew' : 'Duplica' }}
             <span class="sr-only">
               {{ c.nome }}
             </span>
           </button>
 
-          <button class="dmc-btn dmc-btn--secondary"
+          <button
+            class="dmc-btn dmc-btn--secondary"
             v-if="c.categoria !== 'srd'"
             type="button"
             @click="apriEditor(c)"
@@ -705,7 +597,8 @@ function confermaImportazione() {
             </span>
           </button>
 
-          <button class="dmc-btn dmc-btn--secondary"
+          <button
+            class="dmc-btn dmc-btn--secondary"
             v-if="c.categoria !== 'srd'"
             type="button"
             @click="esporta(c)"
@@ -736,46 +629,31 @@ function confermaImportazione() {
           :aria-label="`Eliminazione ${c.nome}`"
         >
           <p>
-            Eliminare {{ c.nome }} dal catalogo personale?
-            Gli incontri conservano la copia preparata.
+            Eliminare {{ c.nome }} dal catalogo personale? Gli incontri conservano la copia
+            preparata.
           </p>
 
           <div class="azioni">
-            <button
-              type="button"
-              class="pericolo dmc-btn dmc-btn--danger"
-              @click="elimina(c)"
-            >
+            <button type="button" class="pericolo dmc-btn dmc-btn--danger" @click="elimina(c)">
               Conferma eliminazione
             </button>
 
-            <button class="dmc-btn dmc-btn--secondary"
-              type="button"
-              @click="conferma = null"
-            >
+            <button class="dmc-btn dmc-btn--secondary" type="button" @click="conferma = null">
               Annulla
             </button>
           </div>
         </div>
 
-        <div
-          v-if="selezionata === c.id"
-          :id="`dettaglio-${c.id}`"
-          class="dettaglio"
-        >
+        <div v-if="selezionata === c.id" :id="`dettaglio-${c.id}`" class="dettaglio">
           <SchedaCreatura :creatura="c" />
         </div>
       </article>
     </div>
 
-    <p
-      v-if="!filtrate.length"
-      class="feedback"
-    >
-      Nessuna creatura corrisponde ai filtri.
-    </p>
+    <p v-if="!filtrate.length" class="feedback">Nessuna creatura corrisponde ai filtri.</p>
 
-    <button class="dmc-btn dmc-btn--secondary"
+    <button
+      class="dmc-btn dmc-btn--secondary"
       v-if="filtrate.length > limite"
       type="button"
       @click="limite += 30"
@@ -787,10 +665,9 @@ function confermaImportazione() {
       <summary>Fonte, verifica e licenza SRD</summary>
 
       <p>
-        330 schede confrontate individualmente con il PDF
-        italiano SRD 5.2.1. Le quattro anomalie della
-        fonte sono conservate e segnalate nelle schede.
-        Versione {{ statoCatalogoSRD.versioneCatalogo }}.
+        330 schede confrontate individualmente con il PDF italiano SRD 5.2.1. Le quattro anomalie
+        della fonte sono conservate e segnalate nelle schede. Versione
+        {{ statoCatalogoSRD.versioneCatalogo }}.
       </p>
 
       <p>{{ statoCatalogoSRD.attribuzione }}</p>
@@ -806,7 +683,6 @@ function confermaImportazione() {
     </details>
   </section>
 </template>
-
 
 <style scoped>
 /*

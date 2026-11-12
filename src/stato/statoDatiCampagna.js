@@ -1,4 +1,3 @@
-
 import { computed, ref, watch } from 'vue'
 import { fissaIncontri } from './statoBestiario.js'
 
@@ -17,22 +16,18 @@ export const conduzioneAttiva = computed(() => {
 
   if (typeof sessioneId !== 'string' || !sessioneId) return null
 
-  const sessione = dati?.sessioni?.find(
-    s => s?.id === sessioneId
-  )
+  const sessione = dati?.sessioni?.find((s) => s?.id === sessioneId)
 
   if (!sessione || !Array.isArray(sessione.scene)) return null
 
-  const indice = sessione.scene.findIndex(
-    s => s?.id && s.id === sessione.scenaAttivaId
-  )
+  const indice = sessione.scene.findIndex((s) => s?.id && s.id === sessione.scenaAttivaId)
 
   if (indice < 0) return null
 
   return {
     sessione,
     scena: sessione.scene[indice],
-    indice
+    indice,
   }
 })
 
@@ -40,13 +35,13 @@ export function avviaConduzione(sessioneId) {
   if (typeof sessioneId !== 'string' || !sessioneId) return false
 
   const dati = datiCampagna.value
-  const sessione = dati?.sessioni?.find(s => s?.id === sessioneId)
+  const sessione = dati?.sessioni?.find((s) => s?.id === sessioneId)
 
   if (!sessione || !Array.isArray(sessione.scene)) return false
 
   const scena =
-    sessione.scene.find(s => s?.id && s.id === sessione.scenaAttivaId) ||
-    sessione.scene.find(s => s?.id)
+    sessione.scene.find((s) => s?.id && s.id === sessione.scenaAttivaId) ||
+    sessione.scene.find((s) => s?.id)
 
   if (!scena) return false
 
@@ -65,10 +60,7 @@ export function interrompiConduzione(sessioneId) {
 }
 
 export function idUnivoco() {
-  if (
-    typeof crypto !== 'undefined' &&
-    typeof crypto.randomUUID === 'function'
-  ) {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
     return crypto.randomUUID()
   }
 
@@ -82,13 +74,13 @@ export function datiVuoti() {
     nemici: [],
     iniziativa: {
       round: 1,
-      turnoAttivo: null
+      turnoAttivo: null,
     },
     sessioni: [],
     pngNarrativi: [],
     conduzione: null,
     note: '',
-    bottino: []
+    bottino: [],
   }
 }
 
@@ -98,33 +90,20 @@ function normalizzaBottino(elementi) {
   const ids = new Set()
 
   return elementi
-    .filter(
-      elemento =>
-        elemento &&
-        typeof elemento === 'object' &&
-        !Array.isArray(elemento)
-    )
+    .filter((elemento) => elemento && typeof elemento === 'object' && !Array.isArray(elemento))
     .map((elemento, indice) => {
       const numero = Number(elemento.quantita)
       const valuta = String(elemento.valuta ?? '')
 
       return {
         id: String(elemento.id || `bottino-${indice}`),
-        descrizione:
-          typeof elemento.descrizione === 'string'
-            ? elemento.descrizione
-            : '',
-        quantita:
-          Number.isFinite(numero) && numero >= 0
-            ? Math.floor(numero)
-            : 0,
-        valuta: ['mo', 'ma', 'mr', ''].includes(valuta)
-          ? valuta
-          : '',
-        raccolta: elemento.raccolta === true
+        descrizione: typeof elemento.descrizione === 'string' ? elemento.descrizione : '',
+        quantita: Number.isFinite(numero) && numero >= 0 ? Math.floor(numero) : 0,
+        valuta: ['mo', 'ma', 'mr', ''].includes(valuta) ? valuta : '',
+        raccolta: elemento.raccolta === true,
       }
     })
-    .filter(elemento => {
+    .filter((elemento) => {
       if (ids.has(elemento.id)) return false
 
       ids.add(elemento.id)
@@ -144,61 +123,42 @@ function normalizzaDati(dati) {
     ...dati,
     versione: 1,
 
-    personaggi: Array.isArray(dati.personaggi)
-      ? dati.personaggi
-      : [],
+    personaggi: Array.isArray(dati.personaggi) ? dati.personaggi : [],
 
-    nemici: Array.isArray(dati.nemici)
-      ? dati.nemici
-      : [],
+    nemici: Array.isArray(dati.nemici) ? dati.nemici : [],
 
     iniziativa: {
       round:
-        Number.isInteger(dati.iniziativa?.round) &&
-        dati.iniziativa.round > 0
+        Number.isInteger(dati.iniziativa?.round) && dati.iniziativa.round > 0
           ? dati.iniziativa.round
           : 1,
       turnoAttivo:
-        typeof dati.iniziativa?.turnoAttivo === 'string'
-          ? dati.iniziativa.turnoAttivo
-          : null
+        typeof dati.iniziativa?.turnoAttivo === 'string' ? dati.iniziativa.turnoAttivo : null,
     },
 
-    sessioni: Array.isArray(dati.sessioni)
-      ? dati.sessioni
-      : [],
+    sessioni: Array.isArray(dati.sessioni) ? dati.sessioni : [],
 
-    pngNarrativi: Array.isArray(dati.pngNarrativi)
-      ? dati.pngNarrativi
-      : [],
+    pngNarrativi: Array.isArray(dati.pngNarrativi) ? dati.pngNarrativi : [],
 
     conduzione:
-      dati.conduzione &&
-      typeof dati.conduzione.sessioneId === 'string'
+      dati.conduzione && typeof dati.conduzione.sessioneId === 'string'
         ? { sessioneId: dati.conduzione.sessioneId }
         : null,
 
     note: String(dati.note || ''),
-    bottino: normalizzaBottino(dati.bottino)
+    bottino: normalizzaBottino(dati.bottino),
   }
 }
 
 export function salvaDatiCampagna() {
   const id = campagnaDatiId.value
 
-  if (
-    !id ||
-    !datiCampagna.value ||
-    letturaCampagnaFallita.value
-  ) {
+  if (!id || !datiCampagna.value || letturaCampagnaFallita.value) {
     return false
   }
 
   try {
-    localStorage.setItem(
-      PREFISSO + id,
-      JSON.stringify(datiCampagna.value)
-    )
+    localStorage.setItem(PREFISSO + id, JSON.stringify(datiCampagna.value))
 
     erroreDatiCampagna.value = ''
     return true
@@ -214,11 +174,7 @@ export function salvaDatiCampagna() {
 export function apriDatiCampagna(id) {
   if (!id || typeof id !== 'string') return false
 
-  if (
-    campagnaDatiId.value &&
-    !letturaCampagnaFallita.value &&
-    !salvaDatiCampagna()
-  ) {
+  if (campagnaDatiId.value && !letturaCampagnaFallita.value && !salvaDatiCampagna()) {
     return false
   }
 
@@ -234,39 +190,21 @@ export function apriDatiCampagna(id) {
     if (contenuto !== null) {
       const originale = JSON.parse(contenuto)
 
-      if (
-        !originale ||
-        typeof originale !== 'object' ||
-        Array.isArray(originale)
-      ) {
+      if (!originale || typeof originale !== 'object' || Array.isArray(originale)) {
         throw new Error('Formato non valido')
       }
 
-      for (const campo of [
-        'personaggi',
-        'nemici',
-        'sessioni',
-        'bottino'
-      ]) {
-        if (
-          originale[campo] !== undefined &&
-          !Array.isArray(originale[campo])
-        ) {
+      for (const campo of ['personaggi', 'nemici', 'sessioni', 'bottino']) {
+        if (originale[campo] !== undefined && !Array.isArray(originale[campo])) {
           throw new Error(`Formato ${campo} non valido`)
         }
       }
 
-      if (
-        originale.pngNarrativi !== undefined &&
-        !Array.isArray(originale.pngNarrativi)
-      ) {
+      if (originale.pngNarrativi !== undefined && !Array.isArray(originale.pngNarrativi)) {
         throw new Error('Formato PNG non valido')
       }
 
-      if (
-        originale.note !== undefined &&
-        typeof originale.note !== 'string'
-      ) {
+      if (originale.note !== undefined && typeof originale.note !== 'string') {
         throw new Error('Note non valide')
       }
 
@@ -289,11 +227,7 @@ export function apriDatiCampagna(id) {
 }
 
 export function chiudiDatiCampagna() {
-  if (
-    campagnaDatiId.value &&
-    !letturaCampagnaFallita.value &&
-    !salvaDatiCampagna()
-  ) {
+  if (campagnaDatiId.value && !letturaCampagnaFallita.value && !salvaDatiCampagna()) {
     return false
   }
 
@@ -327,8 +261,8 @@ watch(
   },
   {
     deep: true,
-    flush: 'post'
-  }
+    flush: 'post',
+  },
 )
 
 // I salvataggi espliciti in uscita dalle rotte restano attivi.

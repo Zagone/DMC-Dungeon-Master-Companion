@@ -1,10 +1,6 @@
-
 <script setup>
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
-import {
-  datiCampagna,
-  idUnivoco,
-} from '../stato/statoDatiCampagna.js'
+import { datiCampagna, idUnivoco } from '../stato/statoDatiCampagna.js'
 
 const areaNote = ref(null)
 const modificaBottino = ref(false)
@@ -23,17 +19,12 @@ function regolaAltezza() {
   if (!campo) return
 
   campo.style.height = '65px'
-  campo.style.height =
-    `${Math.max(65, Math.min(190, campo.scrollHeight))}px`
+  campo.style.height = `${Math.max(65, Math.min(190, campo.scrollHeight))}px`
 }
 
 onMounted(() => nextTick(regolaAltezza))
 
-watch(
-  note,
-  () => nextTick(regolaAltezza),
-  { flush: 'post' }
-)
+watch(note, () => nextTick(regolaAltezza), { flush: 'post' })
 
 const bottino = computed(() => datiCampagna.value?.bottino ?? [])
 
@@ -58,29 +49,21 @@ function aggiungiRicompensa() {
 function eliminaRicompensa(id) {
   if (!datiCampagna.value) return
 
-  datiCampagna.value.bottino =
-    bottino.value.filter(elemento => elemento.id !== id)
+  datiCampagna.value.bottino = bottino.value.filter((elemento) => elemento.id !== id)
 }
 
 function normalizzaQuantita(elemento) {
   const numero = Number(elemento.quantita)
 
-  elemento.quantita =
-    Number.isFinite(numero) && numero >= 0
-      ? Math.floor(numero)
-      : 0
+  elemento.quantita = Number.isFinite(numero) && numero >= 0 ? Math.floor(numero) : 0
 }
 
 function quantitaVisibile(elemento) {
   const numero = Number(elemento.quantita)
-  return Number.isFinite(numero)
-    ? numero.toLocaleString('it-IT')
-    : '0'
+  return Number.isFinite(numero) ? numero.toLocaleString('it-IT') : '0'
 }
 
-const raccolte = computed(() =>
-  bottino.value.filter(elemento => elemento.raccolta).length
-)
+const raccolte = computed(() => bottino.value.filter((elemento) => elemento.raccolta).length)
 
 const totali = computed(() => {
   const risultato = { mo: 0, ma: 0, mr: 0 }
@@ -102,7 +85,6 @@ const totali = computed(() => {
 
 <template>
   <section class="note-campagna">
-
     <!-- APPUNTI -->
 
     <div class="blocco-note dmc-pannello">
@@ -128,9 +110,7 @@ const totali = computed(() => {
       <header class="testata-blocco">
         <div class="titolo-bottino">
           <h2>Ricompense e bottino</h2>
-          <span class="conteggio">
-            {{ raccolte }}/{{ bottino.length }} raccolte
-          </span>
+          <span class="conteggio"> {{ raccolte }}/{{ bottino.length }} raccolte </span>
         </div>
 
         <div class="azioni">
@@ -143,11 +123,7 @@ const totali = computed(() => {
             {{ modificaBottino ? 'Fine modifica' : 'Modifica' }}
           </button>
 
-          <button
-            type="button"
-            class="pulsante principale dmc-btn"
-            @click="aggiungiRicompensa"
-          >
+          <button type="button" class="pulsante principale dmc-btn" @click="aggiungiRicompensa">
             + Aggiungi ricompensa
           </button>
         </div>
@@ -175,9 +151,8 @@ const totali = computed(() => {
       </div>
 
       <p v-if="!bottino.length" class="stato-vuoto">
-        Nessuna ricompensa inserita.
-        Usa «+ Aggiungi ricompensa» per preparare il bottino
-        della campagna.
+        Nessuna ricompensa inserita. Usa «+ Aggiungi ricompensa» per preparare il bottino della
+        campagna.
       </p>
 
       <div v-else class="elenco-bottino">
@@ -196,10 +171,7 @@ const totali = computed(() => {
           />
 
           <template v-if="!modificaBottino">
-            <label
-              :for="`bottino-${elemento.id}`"
-              class="nome-ricompensa"
-            >
+            <label :for="`bottino-${elemento.id}`" class="nome-ricompensa">
               {{ elemento.descrizione || 'Ricompensa senza descrizione' }}
             </label>
 
@@ -255,8 +227,7 @@ const totali = computed(() => {
       </div>
 
       <p class="suggerimento">
-        Spunta le ricompense ottenute dai giocatori.
-        I totali comprendono solo le monete raccolte.
+        Spunta le ricompense ottenute dai giocatori. I totali comprendono solo le monete raccolte.
       </p>
     </div>
   </section>

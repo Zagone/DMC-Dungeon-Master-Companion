@@ -3,7 +3,10 @@ import assert from 'node:assert/strict'
 import { verificaArchivio, FORMATO_ARCHIVIO } from '../src/stato/archivioDMC.js'
 
 const datiValidi = () => ({
-  personaggi: [], nemici: [], sessioni: [], note: '',
+  personaggi: [],
+  nemici: [],
+  sessioni: [],
+  note: '',
   iniziativa: { round: 1, turnoAttivo: null },
 })
 const backup = (versione = 2) => ({

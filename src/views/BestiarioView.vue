@@ -1,12 +1,9 @@
-
 <script setup>
 import GestioneBestiario from '../components/GestioneBestiario.vue'
 </script>
 
 <template>
-  <main
-    class="dmc dmc-pagina bestiario-globale dmc-contenitore"
-  >
+  <main class="dmc dmc-pagina bestiario-globale dmc-contenitore">
     <GestioneBestiario />
   </main>
 </template>

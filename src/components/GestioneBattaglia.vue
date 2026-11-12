@@ -2,11 +2,7 @@
 import { computed, ref } from 'vue'
 import { datiCampagna, idUnivoco } from '../stato/statoDatiCampagna.js'
 import { creatureBestiario } from '../stato/statoBestiario.js'
-import {
-  creaIstanza,
-  utilizzabile,
-  testoRicercaCreatura,
-} from '../dati/modelloCreatura.js'
+import { creaIstanza, utilizzabile, testoRicercaCreatura } from '../dati/modelloCreatura.js'
 import SchedaCreatura from './SchedaCreatura.vue'
 import SchedaTatticaCreatura from './SchedaTatticaCreatura.vue'
 
@@ -47,8 +43,8 @@ const condizioni = [
 ]
 
 const combattenti = computed(() => [
-  ...personaggi.value.map(p => ({ ...p, categoria: 'PG' })),
-  ...nemici.value.map(n => ({ ...n, categoria: 'Nemico' })),
+  ...personaggi.value.map((p) => ({ ...p, categoria: 'PG' })),
+  ...nemici.value.map((n) => ({ ...n, categoria: 'Nemico' })),
 ])
 
 const ordineCompleto = computed(() =>
@@ -59,8 +55,7 @@ const ordineCompleto = computed(() =>
     if (aValido !== bValido) return aValido ? -1 : 1
 
     if (aValido && bValido) {
-      const differenza =
-        Number(b.iniziativa) - Number(a.iniziativa)
+      const differenza = Number(b.iniziativa) - Number(a.iniziativa)
 
       if (differenza) return differenza
     }
@@ -70,27 +65,27 @@ const ordineCompleto = computed(() =>
     }
 
     return String(a.nome).localeCompare(String(b.nome), 'it')
-  })
+  }),
 )
 
 const ordine = computed(() =>
-  ordineCompleto.value.filter(c =>
-    iniziativaValida(c) &&
-    (c.categoria === 'PG' || Number(c.pf) > 0)
-  )
+  ordineCompleto.value.filter(
+    (c) => iniziativaValida(c) && (c.categoria === 'PG' || Number(c.pf) > 0),
+  ),
 )
 
-const attivo = computed(() =>
-  ordine.value.find(
-    c => c.id === dati.value?.iniziativa.turnoAttivo
-  ) || ordine.value[0] || null
+const attivo = computed(
+  () =>
+    ordine.value.find((c) => c.id === dati.value?.iniziativa.turnoAttivo) ||
+    ordine.value[0] ||
+    null,
 )
 
-const iniziativeMancanti = computed(() =>
-  combattenti.value.filter(c =>
-    !iniziativaValida(c) &&
-    (c.categoria === 'PG' || Number(c.pf) > 0)
-  ).length
+const iniziativeMancanti = computed(
+  () =>
+    combattenti.value.filter(
+      (c) => !iniziativaValida(c) && (c.categoria === 'PG' || Number(c.pf) > 0),
+    ).length,
 )
 
 const mostriDisponibili = computed(() => {
@@ -98,9 +93,7 @@ const mostriDisponibili = computed(() => {
 
   return creatureBestiario.value
     .filter(utilizzabile)
-    .filter(c =>
-      testoRicercaCreatura(c).includes(ricerca)
-    )
+    .filter((c) => testoRicercaCreatura(c).includes(ricerca))
     .sort((a, b) => a.nome.localeCompare(b.nome, 'it'))
 })
 
@@ -123,8 +116,8 @@ function iniziativaValida(c) {
 
 function originale(c) {
   return c.categoria === 'PG'
-    ? personaggi.value.find(p => p.id === c.id)
-    : nemici.value.find(n => n.id === c.id)
+    ? personaggi.value.find((p) => p.id === c.id)
+    : nemici.value.find((n) => n.id === c.id)
 }
 
 function pulisciMessaggi() {
@@ -152,14 +145,10 @@ function impostaIniziativa(c, valore) {
   const elemento = originale(c)
   if (!elemento) return
 
-  const ordinePrecedente = ordine.value.map(x => x.id)
+  const ordinePrecedente = ordine.value.map((x) => x.id)
   const attivoPrecedente = attivo.value?.id
 
-  if (
-    valore === '' ||
-    valore === null ||
-    valore === undefined
-  ) {
+  if (valore === '' || valore === null || valore === undefined) {
     elemento.iniziativa = null
   } else {
     const numero = Number(valore)
@@ -178,16 +167,12 @@ function impostaIniziativa(c, valore) {
 }
 
 function tiraIniziativaNemico(c) {
-  if (
-    c.categoria !== 'Nemico' ||
-    Number(c.pf) <= 0
-  ) return
+  if (c.categoria !== 'Nemico' || Number(c.pf) <= 0) return
 
   const elemento = originale(c)
   if (!elemento) return
 
-  elemento.iniziativa =
-    lanciaD20() + (Number(elemento.bonusIniziativa) || 0)
+  elemento.iniziativa = lanciaD20() + (Number(elemento.bonusIniziativa) || 0)
 
   pulisciMessaggi()
 }
@@ -196,13 +181,9 @@ function tiraIniziativeNemici() {
   let totale = 0
 
   for (const nemico of nemici.value) {
-    if (
-      Number(nemico.pf) <= 0 ||
-      iniziativaValida(nemico)
-    ) continue
+    if (Number(nemico.pf) <= 0 || iniziativaValida(nemico)) continue
 
-    nemico.iniziativa =
-      lanciaD20() + (Number(nemico.bonusIniziativa) || 0)
+    nemico.iniziativa = lanciaD20() + (Number(nemico.bonusIniziativa) || 0)
 
     totale++
   }
@@ -237,7 +218,7 @@ function decrementaCondizioni(c) {
     if (!Number.isInteger(rimanenti) || rimanenti <= 0) continue
 
     if (rimanenti === 1) {
-      elemento.condizioni = elemento.condizioni.filter(x => x !== nome)
+      elemento.condizioni = elemento.condizioni.filter((x) => x !== nome)
       delete elemento.durateCondizioni[nome]
     } else {
       elemento.durateCondizioni[nome] = rimanenti - 1
@@ -247,17 +228,13 @@ function decrementaCondizioni(c) {
 
 function durataCondizione(c, nome) {
   const valore = c.durateCondizioni?.[nome]
-  return Number.isInteger(Number(valore)) && Number(valore) > 0
-    ? Number(valore)
-    : null
+  return Number.isInteger(Number(valore)) && Number(valore) > 0 ? Number(valore) : null
 }
 
 function prossimoTurno(direzione) {
   if (!ordine.value.length) return
 
-  const indice = ordine.value.findIndex(
-    c => c.id === attivo.value?.id
-  )
+  const indice = ordine.value.findIndex((c) => c.id === attivo.value?.id)
 
   let prossimo = Math.max(0, indice) + direzione
 
@@ -266,10 +243,7 @@ function prossimoTurno(direzione) {
     dati.value.iniziativa.round++
   } else if (prossimo < 0) {
     prossimo = ordine.value.length - 1
-    dati.value.iniziativa.round = Math.max(
-      1,
-      dati.value.iniziativa.round - 1
-    )
+    dati.value.iniziativa.round = Math.max(1, dati.value.iniziativa.round - 1)
   }
 
   // Le condizioni scadono al termine del turno del combattente.
@@ -278,14 +252,13 @@ function prossimoTurno(direzione) {
     decrementaCondizioni(attivo.value)
   }
 
-  dati.value.iniziativa.turnoAttivo =
-    ordine.value[prossimo].id
+  dati.value.iniziativa.turnoAttivo = ordine.value[prossimo].id
 }
 
 function passaTurnoSeEscluso(ordinePrecedente, attivoPrecedente) {
   if (!attivoPrecedente) return
 
-  const disponibili = new Set(ordine.value.map(c => c.id))
+  const disponibili = new Set(ordine.value.map((c) => c.id))
   if (disponibili.has(attivoPrecedente)) return
 
   dati.value.iniziativa.turnoAttivo = null
@@ -312,7 +285,7 @@ function passaTurnoSeEscluso(ordinePrecedente, attivoPrecedente) {
 }
 
 function selezionaTurno(id) {
-  if (ordine.value.some(c => c.id === id)) {
+  if (ordine.value.some((c) => c.id === id)) {
     dati.value.iniziativa.turnoAttivo = id
   }
 }
@@ -322,13 +295,7 @@ function aggiungiPG() {
   const ca = Number(nuovoPG.value.ca)
   const pf = Number(nuovoPG.value.pfMax)
 
-  if (
-    !nome ||
-    !Number.isInteger(ca) ||
-    ca < 0 ||
-    !Number.isInteger(pf) ||
-    pf < 1
-  ) {
+  if (!nome || !Number.isInteger(ca) || ca < 0 || !Number.isInteger(pf) || pf < 1) {
     errore.value = 'Inserisci nome, CA e PF validi.'
     return
   }
@@ -354,24 +321,16 @@ function aggiungiPG() {
 }
 
 function aggiungiMostri() {
-  const creatura = mostriDisponibili.value.find(
-    c => c.id === mostroScelto.value
-  )
+  const creatura = mostriDisponibili.value.find((c) => c.id === mostroScelto.value)
 
   const quantita = Number(quantitaMostri.value)
 
-  if (
-    !creatura ||
-    !Number.isInteger(quantita) ||
-    quantita < 1 ||
-    quantita > 30
-  ) {
-    errore.value =
-      'Seleziona una creatura e una quantità da 1 a 30.'
+  if (!creatura || !Number.isInteger(quantita) || quantita < 1 || quantita > 30) {
+    errore.value = 'Seleziona una creatura e una quantità da 1 a 30.'
     return
   }
 
-  const nomi = new Set(nemici.value.map(n => n.nome))
+  const nomi = new Set(nemici.value.map((n) => n.nome))
 
   for (let i = 0; i < quantita; i++) {
     let numero = 1
@@ -397,26 +356,19 @@ function cambiaPF(c, segno) {
   if (!elemento) return
 
   const testo = valoriPF.value[c.id]
-  const quantita =
-    testo === '' || testo == null ? 3 : Number(testo)
+  const quantita = testo === '' || testo == null ? 3 : Number(testo)
 
-  if (
-    !Number.isInteger(quantita) ||
-    quantita < 1
-  ) {
+  if (!Number.isInteger(quantita) || quantita < 1) {
     errore.value = 'Inserisci una quantità di PF valida.'
     return
   }
 
-  const ordinePrecedente = ordine.value.map(x => x.id)
+  const ordinePrecedente = ordine.value.map((x) => x.id)
   const attivoPrecedente = attivo.value?.id
 
   elemento.pf = Math.max(
     0,
-    Math.min(
-      Number(elemento.pfMax),
-      Number(elemento.pf) + segno * quantita
-    )
+    Math.min(Number(elemento.pfMax), Number(elemento.pf) + segno * quantita),
   )
 
   passaTurnoSeEscluso(ordinePrecedente, attivoPrecedente)
@@ -426,13 +378,7 @@ function cambiaPF(c, segno) {
 
 function percentuale(c) {
   return Number(c.pfMax) > 0
-    ? Math.max(
-        0,
-        Math.min(
-          100,
-          Number(c.pf) / Number(c.pfMax) * 100
-        )
-      )
+    ? Math.max(0, Math.min(100, (Number(c.pf) / Number(c.pfMax)) * 100))
     : 0
 }
 
@@ -470,22 +416,18 @@ function togliCondizione(c, nome) {
   const elemento = originale(c)
   if (!elemento) return
 
-  elemento.condizioni = (elemento.condizioni || []).filter(x => x !== nome)
+  elemento.condizioni = (elemento.condizioni || []).filter((x) => x !== nome)
   if (elemento.durateCondizioni) delete elemento.durateCondizioni[nome]
 }
 
 function rimuoviCombattente(c) {
-  const ordinePrecedente = ordine.value.map(x => x.id)
+  const ordinePrecedente = ordine.value.map((x) => x.id)
   const attivoPrecedente = attivo.value?.id
 
   if (c.categoria === 'PG') {
-    dati.value.personaggi = personaggi.value.filter(
-      p => p.id !== c.id
-    )
+    dati.value.personaggi = personaggi.value.filter((p) => p.id !== c.id)
   } else {
-    dati.value.nemici = nemici.value.filter(
-      n => n.id !== c.id
-    )
+    dati.value.nemici = nemici.value.filter((n) => n.id !== c.id)
   }
 
   passaTurnoSeEscluso(ordinePrecedente, attivoPrecedente)
@@ -521,9 +463,7 @@ function nuovoIncontro() {
         <h2>Battaglia</h2>
 
         <div class="azioni">
-          <span class="round">
-            Round {{ dati?.iniziativa.round || 1 }}
-          </span>
+          <span class="round"> Round {{ dati?.iniziativa.round || 1 }} </span>
 
           <button
             type="button"
@@ -579,11 +519,7 @@ function nuovoIncontro() {
 
       <!-- ORDINE DEI TURNI -->
 
-      <div
-        v-if="ordine.length"
-        class="ordine-compatto"
-        aria-label="Ordine dei turni"
-      >
+      <div v-if="ordine.length" class="ordine-compatto" aria-label="Ordine dei turni">
         <button
           v-for="c in ordine"
           :key="c.id"
@@ -603,11 +539,7 @@ function nuovoIncontro() {
 
       <!-- MENU INIZIATIVA -->
 
-      <div
-        v-if="iniziativaAperta"
-        id="dmc-elenco-iniziativa"
-        class="menu-aperto"
-      >
+      <div v-if="iniziativaAperta" id="dmc-elenco-iniziativa" class="menu-aperto">
         <div class="intestazione-menu">
           <div>
             <strong>Gestione iniziative</strong>
@@ -635,13 +567,8 @@ function nuovoIncontro() {
           </div>
         </div>
 
-        <div
-          v-if="conferma === 'azzera-iniziative'"
-          class="conferma"
-        >
-          <strong>
-            Azzerare tutte le iniziative e tornare al round 1?
-          </strong>
+        <div v-if="conferma === 'azzera-iniziative'" class="conferma">
+          <strong> Azzerare tutte le iniziative e tornare al round 1? </strong>
 
           <div class="azioni">
             <button
@@ -662,10 +589,7 @@ function nuovoIncontro() {
           </div>
         </div>
 
-        <div
-          v-if="ordineCompleto.length"
-          class="elenco-iniziativa"
-        >
+        <div v-if="ordineCompleto.length" class="elenco-iniziativa">
           <div
             v-for="c in ordineCompleto"
             :key="c.id"
@@ -675,32 +599,24 @@ function nuovoIncontro() {
                 attivo?.id === c.id &&
                 iniziativaValida(c) &&
                 (c.categoria === 'PG' || Number(c.pf) > 0),
-              esclusa:
-                c.categoria === 'Nemico' &&
-                Number(c.pf) <= 0,
+              esclusa: c.categoria === 'Nemico' && Number(c.pf) <= 0,
             }"
           >
             <button
               type="button"
               class="nome-iniziativa"
-              :disabled="
-                !iniziativaValida(c) ||
-                (c.categoria === 'Nemico' && Number(c.pf) <= 0)
-              "
+              :disabled="!iniziativaValida(c) || (c.categoria === 'Nemico' && Number(c.pf) <= 0)"
               @click="selezionaTurno(c.id)"
             >
               <span class="tipo">{{ c.categoria }}</span>
               <strong>{{ c.nome }}</strong>
 
-              <small
-                v-if="c.categoria === 'Nemico' && Number(c.pf) <= 0"
-              >
-                0 PF
-              </small>
+              <small v-if="c.categoria === 'Nemico' && Number(c.pf) <= 0"> 0 PF </small>
             </button>
 
             <div class="valore-iniziativa">
-              <input class="dmc-campo"
+              <input
+                class="dmc-campo"
                 :key="`${c.id}-${c.iniziativa ?? 'vuota'}`"
                 type="number"
                 step="1"
@@ -724,14 +640,11 @@ function nuovoIncontro() {
           </div>
         </div>
 
-        <p v-else class="vuoto">
-          Aggiungi almeno un combattente.
-        </p>
+        <p v-else class="vuoto">Aggiungi almeno un combattente.</p>
 
         <p class="nota">
-          Il tiro automatico usa d20 + bonus d'iniziativa
-          della scheda, quando disponibile.
-          Puoi modificare manualmente qualsiasi risultato.
+          Il tiro automatico usa d20 + bonus d'iniziativa della scheda, quando disponibile. Puoi
+          modificare manualmente qualsiasi risultato.
         </p>
       </div>
     </div>
@@ -748,13 +661,8 @@ function nuovoIncontro() {
 
     <!-- NUOVO INCONTRO -->
 
-    <div
-      v-if="conferma === 'nuovo-incontro'"
-      class="conferma"
-    >
-      <strong>
-        Rimuovere i nemici e azzerare le iniziative?
-      </strong>
+    <div v-if="conferma === 'nuovo-incontro'" class="conferma">
+      <strong> Rimuovere i nemici e azzerare le iniziative? </strong>
 
       <p>I PF dei PG resteranno invariati.</p>
 
@@ -796,46 +704,26 @@ function nuovoIncontro() {
 
     <!-- AGGIUNTA PG -->
 
-    <form
-      v-if="moduloPGAperto"
-      class="nuovo-pg pannello dmc-pannello"
-      @submit.prevent="aggiungiPG"
-    >
+    <form v-if="moduloPGAperto" class="nuovo-pg pannello dmc-pannello" @submit.prevent="aggiungiPG">
       <label class="espandi">
         Nome
-        <input class="dmc-campo"
-          v-model="nuovoPG.nome"
-          required
-          placeholder="Nome PG"
-        />
+        <input class="dmc-campo" v-model="nuovoPG.nome" required placeholder="Nome PG" />
       </label>
 
       <label class="numero">
         CA
-        <input class="dmc-campo"
-          v-model.number="nuovoPG.ca"
-          type="number"
-          min="0"
-        />
+        <input class="dmc-campo" v-model.number="nuovoPG.ca" type="number" min="0" />
       </label>
 
       <label class="numero">
         PF max
-        <input class="dmc-campo"
-          v-model.number="nuovoPG.pfMax"
-          type="number"
-          min="1"
-        />
+        <input class="dmc-campo" v-model.number="nuovoPG.pfMax" type="number" min="1" />
       </label>
 
-      <button type="submit" class="pulsante principale dmc-btn">
-        Salva PG
-      </button>
+      <button type="submit" class="pulsante principale dmc-btn">Salva PG</button>
     </form>
 
-    <p v-if="!personaggi.length" class="vuoto">
-      Nessun personaggio presente.
-    </p>
+    <p v-if="!personaggi.length" class="vuoto">Nessun personaggio presente.</p>
 
     <!-- SCHEDE PG -->
 
@@ -852,12 +740,7 @@ function nuovoIncontro() {
         <header class="riga">
           <div class="nome">
             <h4>{{ pg.nome }}</h4>
-            <small
-              v-if="attivo?.id === pg.id"
-              class="evidenza"
-            >
-              TURNO ATTIVO
-            </small>
+            <small v-if="attivo?.id === pg.id" class="evidenza"> TURNO ATTIVO </small>
           </div>
 
           <button
@@ -880,10 +763,12 @@ function nuovoIncontro() {
             <button
               type="button"
               class="pulsante pericolo dmc-btn dmc-btn--danger"
-              @click="rimuoviCombattente({
-                ...pg,
-                categoria: 'PG'
-              })"
+              @click="
+                rimuoviCombattente({
+                  ...pg,
+                  categoria: 'PG',
+                })
+              "
             >
               Conferma
             </button>
@@ -909,15 +794,13 @@ function nuovoIncontro() {
           <div :style="{ width: `${percentuale(pg)}%` }"></div>
         </div>
 
-        <small
-          v-if="Number(pg.pf) <= 0"
-          class="avviso-pf"
-        >
+        <small v-if="Number(pg.pf) <= 0" class="avviso-pf">
           A 0 PF · Tiri salvezza contro morte
         </small>
 
         <div class="controlli-pf">
-          <input class="dmc-campo"
+          <input
+            class="dmc-campo"
             v-model.number="valoriPF[pg.id]"
             type="number"
             min="1"
@@ -955,10 +838,7 @@ function nuovoIncontro() {
               </span>
             </span>
 
-            <span
-              v-if="(pg.condizioni || []).length"
-              class="condizioni-anteprima"
-            >
+            <span v-if="(pg.condizioni || []).length" class="condizioni-anteprima">
               <span
                 v-for="condizione in pg.condizioni || []"
                 :key="condizione"
@@ -971,13 +851,9 @@ function nuovoIncontro() {
               </span>
             </span>
 
-            <span v-else class="condizioni-nessuna">
-              Nessuna
-            </span>
+            <span v-else class="condizioni-nessuna"> Nessuna </span>
 
-            <span class="condizioni-chevron" aria-hidden="true">
-              ▾
-            </span>
+            <span class="condizioni-chevron" aria-hidden="true"> ▾ </span>
           </summary>
 
           <div class="condizioni-contenuto">
@@ -1002,7 +878,8 @@ function nuovoIncontro() {
               <label class="durata-condizione">
                 <span>Round</span>
 
-                <input class="dmc-campo"
+                <input
+                  class="dmc-campo"
                   v-model="roundCondizione[pg.id]"
                   type="number"
                   min="1"
@@ -1018,19 +895,18 @@ function nuovoIncontro() {
                 class="pulsante secondario bottone-condizione dmc-btn dmc-btn--secondary"
                 :disabled="!condizioniSelezionate[pg.id]"
                 :aria-label="`Aggiungi condizione a ${pg.nome}`"
-                @click="aggiungiCondizione({
-                  ...pg,
-                  categoria: 'PG'
-                })"
+                @click="
+                  aggiungiCondizione({
+                    ...pg,
+                    categoria: 'PG',
+                  })
+                "
               >
                 +
               </button>
             </div>
 
-            <div
-              v-if="(pg.condizioni || []).length"
-              class="condizioni-attive"
-            >
+            <div v-if="(pg.condizioni || []).length" class="condizioni-attive">
               <div
                 v-for="condizione in pg.condizioni || []"
                 :key="condizione"
@@ -1052,10 +928,15 @@ function nuovoIncontro() {
                   type="button"
                   class="rimuovi-condizione dmc-btn dmc-btn--danger dmc-btn--icona"
                   :aria-label="`Rimuovi ${condizione} da ${pg.nome}`"
-                  @click="togliCondizione({
-                    ...pg,
-                    categoria: 'PG'
-                  }, condizione)"
+                  @click="
+                    togliCondizione(
+                      {
+                        ...pg,
+                        categoria: 'PG',
+                      },
+                      condizione,
+                    )
+                  "
                 >
                   ×
                 </button>
@@ -1076,20 +957,12 @@ function nuovoIncontro() {
 
           <label>
             CA
-            <input class="dmc-campo"
-              v-model.number="pg.ca"
-              type="number"
-              min="0"
-            />
+            <input class="dmc-campo" v-model.number="pg.ca" type="number" min="0" />
           </label>
 
           <label>
             PF massimi
-            <input class="dmc-campo"
-              v-model.number="pg.pfMax"
-              type="number"
-              min="1"
-            />
+            <input class="dmc-campo" v-model.number="pg.pfMax" type="number" min="1" />
           </label>
         </details>
       </article>
@@ -1108,11 +981,7 @@ function nuovoIncontro() {
         class="pulsante principale dmc-btn"
         @click="selettoreNemiciAperto = !selettoreNemiciAperto"
       >
-        {{
-          selettoreNemiciAperto
-            ? '− Chiudi'
-            : '+ Aggiungi nemico'
-        }}
+        {{ selettoreNemiciAperto ? '− Chiudi' : '+ Aggiungi nemico' }}
       </button>
     </header>
 
@@ -1126,7 +995,8 @@ function nuovoIncontro() {
       <label>
         Cerca nel Bestiario
 
-        <input class="dmc-campo"
+        <input
+          class="dmc-campo"
           v-model="ricercaMostro"
           placeholder="Goblin, Scheletro, Drago..."
         />
@@ -1139,13 +1009,8 @@ function nuovoIncontro() {
           <select class="dmc-campo" v-model="mostroScelto">
             <option value="">Seleziona creatura</option>
 
-            <option
-              v-for="m in mostriDisponibili"
-              :key="m.id"
-              :value="m.id"
-            >
-              {{ m.nome }} · CA {{ m.ca }} ·
-              {{ m.pfMax }} PF
+            <option v-for="m in mostriDisponibili" :key="m.id" :value="m.id">
+              {{ m.nome }} · CA {{ m.ca }} · {{ m.pfMax }} PF
             </option>
           </select>
         </label>
@@ -1153,26 +1018,14 @@ function nuovoIncontro() {
         <label class="numero">
           Quantità
 
-          <input class="dmc-campo"
-            v-model.number="quantitaMostri"
-            type="number"
-            min="1"
-            max="30"
-          />
+          <input class="dmc-campo" v-model.number="quantitaMostri" type="number" min="1" max="30" />
         </label>
 
-        <button
-          type="submit"
-          class="pulsante principale dmc-btn"
-        >
-          Aggiungi
-        </button>
+        <button type="submit" class="pulsante principale dmc-btn">Aggiungi</button>
       </div>
     </form>
 
-    <p v-if="!nemici.length" class="vuoto">
-      Nessun nemico presente.
-    </p>
+    <p v-if="!nemici.length" class="vuoto">Nessun nemico presente.</p>
 
     <!-- SCHEDE NEMICI -->
 
@@ -1191,12 +1044,7 @@ function nuovoIncontro() {
             <h4>{{ nemico.nome }}</h4>
             <small>{{ nemico.tipo }}</small>
 
-            <small
-              v-if="attivo?.id === nemico.id"
-              class="evidenza"
-            >
-              TURNO ATTIVO
-            </small>
+            <small v-if="attivo?.id === nemico.id" class="evidenza"> TURNO ATTIVO </small>
           </div>
 
           <button
@@ -1219,10 +1067,12 @@ function nuovoIncontro() {
             <button
               type="button"
               class="pulsante pericolo dmc-btn dmc-btn--danger"
-              @click="rimuoviCombattente({
-                ...nemico,
-                categoria: 'Nemico'
-              })"
+              @click="
+                rimuoviCombattente({
+                  ...nemico,
+                  categoria: 'Nemico',
+                })
+              "
             >
               Conferma
             </button>
@@ -1240,28 +1090,22 @@ function nuovoIncontro() {
         <!-- PUNTI FERITA -->
 
         <div class="riga">
-          <strong>
-            {{ nemico.pf }}/{{ nemico.pfMax }} PF
-          </strong>
+          <strong> {{ nemico.pf }}/{{ nemico.pfMax }} PF </strong>
 
           <span>CA {{ nemico.ca }}</span>
         </div>
 
         <div class="barra-pf">
-          <div
-            :style="{ width: `${percentuale(nemico)}%` }"
-          ></div>
+          <div :style="{ width: `${percentuale(nemico)}%` }"></div>
         </div>
 
-        <small
-          v-if="Number(nemico.pf) <= 0"
-          class="avviso-pf"
-        >
+        <small v-if="Number(nemico.pf) <= 0" class="avviso-pf">
           A 0 PF · Fuori dall'ordine dei turni
         </small>
 
         <div class="controlli-pf">
-          <input class="dmc-campo"
+          <input
+            class="dmc-campo"
             v-model.number="valoriPF[nemico.id]"
             type="number"
             min="1"
@@ -1273,10 +1117,15 @@ function nuovoIncontro() {
             type="button"
             class="pulsante danno dmc-btn dmc-btn--danger"
             title="Infliggi danni"
-            @click="cambiaPF({
-              ...nemico,
-              categoria: 'Nemico'
-            }, -1)"
+            @click="
+              cambiaPF(
+                {
+                  ...nemico,
+                  categoria: 'Nemico',
+                },
+                -1,
+              )
+            "
           >
             −
           </button>
@@ -1285,10 +1134,15 @@ function nuovoIncontro() {
             type="button"
             class="pulsante cura dmc-btn dmc-btn--positive"
             title="Cura"
-            @click="cambiaPF({
-              ...nemico,
-              categoria: 'Nemico'
-            }, 1)"
+            @click="
+              cambiaPF(
+                {
+                  ...nemico,
+                  categoria: 'Nemico',
+                },
+                1,
+              )
+            "
           >
             +
           </button>
@@ -1305,10 +1159,7 @@ function nuovoIncontro() {
               </span>
             </span>
 
-            <span
-              v-if="(nemico.condizioni || []).length"
-              class="condizioni-anteprima"
-            >
+            <span v-if="(nemico.condizioni || []).length" class="condizioni-anteprima">
               <span
                 v-for="condizione in nemico.condizioni || []"
                 :key="condizione"
@@ -1321,13 +1172,9 @@ function nuovoIncontro() {
               </span>
             </span>
 
-            <span v-else class="condizioni-nessuna">
-              Nessuna
-            </span>
+            <span v-else class="condizioni-nessuna"> Nessuna </span>
 
-            <span class="condizioni-chevron" aria-hidden="true">
-              ▾
-            </span>
+            <span class="condizioni-chevron" aria-hidden="true"> ▾ </span>
           </summary>
 
           <div class="condizioni-contenuto">
@@ -1335,18 +1182,14 @@ function nuovoIncontro() {
               <label class="scelta-condizione">
                 <span>Condizione</span>
 
-                <select class="dmc-campo"
-                  v-model="condizioniSelezionate[nemico.id]"
-                >
+                <select class="dmc-campo" v-model="condizioniSelezionate[nemico.id]">
                   <option value="">Seleziona…</option>
 
                   <option
                     v-for="c in condizioni"
                     :key="c"
                     :value="c"
-                    :disabled="
-                      (nemico.condizioni || []).includes(c)
-                    "
+                    :disabled="(nemico.condizioni || []).includes(c)"
                   >
                     {{ c }}
                   </option>
@@ -1356,7 +1199,8 @@ function nuovoIncontro() {
               <label class="durata-condizione">
                 <span>Round</span>
 
-                <input class="dmc-campo"
+                <input
+                  class="dmc-campo"
                   v-model="roundCondizione[nemico.id]"
                   type="number"
                   min="1"
@@ -1372,19 +1216,18 @@ function nuovoIncontro() {
                 class="pulsante secondario bottone-condizione dmc-btn dmc-btn--secondary"
                 :disabled="!condizioniSelezionate[nemico.id]"
                 :aria-label="`Aggiungi condizione a ${nemico.nome}`"
-                @click="aggiungiCondizione({
-                  ...nemico,
-                  categoria: 'Nemico'
-                })"
+                @click="
+                  aggiungiCondizione({
+                    ...nemico,
+                    categoria: 'Nemico',
+                  })
+                "
               >
                 +
               </button>
             </div>
 
-            <div
-              v-if="(nemico.condizioni || []).length"
-              class="condizioni-attive"
-            >
+            <div v-if="(nemico.condizioni || []).length" class="condizioni-attive">
               <div
                 v-for="condizione in nemico.condizioni || []"
                 :key="condizione"
@@ -1406,10 +1249,15 @@ function nuovoIncontro() {
                   type="button"
                   class="rimuovi-condizione dmc-btn dmc-btn--danger dmc-btn--icona"
                   :aria-label="`Rimuovi ${condizione} da ${nemico.nome}`"
-                  @click="togliCondizione({
-                    ...nemico,
-                    categoria: 'Nemico'
-                  }, condizione)"
+                  @click="
+                    togliCondizione(
+                      {
+                        ...nemico,
+                        categoria: 'Nemico',
+                      },
+                      condizione,
+                    )
+                  "
                 >
                   ×
                 </button>
@@ -1426,16 +1274,12 @@ function nuovoIncontro() {
         <details>
           <summary>Consulta la scheda originale completa</summary>
 
-          <SchedaCreatura
-            :creatura="nemico"
-            combattimento
-          />
+          <SchedaCreatura :creatura="nemico" combattimento />
         </details>
       </article>
     </div>
   </section>
 </template>
-
 
 <style scoped>
 /*

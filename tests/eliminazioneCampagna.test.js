@@ -3,9 +3,12 @@ import assert from 'node:assert/strict'
 
 const CHIAVE = 'dmc_campagne_v1'
 const prefisso = 'dmc_dati_campagna_v1_'
-const campagna = id => ({
-  id, nome: 'Campagna ' + id, descrizione: '',
-  creataIl: '2026-01-01', modificataIl: '2026-01-01',
+const campagna = (id) => ({
+  id,
+  nome: 'Campagna ' + id,
+  descrizione: '',
+  creataIl: '2026-01-01',
+  modificataIl: '2026-01-01',
   stato: 'preparazione',
 })
 const valori = new Map([
@@ -16,7 +19,9 @@ const valori = new Map([
 ])
 let fallimento = null
 globalThis.localStorage = {
-  getItem(chiave) { return valori.get(chiave) ?? null },
+  getItem(chiave) {
+    return valori.get(chiave) ?? null
+  },
   setItem(chiave, valore) {
     if (fallimento === chiave) {
       fallimento = null
@@ -38,15 +43,27 @@ const { campagne, eliminaCampagnaConDati } = await import('../src/stato/statoCam
 test('eliminazione integrata: errore sui dati conserva entrambe le campagne', () => {
   fallimento = prefisso + 'prima'
   assert.equal(eliminaCampagnaConDati('prima'), false)
-  assert.deepEqual(campagne.value.map(c => c.id), ['prima', 'seconda'])
-  assert.deepEqual(JSON.parse(valori.get(CHIAVE)).map(c => c.id), ['prima', 'seconda'])
+  assert.deepEqual(
+    campagne.value.map((c) => c.id),
+    ['prima', 'seconda'],
+  )
+  assert.deepEqual(
+    JSON.parse(valori.get(CHIAVE)).map((c) => c.id),
+    ['prima', 'seconda'],
+  )
   assert.equal(JSON.parse(valori.get(prefisso + 'prima')).note, 'da eliminare')
 })
 
 test('eliminazione integrata: rimuove soltanto la campagna selezionata', () => {
   assert.equal(eliminaCampagnaConDati('prima'), true)
-  assert.deepEqual(campagne.value.map(c => c.id), ['seconda'])
-  assert.deepEqual(JSON.parse(valori.get(CHIAVE)).map(c => c.id), ['seconda'])
+  assert.deepEqual(
+    campagne.value.map((c) => c.id),
+    ['seconda'],
+  )
+  assert.deepEqual(
+    JSON.parse(valori.get(CHIAVE)).map((c) => c.id),
+    ['seconda'],
+  )
   assert.equal(valori.has(prefisso + 'prima'), false)
   assert.equal(JSON.parse(valori.get(prefisso + 'seconda')).note, 'da conservare')
   assert.equal(valori.get('dmc_bestiario_personale'), 'creature personali')

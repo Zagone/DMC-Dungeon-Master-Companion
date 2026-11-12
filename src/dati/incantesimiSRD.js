@@ -340,10 +340,20 @@ Vita falsata|1|Necromanzia|201
 Volare|3|Trasmutazione|201
 Vuoto mentale|8|Abiurazione|201
 Zona di verità|2|Ammaliamento|201`
-export const INCANTESIMI_SRD = Object.freeze(RIGHE.trim().split('\n').map((riga, indice) => {
-  const [nome, livello, scuola, pagina] = riga.split('|')
-  return Object.freeze({ id: 'incantesimo-' + String(indice + 1).padStart(3,'0'),
-    nome, categoria: 'Incantesimi', livello: Number(livello), scuola,
-    pagina: Number(pagina), sintesi: 'Consulta la descrizione ufficiale nel documento SRD 5.2.1.',
-    dettagliCompleti: false })
-}))
+export const INCANTESIMI_SRD = Object.freeze(
+  RIGHE.trim()
+    .split('\n')
+    .map((riga, indice) => {
+      const [nome, livello, scuola, pagina] = riga.split('|')
+      return Object.freeze({
+        id: 'incantesimo-' + String(indice + 1).padStart(3, '0'),
+        nome,
+        categoria: 'Incantesimi',
+        livello: Number(livello),
+        scuola,
+        pagina: Number(pagina),
+        sintesi: 'Consulta la descrizione ufficiale nel documento SRD 5.2.1.',
+        dettagliCompleti: false,
+      })
+    }),
+)

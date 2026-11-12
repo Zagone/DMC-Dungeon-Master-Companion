@@ -1,4 +1,3 @@
-
 import { nextTick } from 'vue'
 
 /**
@@ -25,39 +24,27 @@ export function installaStickyBattaglia(router) {
   function aggiorna() {
     frameRichiesto = false
 
-    const pagina = document.querySelector(
-      '.campagna-view'
-    )
+    const pagina = document.querySelector('.campagna-view')
 
     if (!pagina) return
 
-    const navigazione = pagina.querySelector(
-      '.navigazione-persistente'
-    )
+    const navigazione = pagina.querySelector('.navigazione-persistente')
 
-    const battaglia = pagina.querySelector(
-      '.battaglia-dmc'
-    )
+    const battaglia = pagina.querySelector('.battaglia-dmc')
 
     // La modalità compatta è valida soltanto
     // quando entrambe le barre sono presenti.
     if (!navigazione || !battaglia) {
-      pagina.classList.remove(
-        'dmc-battaglia-compatta'
-      )
+      pagina.classList.remove('dmc-battaglia-compatta')
 
       return
     }
 
-    const posizioneBattaglia =
-      battaglia.getBoundingClientRect().top
+    const posizioneBattaglia = battaglia.getBoundingClientRect().top
 
-    const fondoNavigazione =
-      navigazione.getBoundingClientRect().bottom
+    const fondoNavigazione = navigazione.getBoundingClientRect().bottom
 
-    const giaCompatta = pagina.classList.contains(
-      'dmc-battaglia-compatta'
-    )
+    const giaCompatta = pagina.classList.contains('dmc-battaglia-compatta')
 
     /*
      * Isteresi:
@@ -67,17 +54,11 @@ export function installaStickyBattaglia(router) {
      * al punto in cui la barra si compatta.
      */
 
-    const soglia = giaCompatta
-      ? fondoNavigazione + SOGLIA_ESPANSIONE
-      : fondoNavigazione + MARGINE
+    const soglia = giaCompatta ? fondoNavigazione + SOGLIA_ESPANSIONE : fondoNavigazione + MARGINE
 
-    const deveCompattarsi =
-      posizioneBattaglia <= soglia
+    const deveCompattarsi = posizioneBattaglia <= soglia
 
-    pagina.classList.toggle(
-      'dmc-battaglia-compatta',
-      deveCompattarsi
-    )
+    pagina.classList.toggle('dmc-battaglia-compatta', deveCompattarsi)
   }
 
   function richiediAggiornamento() {
@@ -92,22 +73,12 @@ export function installaStickyBattaglia(router) {
     await nextTick()
 
     // Attendiamo il completamento del layout.
-    window.requestAnimationFrame(
-      richiediAggiornamento
-    )
+    window.requestAnimationFrame(richiediAggiornamento)
   }
 
-  window.addEventListener(
-    'scroll',
-    richiediAggiornamento,
-    { passive: true }
-  )
+  window.addEventListener('scroll', richiediAggiornamento, { passive: true })
 
-  window.addEventListener(
-    'resize',
-    richiediAggiornamento,
-    { passive: true }
-  )
+  window.addEventListener('resize', richiediAggiornamento, { passive: true })
 
   router.afterEach(() => {
     aggiornaDopoNavigazione()

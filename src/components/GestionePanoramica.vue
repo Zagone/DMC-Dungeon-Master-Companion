@@ -1,10 +1,6 @@
-
 <script setup>
 import { computed } from 'vue'
-import {
-  datiCampagna,
-  conduzioneAttiva,
-} from '../stato/statoDatiCampagna.js'
+import { datiCampagna, conduzioneAttiva } from '../stato/statoDatiCampagna.js'
 
 defineProps({
   campagna: {
@@ -13,23 +9,13 @@ defineProps({
   },
 })
 
-const emit = defineEmits([
-  'vai-sezione',
-  'modifica-campagna',
-  'riprendi-sessione',
-])
+const emit = defineEmits(['vai-sezione', 'modifica-campagna', 'riprendi-sessione'])
 
-const numeroSessioni = computed(
-  () => datiCampagna.value?.sessioni?.length ?? 0
-)
+const numeroSessioni = computed(() => datiCampagna.value?.sessioni?.length ?? 0)
 
-const numeroPG = computed(
-  () => datiCampagna.value?.personaggi?.length ?? 0
-)
+const numeroPG = computed(() => datiCampagna.value?.personaggi?.length ?? 0)
 
-const numeroNemici = computed(
-  () => datiCampagna.value?.nemici?.length ?? 0
-)
+const numeroNemici = computed(() => datiCampagna.value?.nemici?.length ?? 0)
 </script>
 
 <template>
@@ -54,40 +40,26 @@ const numeroNemici = computed(
       </p>
 
       <p v-else class="testo secondario">
-        Non hai ancora inserito una descrizione.
-        Puoi aggiungere l'ambientazione, il conflitto principale
-        e le informazioni fondamentali della campagna.
+        Non hai ancora inserito una descrizione. Puoi aggiungere l'ambientazione, il conflitto
+        principale e le informazioni fondamentali della campagna.
       </p>
     </div>
 
-    <div
-      v-if="conduzioneAttiva"
-      class="ripresa-sessione dmc-pannello"
-    >
+    <div v-if="conduzioneAttiva" class="ripresa-sessione dmc-pannello">
       <div>
         <small>SESSIONE IN CONDUZIONE</small>
 
         <h3>
-          {{
-            conduzioneAttiva.sessione.titolo ||
-            'Sessione senza titolo'
-          }}
+          {{ conduzioneAttiva.sessione.titolo || 'Sessione senza titolo' }}
         </h3>
 
         <p>
           Scena {{ conduzioneAttiva.indice + 1 }} ·
-          {{
-            conduzioneAttiva.scena.titolo?.trim() ||
-            `Scena ${conduzioneAttiva.indice + 1}`
-          }}
+          {{ conduzioneAttiva.scena.titolo?.trim() || `Scena ${conduzioneAttiva.indice + 1}` }}
         </p>
       </div>
 
-      <button
-        type="button"
-        class="pulsante principale dmc-btn"
-        @click="emit('riprendi-sessione')"
-      >
+      <button type="button" class="pulsante principale dmc-btn" @click="emit('riprendi-sessione')">
         Riprendi sessione →
       </button>
     </div>
@@ -98,9 +70,7 @@ const numeroNemici = computed(
         class="collegamento dmc-pannello dmc-pannello--rilievo dmc-carta"
         @click="emit('vai-sezione', 'sessioni')"
       >
-        <span class="nome">
-          Sessioni <span>→</span>
-        </span>
+        <span class="nome"> Sessioni <span>→</span> </span>
 
         <strong>{{ numeroSessioni }}</strong>
         <small>Sessioni preparate</small>
@@ -111,9 +81,7 @@ const numeroNemici = computed(
         class="collegamento dmc-pannello dmc-pannello--rilievo dmc-carta"
         @click="emit('vai-sezione', 'battaglia')"
       >
-        <span class="nome">
-          Battaglia <span>→</span>
-        </span>
+        <span class="nome"> Battaglia <span>→</span> </span>
 
         <strong>{{ numeroPG }}</strong>
         <small>PG · {{ numeroNemici }} nemici presenti</small>
@@ -124,9 +92,7 @@ const numeroNemici = computed(
         class="collegamento dmc-pannello dmc-pannello--rilievo dmc-carta"
         @click="emit('vai-sezione', 'note')"
       >
-        <span class="nome">
-          Note <span>→</span>
-        </span>
+        <span class="nome"> Note <span>→</span> </span>
 
         <strong>✎</strong>
         <small>Appunti del Dungeon Master</small>
@@ -134,7 +100,6 @@ const numeroNemici = computed(
     </div>
   </section>
 </template>
-
 
 <style scoped>
 /*
@@ -382,4 +347,3 @@ const numeroNemici = computed(
   }
 }
 </style>
-

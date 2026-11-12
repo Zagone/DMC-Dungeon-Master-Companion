@@ -1,4 +1,3 @@
-
 <script setup>
 import { computed, ref, nextTick, watch } from 'vue'
 
@@ -21,24 +20,17 @@ const props = defineProps({
 
 const emit = defineEmits(['salva', 'annulla'])
 
-const scheda = ref(
-  normalizzaCreatura(copiaDati(props.creatura))
-)
+const scheda = ref(normalizzaCreatura(copiaDati(props.creatura)))
 
 watch(
   () => scheda.value.taglia,
   (taglia, precedente) => {
     scheda.value.taglie = [
       ...new Set(
-        [
-          taglia,
-          ...scheda.value.taglie.filter(
-            valore => valore !== precedente
-          ),
-        ].filter(Boolean)
+        [taglia, ...scheda.value.taglie.filter((valore) => valore !== precedente)].filter(Boolean),
       ),
     ]
-  }
+  },
 )
 
 const errore = ref('')
@@ -51,15 +43,20 @@ const sezioniEditor = [
   { id: 'descrizione', titolo: 'Descrizione' },
   { id: 'revisione', titolo: 'Revisione' },
 ]
-const indiceSezione = computed(() => sezioniEditor.findIndex(v => v.id === sezioneAttiva.value))
-const gruppiCapacita = gruppiRegole.filter(g => g.campo === 'capacita')
-const gruppiAzioni = gruppiRegole.filter(g => g.campo !== 'capacita')
+const indiceSezione = computed(() => sezioniEditor.findIndex((v) => v.id === sezioneAttiva.value))
+const gruppiCapacita = gruppiRegole.filter((g) => g.campo === 'capacita')
+const gruppiAzioni = gruppiRegole.filter((g) => g.campo !== 'capacita')
 function vaiASezione(id) {
   sezioneAttiva.value = id
   errore.value = ''
 }
-function precedente() { if (indiceSezione.value > 0) vaiASezione(sezioniEditor[indiceSezione.value - 1].id) }
-function successiva() { if (indiceSezione.value < sezioniEditor.length - 1) vaiASezione(sezioniEditor[indiceSezione.value + 1].id) }
+function precedente() {
+  if (indiceSezione.value > 0) vaiASezione(sezioniEditor[indiceSezione.value - 1].id)
+}
+function successiva() {
+  if (indiceSezione.value < sezioniEditor.length - 1)
+    vaiASezione(sezioniEditor[indiceSezione.value + 1].id)
+}
 const nomeInput = ref(null)
 
 nextTick(() => nomeInput.value?.focus())
@@ -86,8 +83,12 @@ const testi = [
   ['tassonomiaOriginale', 'Tassonomia completa'],
 ]
 
-const testiIdentita = testi.filter(([campo]) => ['nomeOriginale', 'allineamento', 'tassonomiaOriginale'].includes(campo))
-const testiStatistiche = testi.filter(([campo]) => ['gs', 'pfFormula', 'velocita', 'sensi'].includes(campo))
+const testiIdentita = testi.filter(([campo]) =>
+  ['nomeOriginale', 'allineamento', 'tassonomiaOriginale'].includes(campo),
+)
+const testiStatistiche = testi.filter(([campo]) =>
+  ['gs', 'pfFormula', 'velocita', 'sensi'].includes(campo),
+)
 const testiDescrizione = testi.filter(([campo]) => ['lingue', 'equipaggiamento'].includes(campo))
 
 const elenchi = [
@@ -101,14 +102,18 @@ const elenchi = [
   ['tags', 'Tag personali'],
 ]
 
-const elenchiIdentita = elenchi.filter(([campo]) => ['aliases', 'taglie', 'sottotipi'].includes(campo))
-const elenchiDifese = elenchi.filter(([campo]) => ['resistenze', 'vulnerabilita', 'immunita', 'immunitaCondizioni'].includes(campo))
+const elenchiIdentita = elenchi.filter(([campo]) =>
+  ['aliases', 'taglie', 'sottotipi'].includes(campo),
+)
+const elenchiDifese = elenchi.filter(([campo]) =>
+  ['resistenze', 'vulnerabilita', 'immunita', 'immunitaCondizioni'].includes(campo),
+)
 const elenchiDescrizione = elenchi.filter(([campo]) => campo === 'tags')
 
 function elenco(campo, testo) {
   scheda.value[campo] = testo
     .split('\n')
-    .map(valore => valore.trim())
+    .map((valore) => valore.trim())
     .filter(Boolean)
 }
 
@@ -123,10 +128,7 @@ function salva() {
     return
   }
 
-  if (
-    creatura.statoScheda === 'pronta' &&
-    !utilizzabile(creatura)
-  ) {
+  if (creatura.statoScheda === 'pronta' && !utilizzabile(creatura)) {
     errore.value =
       'Per usare la scheda negli incontri servono CA intera non negativa e PF massimi interi maggiori di zero.'
     sezioneAttiva.value = 'statistiche'
@@ -135,12 +137,8 @@ function salva() {
 
   for (const gruppo of gruppiRegole) {
     for (const regola of creatura[gruppo.campo]) {
-      if (
-        !regola.nome?.trim() ||
-        !regola.descrizione?.trim()
-      ) {
-        errore.value =
-          `Completa nome e descrizione in ${gruppo.titolo}, oppure rimuovi la voce.`
+      if (!regola.nome?.trim() || !regola.descrizione?.trim()) {
+        errore.value = `Completa nome e descrizione in ${gruppo.titolo}, oppure rimuovi la voce.`
         sezioneAttiva.value = gruppo.campo === 'capacita' ? 'capacita' : 'azioni'
         return
       }
@@ -160,469 +158,429 @@ function salva() {
   >
     <header class="intestazione-editor">
       <h3>
-        {{
-          props.creatura.id
-            ? 'Modifica scheda personale'
-            : 'Nuova scheda personale'
-        }}
+        {{ props.creatura.id ? 'Modifica scheda personale' : 'Nuova scheda personale' }}
       </h3>
 
-      <button class="dmc-btn dmc-btn--secondary"
-        type="button"
-        @click="emit('annulla')"
-      >
+      <button class="dmc-btn dmc-btn--secondary" type="button" @click="emit('annulla')">
         Annulla
       </button>
     </header>
 
     <p>
-      Homebrew e PNG condividono la stessa scheda.
-      I campi vuoti restano non indicati.
-      Conferma la scheda quando è pronta per gli incontri.
+      Homebrew e PNG condividono la stessa scheda. I campi vuoti restano non indicati. Conferma la
+      scheda quando è pronta per gli incontri.
     </p>
 
     <nav class="navigazione-sezioni" aria-label="Sezioni della scheda">
-      <button v-for="(sezione, indice) in sezioniEditor"
+      <button
+        v-for="(sezione, indice) in sezioniEditor"
         :key="sezione.id"
         type="button"
         :class="{ selezionata: sezioneAttiva === sezione.id }"
         :aria-current="sezioneAttiva === sezione.id ? 'step' : undefined"
         @click="vaiASezione(sezione.id)"
-      ><span class="numero-sezione">{{ indice + 1 }}</span>{{ sezione.titolo }}</button>
+      >
+        <span class="numero-sezione">{{ indice + 1 }}</span
+        >{{ sezione.titolo }}
+      </button>
     </nav>
-    <p class="indicazione-sezione">Sezione {{ indiceSezione + 1 }} di {{ sezioniEditor.length }}. Puoi passare liberamente da una sezione all'altra senza perdere i campi compilati.</p>
-    <section v-show="sezioneAttiva === 'identita'" class="pannello-sezione" aria-labelledby="editor-identita">
+    <p class="indicazione-sezione">
+      Sezione {{ indiceSezione + 1 }} di {{ sezioniEditor.length }}. Puoi passare liberamente da una
+      sezione all'altra senza perdere i campi compilati.
+    </p>
+    <section
+      v-show="sezioneAttiva === 'identita'"
+      class="pannello-sezione"
+      aria-labelledby="editor-identita"
+    >
       <h4 id="editor-identita">Identità della creatura</h4>
-    <div class="griglia">
-      <label class="largo">
-        Nome
-        <input class="dmc-campo"
-          ref="nomeInput"
-          v-model="scheda.nome"
-          required
-        />
-      </label>
-
-      <label>
-        Categoria
-        <select class="dmc-campo" v-model="scheda.categoria">
-          <option value="homebrew">Homebrew</option>
-          <option value="png">PNG personalizzato</option>
-        </select>
-      </label>
-
-      <label>
-        Stato
-        <select class="dmc-campo" v-model="scheda.statoScheda">
-          <option value="bozza">Bozza</option>
-          <option value="pronta">
-            Pronta per gli incontri
-          </option>
-        </select>
-      </label>
-
-      <label>
-        Tipo
-        <select class="dmc-campo" v-model="scheda.tipo">
-          <option
-            v-if="!tipiCreatura.includes(scheda.tipo)"
-            :value="scheda.tipo"
-          >
-            {{ scheda.tipo || 'Non indicato' }}
-          </option>
-
-          <option
-            v-for="tipo in tipiCreatura"
-            :key="tipo"
-          >
-            {{ tipo }}
-          </option>
-        </select>
-      </label>
-
-      <label>
-        Taglia
-        <select class="dmc-campo" v-model="scheda.taglia">
-          <option value="">Non indicata</option>
-
-          <option
-            v-for="taglia in [
-              'Minuscola',
-              'Piccola',
-              'Media',
-              'Grande',
-              'Enorme',
-              'Mastodontica'
-            ]"
-            :key="taglia"
-          >
-            {{ taglia }}
-          </option>
-        </select>
-      </label>
-
-      <label v-for="[campo, titolo] in testiIdentita" :key="campo">
-        {{ titolo }} <input class="dmc-campo" v-model="scheda[campo]" />
-      </label>
-      <label v-for="[campo, titolo] in elenchiIdentita" :key="campo">
-        {{ titolo }} <small>Una voce per riga.</small>
-        <textarea class="dmc-campo" :value="scheda[campo].join('\n')" rows="3" @input="elenco(campo, $event.target.value)"></textarea>
-      </label>
-    </div>
-    </section>
-    <section v-show="sezioneAttiva === 'statistiche'" class="pannello-sezione" aria-labelledby="editor-statistiche">
-      <h4 id="editor-statistiche">Statistiche e combattimento</h4>
-    <div class="griglia">
-      <label
-        v-for="[campo, titolo] in numeri"
-        :key="campo"
-      >
-        {{ titolo }}
-        <input class="dmc-campo"
-          v-model="scheda[campo]"
-          type="number"
-          step="1"
-        />
-      </label>
-
-      <label
-        v-for="[campo, titolo] in testiStatistiche"
-        :key="campo"
-      >
-        {{ titolo }}
-        <input class="dmc-campo" v-model="scheda[campo]" />
-      </label>
-    </div>
-    <fieldset>
-      <legend>
-        Caratteristiche, modificatori e salvezze
-      </legend>
-
-      <div
-        v-for="[campo, titolo] in [
-          ['caratteristiche', 'Punteggio'],
-          ['modificatori', 'MOD'],
-          ['tiriSalvezza', 'SALV']
-        ]"
-        :key="campo"
-        class="sei-colonne"
-      >
-        <label
-          v-for="chiave in chiaviCaratteristiche"
-          :key="chiave"
-        >
-          {{ titolo }} {{ chiave.toUpperCase() }}
-
-          <input class="dmc-campo"
-            v-model="scheda[campo][chiave]"
-            type="number"
-            step="1"
-          />
-        </label>
-      </div>
-    </fieldset>
-
-    <fieldset>
-      <legend>Abilità</legend>
-
-      <div
-        v-for="(abilita, indice) in scheda.abilita"
-        :key="indice"
-        class="riga-abilita"
-      >
-        <label>
-          Abilità
-          <input class="dmc-campo" v-model="abilita.nome" />
-        </label>
-
-        <label>
-          Bonus
-          <input class="dmc-campo"
-            v-model.number="abilita.bonus"
-            type="number"
-            step="1"
-          />
-        </label>
-
-        <button class="dmc-btn dmc-btn--secondary"
-          type="button"
-          :aria-label="`Rimuovi abilità ${indice + 1}`"
-          @click="scheda.abilita.splice(indice, 1)"
-        >
-          Rimuovi
-        </button>
-      </div>
-
-      <button class="dmc-btn dmc-btn--secondary"
-        type="button"
-        @click="scheda.abilita.push({
-          nome: '',
-          bonus: null
-        })"
-      >
-        + Aggiungi abilità
-      </button>
-    </fieldset>
-    <fieldset>
-      <legend>Difese e immunità</legend>
       <div class="griglia">
-        <label v-for="[campo, titolo] in elenchiDifese" :key="campo">
-          {{ titolo }} <small>Una voce per riga; specifica eventuali condizioni d’uso.</small>
-          <textarea class="dmc-campo" :value="scheda[campo].join('\n')" rows="3" @input="elenco(campo, $event.target.value)"></textarea>
-        </label>
-      </div>
-    </fieldset>
-
-    </section>
-    <section v-show="sezioneAttiva === 'capacita'" class="pannello-sezione" aria-labelledby="editor-capacita">
-      <h4 id="editor-capacita">Capacità e tratti speciali</h4>
-    <fieldset
-      v-for="gruppo in gruppiCapacita"
-      :key="gruppo.campo"
-    >
-      <legend>{{ gruppo.titolo }}</legend>
-
-      <label
-        v-if="gruppo.campo === 'azioniLeggendarie'"
-      >
-        Utilizzi, recupero e regole generali
-
-        <textarea class="dmc-campo"
-          v-model="scheda.regoleAzioniLeggendarie"
-          rows="4"
-        ></textarea>
-      </label>
-
-      <div
-        v-for="(regola, indice) in scheda[gruppo.campo]"
-        :key="indice"
-        class="regola-editor"
-      >
-        <label>
-          Nome della voce
-          <input class="dmc-campo"
-            v-model="regola.nome"
-            required
-          />
+        <label class="largo">
+          Nome
+          <input class="dmc-campo" ref="nomeInput" v-model="scheda.nome" required />
         </label>
 
         <label>
-          Regola completa
-          <textarea class="dmc-campo"
-            v-model="regola.descrizione"
-            required
-            rows="5"
+          Categoria
+          <select class="dmc-campo" v-model="scheda.categoria">
+            <option value="homebrew">Homebrew</option>
+            <option value="png">PNG personalizzato</option>
+          </select>
+        </label>
+
+        <label>
+          Stato
+          <select class="dmc-campo" v-model="scheda.statoScheda">
+            <option value="bozza">Bozza</option>
+            <option value="pronta">Pronta per gli incontri</option>
+          </select>
+        </label>
+
+        <label>
+          Tipo
+          <select class="dmc-campo" v-model="scheda.tipo">
+            <option v-if="!tipiCreatura.includes(scheda.tipo)" :value="scheda.tipo">
+              {{ scheda.tipo || 'Non indicato' }}
+            </option>
+
+            <option v-for="tipo in tipiCreatura" :key="tipo">
+              {{ tipo }}
+            </option>
+          </select>
+        </label>
+
+        <label>
+          Taglia
+          <select class="dmc-campo" v-model="scheda.taglia">
+            <option value="">Non indicata</option>
+
+            <option
+              v-for="taglia in [
+                'Minuscola',
+                'Piccola',
+                'Media',
+                'Grande',
+                'Enorme',
+                'Mastodontica',
+              ]"
+              :key="taglia"
+            >
+              {{ taglia }}
+            </option>
+          </select>
+        </label>
+
+        <label v-for="[campo, titolo] in testiIdentita" :key="campo">
+          {{ titolo }} <input class="dmc-campo" v-model="scheda[campo]" />
+        </label>
+        <label v-for="[campo, titolo] in elenchiIdentita" :key="campo">
+          {{ titolo }} <small>Una voce per riga.</small>
+          <textarea
+            class="dmc-campo"
+            :value="scheda[campo].join('\n')"
+            rows="3"
+            @input="elenco(campo, $event.target.value)"
           ></textarea>
         </label>
-
-        <button class="dmc-btn dmc-btn--secondary"
-          type="button"
-          :aria-label="
-            `Rimuovi ${gruppo.titolo} ${indice + 1}`
-          "
-          @click="scheda[gruppo.campo].splice(indice, 1)"
-        >
-          Rimuovi voce
-        </button>
       </div>
-
-      <button class="dmc-btn dmc-btn--secondary"
-        type="button"
-        @click="scheda[gruppo.campo].push({
-          nome: '',
-          descrizione: ''
-        })"
-      >
-        + Aggiungi: {{ gruppo.titolo }}
-      </button>
-    </fieldset>
-
     </section>
-    <section v-show="sezioneAttiva === 'azioni'" class="pannello-sezione" aria-labelledby="editor-azioni">
-      <h4 id="editor-azioni">Azioni, reazioni e capacità speciali</h4>
-    <fieldset
-      v-for="gruppo in gruppiAzioni"
-      :key="gruppo.campo"
+    <section
+      v-show="sezioneAttiva === 'statistiche'"
+      class="pannello-sezione"
+      aria-labelledby="editor-statistiche"
     >
-      <legend>{{ gruppo.titolo }}</legend>
-
-      <label
-        v-if="gruppo.campo === 'azioniLeggendarie'"
-      >
-        Utilizzi, recupero e regole generali
-
-        <textarea class="dmc-campo"
-          v-model="scheda.regoleAzioniLeggendarie"
-          rows="4"
-        ></textarea>
-      </label>
-
-      <div
-        v-for="(regola, indice) in scheda[gruppo.campo]"
-        :key="indice"
-        class="regola-editor"
-      >
-        <label>
-          Nome della voce
-          <input class="dmc-campo"
-            v-model="regola.nome"
-            required
-          />
+      <h4 id="editor-statistiche">Statistiche e combattimento</h4>
+      <div class="griglia">
+        <label v-for="[campo, titolo] in numeri" :key="campo">
+          {{ titolo }}
+          <input class="dmc-campo" v-model="scheda[campo]" type="number" step="1" />
         </label>
 
-        <label>
-          Regola completa
-          <textarea class="dmc-campo"
-            v-model="regola.descrizione"
-            required
-            rows="5"
-          ></textarea>
+        <label v-for="[campo, titolo] in testiStatistiche" :key="campo">
+          {{ titolo }}
+          <input class="dmc-campo" v-model="scheda[campo]" />
         </label>
-
-        <button class="dmc-btn dmc-btn--secondary"
-          type="button"
-          :aria-label="
-            `Rimuovi ${gruppo.titolo} ${indice + 1}`
-          "
-          @click="scheda[gruppo.campo].splice(indice, 1)"
-        >
-          Rimuovi voce
-        </button>
       </div>
+      <fieldset>
+        <legend>Caratteristiche, modificatori e salvezze</legend>
 
-      <button class="dmc-btn dmc-btn--secondary"
-        type="button"
-        @click="scheda[gruppo.campo].push({
-          nome: '',
-          descrizione: ''
-        })"
-      >
-        + Aggiungi: {{ gruppo.titolo }}
-      </button>
-    </fieldset>
-
-    </section>
-    <section v-show="sezioneAttiva === 'descrizione'" class="pannello-sezione" aria-labelledby="editor-descrizione">
-      <h4 id="editor-descrizione">Dettagli, difese e descrizione</h4>
-    <div class="griglia">
-      <label v-for="[campo, titolo] in testiDescrizione" :key="campo">
-        {{ titolo }} <input class="dmc-campo" v-model="scheda[campo]" />
-      </label>
-    </div>
-    <div class="griglia">
-      <label
-        v-for="[campo, titolo] in elenchiDescrizione"
-        :key="campo"
-      >
-        {{ titolo }}
-
-        <small>
-          Una voce per riga; conserva le condizioni d’uso.
-        </small>
-
-        <textarea class="dmc-campo"
-          :value="scheda[campo].join('\n')"
-          rows="3"
-          @input="elenco(campo, $event.target.value)"
-        ></textarea>
-      </label>
-    </div>
-
-    <fieldset>
-      <legend>Sciame (facoltativo)</legend>
-
-      <label class="scelta">
-        <input
-          type="checkbox"
-          :checked="!!scheda.sciame"
-          @change="
-            scheda.sciame = $event.target.checked
-              ? {
-                  tipoCreature: '',
-                  tagliaCreature: '',
-                  testoFonte: ''
-                }
-              : null
-          "
-        />
-
-        Questa creatura è uno sciame
-      </label>
-
-      <div
-        v-if="scheda.sciame"
-        class="griglia"
-      >
-        <label
+        <div
           v-for="[campo, titolo] in [
-            ['tipoCreature', 'Tipo dei componenti'],
-            ['tagliaCreature', 'Taglia dei componenti'],
-            ['testoFonte', 'Descrizione dello sciame']
+            ['caratteristiche', 'Punteggio'],
+            ['modificatori', 'MOD'],
+            ['tiriSalvezza', 'SALV'],
           ]"
           :key="campo"
+          class="sei-colonne"
         >
-          {{ titolo }}
-          <input class="dmc-campo" v-model="scheda.sciame[campo]" />
+          <label v-for="chiave in chiaviCaratteristiche" :key="chiave">
+            {{ titolo }} {{ chiave.toUpperCase() }}
+
+            <input class="dmc-campo" v-model="scheda[campo][chiave]" type="number" step="1" />
+          </label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Abilità</legend>
+
+        <div v-for="(abilita, indice) in scheda.abilita" :key="indice" class="riga-abilita">
+          <label>
+            Abilità
+            <input class="dmc-campo" v-model="abilita.nome" />
+          </label>
+
+          <label>
+            Bonus
+            <input class="dmc-campo" v-model.number="abilita.bonus" type="number" step="1" />
+          </label>
+
+          <button
+            class="dmc-btn dmc-btn--secondary"
+            type="button"
+            :aria-label="`Rimuovi abilità ${indice + 1}`"
+            @click="scheda.abilita.splice(indice, 1)"
+          >
+            Rimuovi
+          </button>
+        </div>
+
+        <button
+          class="dmc-btn dmc-btn--secondary"
+          type="button"
+          @click="
+            scheda.abilita.push({
+              nome: '',
+              bonus: null,
+            })
+          "
+        >
+          + Aggiungi abilità
+        </button>
+      </fieldset>
+      <fieldset>
+        <legend>Difese e immunità</legend>
+        <div class="griglia">
+          <label v-for="[campo, titolo] in elenchiDifese" :key="campo">
+            {{ titolo }} <small>Una voce per riga; specifica eventuali condizioni d’uso.</small>
+            <textarea
+              class="dmc-campo"
+              :value="scheda[campo].join('\n')"
+              rows="3"
+              @input="elenco(campo, $event.target.value)"
+            ></textarea>
+          </label>
+        </div>
+      </fieldset>
+    </section>
+    <section
+      v-show="sezioneAttiva === 'capacita'"
+      class="pannello-sezione"
+      aria-labelledby="editor-capacita"
+    >
+      <h4 id="editor-capacita">Capacità e tratti speciali</h4>
+      <fieldset v-for="gruppo in gruppiCapacita" :key="gruppo.campo">
+        <legend>{{ gruppo.titolo }}</legend>
+
+        <label v-if="gruppo.campo === 'azioniLeggendarie'">
+          Utilizzi, recupero e regole generali
+
+          <textarea class="dmc-campo" v-model="scheda.regoleAzioniLeggendarie" rows="4"></textarea>
+        </label>
+
+        <div v-for="(regola, indice) in scheda[gruppo.campo]" :key="indice" class="regola-editor">
+          <label>
+            Nome della voce
+            <input class="dmc-campo" v-model="regola.nome" required />
+          </label>
+
+          <label>
+            Regola completa
+            <textarea class="dmc-campo" v-model="regola.descrizione" required rows="5"></textarea>
+          </label>
+
+          <button
+            class="dmc-btn dmc-btn--secondary"
+            type="button"
+            :aria-label="`Rimuovi ${gruppo.titolo} ${indice + 1}`"
+            @click="scheda[gruppo.campo].splice(indice, 1)"
+          >
+            Rimuovi voce
+          </button>
+        </div>
+
+        <button
+          class="dmc-btn dmc-btn--secondary"
+          type="button"
+          @click="
+            scheda[gruppo.campo].push({
+              nome: '',
+              descrizione: '',
+            })
+          "
+        >
+          + Aggiungi: {{ gruppo.titolo }}
+        </button>
+      </fieldset>
+    </section>
+    <section
+      v-show="sezioneAttiva === 'azioni'"
+      class="pannello-sezione"
+      aria-labelledby="editor-azioni"
+    >
+      <h4 id="editor-azioni">Azioni, reazioni e capacità speciali</h4>
+      <fieldset v-for="gruppo in gruppiAzioni" :key="gruppo.campo">
+        <legend>{{ gruppo.titolo }}</legend>
+
+        <label v-if="gruppo.campo === 'azioniLeggendarie'">
+          Utilizzi, recupero e regole generali
+
+          <textarea class="dmc-campo" v-model="scheda.regoleAzioniLeggendarie" rows="4"></textarea>
+        </label>
+
+        <div v-for="(regola, indice) in scheda[gruppo.campo]" :key="indice" class="regola-editor">
+          <label>
+            Nome della voce
+            <input class="dmc-campo" v-model="regola.nome" required />
+          </label>
+
+          <label>
+            Regola completa
+            <textarea class="dmc-campo" v-model="regola.descrizione" required rows="5"></textarea>
+          </label>
+
+          <button
+            class="dmc-btn dmc-btn--secondary"
+            type="button"
+            :aria-label="`Rimuovi ${gruppo.titolo} ${indice + 1}`"
+            @click="scheda[gruppo.campo].splice(indice, 1)"
+          >
+            Rimuovi voce
+          </button>
+        </div>
+
+        <button
+          class="dmc-btn dmc-btn--secondary"
+          type="button"
+          @click="
+            scheda[gruppo.campo].push({
+              nome: '',
+              descrizione: '',
+            })
+          "
+        >
+          + Aggiungi: {{ gruppo.titolo }}
+        </button>
+      </fieldset>
+    </section>
+    <section
+      v-show="sezioneAttiva === 'descrizione'"
+      class="pannello-sezione"
+      aria-labelledby="editor-descrizione"
+    >
+      <h4 id="editor-descrizione">Dettagli, difese e descrizione</h4>
+      <div class="griglia">
+        <label v-for="[campo, titolo] in testiDescrizione" :key="campo">
+          {{ titolo }} <input class="dmc-campo" v-model="scheda[campo]" />
         </label>
       </div>
-    </fieldset>
+      <div class="griglia">
+        <label v-for="[campo, titolo] in elenchiDescrizione" :key="campo">
+          {{ titolo }}
 
-    <label>
-      Fonte o riferimento personale
-      <input class="dmc-campo" v-model="scheda.fonte" />
-    </label>
+          <small> Una voce per riga; conserva le condizioni d’uso. </small>
 
-    <label>
-      Note personali
-      <textarea class="dmc-campo"
-        v-model="scheda.note"
-        rows="4"
-      ></textarea>
-    </label>
+          <textarea
+            class="dmc-campo"
+            :value="scheda[campo].join('\n')"
+            rows="3"
+            @input="elenco(campo, $event.target.value)"
+          ></textarea>
+        </label>
+      </div>
 
+      <fieldset>
+        <legend>Sciame (facoltativo)</legend>
+
+        <label class="scelta">
+          <input
+            type="checkbox"
+            :checked="!!scheda.sciame"
+            @change="
+              scheda.sciame = $event.target.checked
+                ? {
+                    tipoCreature: '',
+                    tagliaCreature: '',
+                    testoFonte: '',
+                  }
+                : null
+            "
+          />
+
+          Questa creatura è uno sciame
+        </label>
+
+        <div v-if="scheda.sciame" class="griglia">
+          <label
+            v-for="[campo, titolo] in [
+              ['tipoCreature', 'Tipo dei componenti'],
+              ['tagliaCreature', 'Taglia dei componenti'],
+              ['testoFonte', 'Descrizione dello sciame'],
+            ]"
+            :key="campo"
+          >
+            {{ titolo }}
+            <input class="dmc-campo" v-model="scheda.sciame[campo]" />
+          </label>
+        </div>
+      </fieldset>
+
+      <label>
+        Fonte o riferimento personale
+        <input class="dmc-campo" v-model="scheda.fonte" />
+      </label>
+
+      <label>
+        Note personali
+        <textarea class="dmc-campo" v-model="scheda.note" rows="4"></textarea>
+      </label>
     </section>
-    <section v-show="sezioneAttiva === 'revisione'" class="pannello-sezione" aria-labelledby="editor-revisione">
+    <section
+      v-show="sezioneAttiva === 'revisione'"
+      class="pannello-sezione"
+      aria-labelledby="editor-revisione"
+    >
       <h4 id="editor-revisione">Revisione prima del salvataggio</h4>
       <div class="riepilogo-editor">
         <p><strong>Nome:</strong> {{ scheda.nome || 'Da definire' }}</p>
-        <p><strong>Categoria:</strong> {{ scheda.categoria === 'png' ? 'PNG personalizzato' : 'Homebrew' }}</p>
-        <p><strong>Stato:</strong> {{ scheda.statoScheda === 'pronta' ? 'Pronta per gli incontri' : 'Bozza' }}</p>
+        <p>
+          <strong>Categoria:</strong>
+          {{ scheda.categoria === 'png' ? 'PNG personalizzato' : 'Homebrew' }}
+        </p>
+        <p>
+          <strong>Stato:</strong>
+          {{ scheda.statoScheda === 'pronta' ? 'Pronta per gli incontri' : 'Bozza' }}
+        </p>
         <p><strong>Tipo e taglia:</strong> {{ scheda.tipo || '—' }} · {{ scheda.taglia || '—' }}</p>
         <p><strong>CA e PF massimi:</strong> {{ scheda.ca ?? '—' }} · {{ scheda.pfMax ?? '—' }}</p>
         <p><strong>GS:</strong> {{ scheda.gs || '—' }}</p>
         <p><strong>Tratti:</strong> {{ scheda.capacita.length }}</p>
-        <p><strong>Azioni:</strong> {{ scheda.azioni.length }} · <strong>Azioni bonus:</strong> {{ scheda.azioniBonus.length }} · <strong>Reazioni:</strong> {{ scheda.reazioni.length }}</p>
+        <p>
+          <strong>Azioni:</strong> {{ scheda.azioni.length }} · <strong>Azioni bonus:</strong>
+          {{ scheda.azioniBonus.length }} · <strong>Reazioni:</strong> {{ scheda.reazioni.length }}
+        </p>
       </div>
       <p>Controlla le sezioni precedenti. Puoi sempre tornare a modificarle prima di salvare.</p>
     </section>
-    <p
-      v-if="errore"
-      class="errore"
-      role="alert"
-    >
+    <p v-if="errore" class="errore" role="alert">
       {{ errore }}
     </p>
 
     <div class="azioni">
-      <button type="button" class="dmc-btn dmc-btn--secondary" :disabled="indiceSezione === 0" @click="precedente">Indietro</button>
-      <button v-if="indiceSezione < sezioniEditor.length - 1" type="button" class="dmc-btn" @click="successiva">Continua</button>
       <button
-        type="submit"
-        class="primario dmc-btn"
-      >
-        Salva scheda
-      </button>
-
-      <button class="dmc-btn dmc-btn--secondary"
         type="button"
-        @click="emit('annulla')"
+        class="dmc-btn dmc-btn--secondary"
+        :disabled="indiceSezione === 0"
+        @click="precedente"
       >
+        Indietro
+      </button>
+      <button
+        v-if="indiceSezione < sezioniEditor.length - 1"
+        type="button"
+        class="dmc-btn"
+        @click="successiva"
+      >
+        Continua
+      </button>
+      <button type="submit" class="primario dmc-btn">Salva scheda</button>
+
+      <button class="dmc-btn dmc-btn--secondary" type="button" @click="emit('annulla')">
         Annulla
       </button>
     </div>
   </form>
 </template>
-
 
 <style scoped>
 /*
@@ -1001,15 +959,68 @@ function salva() {
 }
 
 /* Navigazione editor a sezioni: un solo pannello visibile, campi reattivi preservati. */
-.navigazione-sezioni { display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px; }
-.navigazione-sezioni button { justify-content:flex-start;min-width:0;text-align:left;padding:11px;border:1px solid var(--dmc-border-soft);border-radius:8px;background:var(--dmc-ink);color:var(--dmc-cream); }
-.navigazione-sezioni button.selezionata {border-color:var(--dmc-amber);background:var(--dmc-surface-soft);color:var(--dmc-amber-light);}
-.numero-sezione {display:inline-flex;justify-content:center;align-items:center;flex-shrink:0;width:23px;height:23px;border-radius:50%;border:1px solid currentColor;}
-.indicazione-sezione {font-size:12px;color:var(--dmc-muted-light);}
-.pannello-sezione {display:grid;gap:15px;min-width:0;}
-.pannello-sezione h4 {margin:0;color:var(--dmc-amber-light);font-size:17px;}
-.riepilogo-editor {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:15px;border:1px solid var(--dmc-border-soft);border-radius:8px;background:var(--dmc-ink);}
-.riepilogo-editor p {line-height:1.55;}
-@media(max-width:700px) {.navigazione-sezioni{grid-template-columns:repeat(2,minmax(0,1fr));}.riepilogo-editor{grid-template-columns:1fr;}}
+.navigazione-sezioni {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.navigazione-sezioni button {
+  justify-content: flex-start;
+  min-width: 0;
+  text-align: left;
+  padding: 11px;
+  border: 1px solid var(--dmc-border-soft);
+  border-radius: 8px;
+  background: var(--dmc-ink);
+  color: var(--dmc-cream);
+}
+.navigazione-sezioni button.selezionata {
+  border-color: var(--dmc-amber);
+  background: var(--dmc-surface-soft);
+  color: var(--dmc-amber-light);
+}
+.numero-sezione {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+  width: 23px;
+  height: 23px;
+  border-radius: 50%;
+  border: 1px solid currentColor;
+}
+.indicazione-sezione {
+  font-size: 12px;
+  color: var(--dmc-muted-light);
+}
+.pannello-sezione {
+  display: grid;
+  gap: 15px;
+  min-width: 0;
+}
+.pannello-sezione h4 {
+  margin: 0;
+  color: var(--dmc-amber-light);
+  font-size: 17px;
+}
+.riepilogo-editor {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  padding: 15px;
+  border: 1px solid var(--dmc-border-soft);
+  border-radius: 8px;
+  background: var(--dmc-ink);
+}
+.riepilogo-editor p {
+  line-height: 1.55;
+}
+@media (max-width: 700px) {
+  .navigazione-sezioni {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .riepilogo-editor {
+    grid-template-columns: 1fr;
+  }
+}
 </style>
-

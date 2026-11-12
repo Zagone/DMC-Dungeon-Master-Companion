@@ -66,7 +66,10 @@ defineProps({
   transition: filter 140ms ease;
 }
 .card-avventura__immagine,
-.card-avventura__corpo { position: relative; z-index: 2; }
+.card-avventura__corpo {
+  position: relative;
+  z-index: 2;
+}
 .card-avventura__immagine {
   display: block;
   width: 100%;
@@ -77,7 +80,12 @@ defineProps({
   /* Il media passa sotto i bordi interni della cornice, non sopra gli angoli. */
   z-index: 0;
 }
-.card-avventura__immagine img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.card-avventura__immagine img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 .card-avventura__stato {
   position: absolute;
   right: 10px;
@@ -88,7 +96,7 @@ defineProps({
   background: var(--dmc-amber);
   color: var(--dmc-ink);
   font: 800 10px/1.2 var(--dmc-font-body);
-  letter-spacing: .08em;
+  letter-spacing: 0.08em;
   box-shadow: 1px 2px 0 #141923;
 }
 .card-avventura__corpo {
@@ -106,12 +114,13 @@ defineProps({
   left: -10px;
   right: -10px;
   height: 16px;
-  background: url('../../assets/ui/crooked-realms-r4/traversa-ardesia.svg') center / 100% 100% no-repeat;
+  background: url('../../assets/ui/crooked-realms-r4/traversa-ardesia.svg') center / 100% 100%
+    no-repeat;
   pointer-events: none;
 }
 .card-avventura__titolo {
   font: 700 clamp(24px, 2.15vw, 31px)/1.12 var(--dmc-font-illustrated);
-  letter-spacing: -.025em;
+  letter-spacing: -0.025em;
   text-shadow: 1px 2px 0 #0d1118;
   overflow-wrap: anywhere;
 }
@@ -122,14 +131,36 @@ defineProps({
   font: 400 14px/1.5 var(--dmc-font-body);
   overflow-wrap: anywhere;
 }
-.card-avventura__corpo :deep(.placca-azione) { margin-top: auto; }
-button.card-avventura:hover::after { filter: brightness(1.14) drop-shadow(0 4px 2px rgb(0 0 0 / 55%)); }
-button.card-avventura:hover :deep(.placca-azione::before) { filter: brightness(1.08) drop-shadow(0 2px 1px #080c12); }
-.card-avventura:focus-visible { outline: 3px solid var(--dmc-blue); outline-offset: 4px; border-radius: 14px; }
-@media (max-width: 1050px) and (min-width: 801px) {
-  .card-avventura { padding: 14px; }
-  .card-avventura__corpo { padding: 21px 9px 9px; }
-  .card-avventura__corpo :deep(.placca-azione) { padding-inline: 17px; font-size: 13px; gap: 5px; }
+.card-avventura__corpo :deep(.placca-azione) {
+  margin-top: auto;
 }
-@media (prefers-reduced-motion: reduce) { .card-avventura::after { transition: none; } }
+button.card-avventura:hover::after {
+  filter: brightness(1.14) drop-shadow(0 4px 2px rgb(0 0 0 / 55%));
+}
+button.card-avventura:hover :deep(.placca-azione::before) {
+  filter: brightness(1.08) drop-shadow(0 2px 1px #080c12);
+}
+.card-avventura:focus-visible {
+  outline: 3px solid var(--dmc-blue);
+  outline-offset: 4px;
+  border-radius: 14px;
+}
+@media (max-width: 1050px) and (min-width: 801px) {
+  .card-avventura {
+    padding: 14px;
+  }
+  .card-avventura__corpo {
+    padding: 21px 9px 9px;
+  }
+  .card-avventura__corpo :deep(.placca-azione) {
+    padding-inline: 17px;
+    font-size: 13px;
+    gap: 5px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .card-avventura::after {
+    transition: none;
+  }
+}
 </style>

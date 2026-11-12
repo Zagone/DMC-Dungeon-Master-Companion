@@ -1,20 +1,7 @@
-
 <script setup>
-import {
-  computed,
-  nextTick,
-  onMounted,
-  onBeforeUnmount,
-  ref,
-  watch,
-} from 'vue'
+import { computed, nextTick, onMounted, onBeforeUnmount, ref, watch } from 'vue'
 
-import {
-  useRoute,
-  useRouter,
-  onBeforeRouteLeave,
-  onBeforeRouteUpdate,
-} from 'vue-router'
+import { useRoute, useRouter, onBeforeRouteLeave, onBeforeRouteUpdate } from 'vue-router'
 
 import { usaModale } from '../stato/usaModale.js'
 
@@ -24,15 +11,9 @@ import GestioneBattaglia from '../components/GestioneBattaglia.vue'
 import GestioneBestiario from '../components/GestioneBestiario.vue'
 import GestioneNote from '../components/GestioneNote.vue'
 
-import {
-  sezioniCampagna as sezioni,
-} from '../dati/sezioniCampagna.js'
+import { sezioniCampagna as sezioni } from '../dati/sezioniCampagna.js'
 
-import {
-  trovaCampagna,
-  aggiornaCampagna,
-  eliminaCampagnaConDati,
-} from '../stato/statoCampagne.js'
+import { trovaCampagna, aggiornaCampagna, eliminaCampagnaConDati } from '../stato/statoCampagne.js'
 
 import {
   campagnaDatiId,
@@ -60,8 +41,7 @@ let osservatoreNavigazione = null
 function aggiornaAltezzaNavigazione() {
   if (!navigazione.value) return
 
-  const altezza =
-    navigazione.value.getBoundingClientRect().height
+  const altezza = navigazione.value.getBoundingClientRect().height
 
   if (
     Number.isFinite(altezza) &&
@@ -79,13 +59,12 @@ function aggiornaNavigazione() {
     return
   }
 
-  const altezzaBarra = parseFloat(
-    getComputedStyle(document.documentElement)
-      .getPropertyValue('--dmc-topbar-height')
-  ) || 58
+  const altezzaBarra =
+    parseFloat(
+      getComputedStyle(document.documentElement).getPropertyValue('--dmc-topbar-height'),
+    ) || 58
 
-  navigazioneCompatta.value =
-    elemento.getBoundingClientRect().bottom <= altezzaBarra
+  navigazioneCompatta.value = elemento.getBoundingClientRect().bottom <= altezzaBarra
 }
 
 function aggiornaMisure() {
@@ -94,22 +73,12 @@ function aggiornaMisure() {
 }
 
 onMounted(async () => {
-  window.addEventListener(
-    'scroll',
-    aggiornaNavigazione,
-    { passive: true }
-  )
-  window.addEventListener(
-    'resize',
-    aggiornaMisure
-  )
+  window.addEventListener('scroll', aggiornaNavigazione, { passive: true })
+  window.addEventListener('resize', aggiornaMisure)
 
   await nextTick()
 
-  if (
-    typeof ResizeObserver !== 'undefined' &&
-    navigazione.value
-  ) {
+  if (typeof ResizeObserver !== 'undefined' && navigazione.value) {
     osservatoreNavigazione = new ResizeObserver(() => {
       aggiornaAltezzaNavigazione()
     })
@@ -135,15 +104,9 @@ watch(navigazioneCompatta, async () => {
 
 // Campagna e sezioni.
 
-const campagnaId = computed(() =>
-  typeof route.params.id === 'string'
-    ? route.params.id
-    : null
-)
+const campagnaId = computed(() => (typeof route.params.id === 'string' ? route.params.id : null))
 
-const campagna = computed(() =>
-  trovaCampagna(campagnaId.value)
-)
+const campagna = computed(() => trovaCampagna(campagnaId.value))
 
 const dati = computed(() => datiCampagna.value)
 
@@ -154,34 +117,22 @@ const sezione = computed(() => {
 
   const valore = route.params.sezione
 
-  return sezioni.some(s => s.id === valore)
-    ? valore
-    : 'panoramica'
+  return sezioni.some((s) => s.id === valore) ? valore : 'panoramica'
 })
 
 const CHIAVE_RECENTI = 'dmc_campagne_recenti_v1'
 
 function registraApertura(id) {
   try {
-    const salvati = JSON.parse(
-      localStorage.getItem(CHIAVE_RECENTI) || '[]'
-    )
+    const salvati = JSON.parse(localStorage.getItem(CHIAVE_RECENTI) || '[]')
 
     const precedenti = Array.isArray(salvati)
-      ? salvati.filter(
-          valore => typeof valore === 'string'
-        )
+      ? salvati.filter((valore) => typeof valore === 'string')
       : []
 
-    const recenti = [
-      id,
-      ...precedenti.filter(valore => valore !== id),
-    ].slice(0, 30)
+    const recenti = [id, ...precedenti.filter((valore) => valore !== id)].slice(0, 30)
 
-    localStorage.setItem(
-      CHIAVE_RECENTI,
-      JSON.stringify(recenti)
-    )
+    localStorage.setItem(CHIAVE_RECENTI, JSON.stringify(recenti))
   } catch {
     // La cronologia non deve bloccare la campagna.
   }
@@ -190,10 +141,7 @@ function registraApertura(id) {
 let idCampagnaAperta = null
 
 function chiudiCampagnaAperta() {
-  if (
-    idCampagnaAperta &&
-    campagnaDatiId.value === idCampagnaAperta
-  ) {
+  if (idCampagnaAperta && campagnaDatiId.value === idCampagnaAperta) {
     chiudiDatiCampagna()
   }
 
@@ -202,7 +150,7 @@ function chiudiCampagnaAperta() {
 
 watch(
   campagnaId,
-  nuovoId => {
+  (nuovoId) => {
     if (!nuovoId || !trovaCampagna(nuovoId)) {
       chiudiCampagnaAperta()
       return
@@ -215,23 +163,17 @@ watch(
     idCampagnaAperta = nuovoId
     registraApertura(nuovoId)
   },
-  { immediate: true }
+  { immediate: true },
 )
 
 function consentiUscita() {
-  return (
-    !campagnaDatiId.value ||
-    letturaCampagnaFallita.value ||
-    salvaDatiCampagna()
-  )
+  return !campagnaDatiId.value || letturaCampagnaFallita.value || salvaDatiCampagna()
 }
 
 onBeforeRouteLeave(consentiUscita)
 
 onBeforeRouteUpdate(
-  (destinazione, partenza) =>
-    destinazione.params.id === partenza.params.id ||
-    consentiUscita()
+  (destinazione, partenza) => destinazione.params.id === partenza.params.id || consentiUscita(),
 )
 
 onBeforeUnmount(chiudiCampagnaAperta)
@@ -243,11 +185,7 @@ const modaleImpostazioni = ref(null)
 const confermaEliminazione = ref(false)
 const errore = ref('')
 
-usaModale(
-  modificaAperta,
-  modaleImpostazioni,
-  chiudiImpostazioni
-)
+usaModale(modificaAperta, modaleImpostazioni, chiudiImpostazioni)
 
 const impostazioni = ref({
   nome: '',
@@ -256,11 +194,13 @@ const impostazioni = ref({
 })
 
 function statoTesto(stato) {
-  return {
-    preparazione: 'In preparazione',
-    'in-corso': 'In corso',
-    conclusa: 'Conclusa',
-  }[stato] || 'In preparazione'
+  return (
+    {
+      preparazione: 'In preparazione',
+      'in-corso': 'In corso',
+      conclusa: 'Conclusa',
+    }[stato] || 'In preparazione'
+  )
 }
 
 function tornaDashboard() {
@@ -268,10 +208,7 @@ function tornaDashboard() {
 }
 
 function vaiSezione(id) {
-  if (
-    !campagnaId.value ||
-    !sezioni.some(s => s.id === id)
-  ) {
+  if (!campagnaId.value || !sezioni.some((s) => s.id === id)) {
     return
   }
 
@@ -306,7 +243,7 @@ watch(
     modificaAperta.value = false
     confermaEliminazione.value = false
     errore.value = ''
-  }
+  },
 )
 
 function apriImpostazioni() {
@@ -337,14 +274,10 @@ function salvaImpostazioni() {
     return
   }
 
-  const risultato = aggiornaCampagna(
-    campagna.value.id,
-    impostazioni.value
-  )
+  const risultato = aggiornaCampagna(campagna.value.id, impostazioni.value)
 
   if (!risultato) {
-    errore.value =
-      'Impossibile aggiornare la campagna.'
+    errore.value = 'Impossibile aggiornare la campagna.'
     return
   }
 
@@ -352,10 +285,7 @@ function salvaImpostazioni() {
 }
 
 function eliminaCampagnaAttiva() {
-  if (
-    !campagna.value ||
-    !confermaEliminazione.value
-  ) {
+  if (!campagna.value || !confermaEliminazione.value) {
     return
   }
 
@@ -384,23 +314,14 @@ function eliminaCampagnaAttiva() {
   <div
     class="dmc dmc-pagina campagna-view"
     :style="{
-      '--dmc-altezza-navigazione-campagna':
-        `${altezzaNavigazione}px`
+      '--dmc-altezza-navigazione-campagna': `${altezzaNavigazione}px`,
     }"
   >
-    <main
-      :key="campagnaId"
-      class="contenuto-campagna dmc-contenitore"
-    >
+    <main :key="campagnaId" class="contenuto-campagna dmc-contenitore">
       <template v-if="campagna && dati">
-        <section
-          ref="intestazionePagina"
-          class="intestazione-riga testata-campagna"
-        >
+        <section ref="intestazionePagina" class="intestazione-riga testata-campagna">
           <div>
-            <small class="sopratitolo">
-              CAMPAGNA
-            </small>
+            <small class="sopratitolo"> CAMPAGNA </small>
 
             <h1>{{ campagna.nome }}</h1>
 
@@ -421,14 +342,8 @@ function eliminaCampagnaAttiva() {
           class="navigazione-persistente"
           :class="{ compatta: navigazioneCompatta }"
         >
-          <div
-            v-if="navigazioneCompatta"
-            class="navigazione-contesto"
-          >
-            <span
-              class="nome-campagna-compatto"
-              :title="campagna.nome"
-            >
+          <div v-if="navigazioneCompatta" class="navigazione-contesto">
+            <span class="nome-campagna-compatto" :title="campagna.nome">
               {{ campagna.nome }}
             </span>
 
@@ -441,19 +356,14 @@ function eliminaCampagnaAttiva() {
             </button>
           </div>
 
-          <nav
-            class="tabs"
-            aria-label="Sezioni della campagna"
-          >
+          <nav class="tabs" aria-label="Sezioni della campagna">
             <button
               v-for="s in sezioni"
               :key="s.id"
               type="button"
               class="tab-dmc"
               :class="{ selezionata: sezione === s.id }"
-              :aria-current="
-                sezione === s.id ? 'page' : undefined
-              "
+              :aria-current="sezione === s.id ? 'page' : undefined"
               @click="vaiSezione(s.id)"
             >
               {{ s.nome }}
@@ -470,19 +380,11 @@ function eliminaCampagnaAttiva() {
           </nav>
         </div>
 
-        <p
-          v-if="errore && !modificaAperta"
-          class="avviso errore"
-          role="alert"
-        >
+        <p v-if="errore && !modificaAperta" class="avviso errore" role="alert">
           {{ errore }}
         </p>
 
-        <p
-          v-if="erroreDatiCampagna"
-          class="avviso errore"
-          role="alert"
-        >
+        <p v-if="erroreDatiCampagna" class="avviso errore" role="alert">
           {{ erroreDatiCampagna }}
 
           <button
@@ -496,10 +398,7 @@ function eliminaCampagnaAttiva() {
         </p>
 
         <template v-if="!letturaCampagnaFallita">
-          <section
-            v-if="sezione === 'panoramica'"
-            class="sezione"
-          >
+          <section v-if="sezione === 'panoramica'" class="sezione">
             <GestionePanoramica
               :campagna="campagna"
               @vai-sezione="vaiSezione"
@@ -508,19 +407,11 @@ function eliminaCampagnaAttiva() {
             />
           </section>
 
-          <section
-            v-else-if="sezione === 'sessioni'"
-            class="sezione"
-          >
-            <GestioneSessioni
-              @vai-battaglia="vaiSezione('battaglia')"
-            />
+          <section v-else-if="sezione === 'sessioni'" class="sezione">
+            <GestioneSessioni @vai-battaglia="vaiSezione('battaglia')" />
           </section>
 
-          <section
-            v-else-if="sezione === 'battaglia'"
-            class="sezione"
-          >
+          <section v-else-if="sezione === 'battaglia'" class="sezione">
             <aside
               v-if="conduzioneAttiva"
               class="ritorno-scena dmc-pannello"
@@ -528,17 +419,13 @@ function eliminaCampagnaAttiva() {
             >
               <div>
                 <strong>
-                  {{
-                    conduzioneAttiva.sessione.titolo ||
-                    'Sessione senza titolo'
-                  }}
+                  {{ conduzioneAttiva.sessione.titolo || 'Sessione senza titolo' }}
                 </strong>
 
                 <span>
                   Scena {{ conduzioneAttiva.indice + 1 }} ·
                   {{
-                    conduzioneAttiva.scena.titolo?.trim() ||
-                    `Scena ${conduzioneAttiva.indice + 1}`
+                    conduzioneAttiva.scena.titolo?.trim() || `Scena ${conduzioneAttiva.indice + 1}`
                   }}
                 </span>
               </div>
@@ -555,17 +442,11 @@ function eliminaCampagnaAttiva() {
             <GestioneBattaglia />
           </section>
 
-          <section
-            v-else-if="sezione === 'bestiario'"
-            class="sezione"
-          >
+          <section v-else-if="sezione === 'bestiario'" class="sezione">
             <GestioneBestiario />
           </section>
 
-          <section
-            v-else-if="sezione === 'note'"
-            class="sezione"
-          >
+          <section v-else-if="sezione === 'note'" class="sezione">
             <GestioneNote />
           </section>
         </template>
@@ -574,15 +455,9 @@ function eliminaCampagnaAttiva() {
       <section v-else class="campagna-mancante">
         <h1>Campagna non disponibile</h1>
 
-        <p>
-          Non è stato possibile caricare questa campagna.
-        </p>
+        <p>Non è stato possibile caricare questa campagna.</p>
 
-        <button
-          type="button"
-          class="bottone dmc-btn dmc-btn--secondary"
-          @click="tornaDashboard"
-        >
+        <button type="button" class="bottone dmc-btn dmc-btn--secondary" @click="tornaDashboard">
           Torna alla dashboard
         </button>
       </section>
@@ -602,22 +477,17 @@ function eliminaCampagnaAttiva() {
         tabindex="-1"
         @submit.prevent="salvaImpostazioni"
       >
-        <h2 id="campagna-titolo-impostazioni">
-          Impostazioni campagna
-        </h2>
+        <h2 id="campagna-titolo-impostazioni">Impostazioni campagna</h2>
 
-        <p
-          v-if="errore"
-          class="avviso errore"
-          role="alert"
-        >
+        <p v-if="errore" class="avviso errore" role="alert">
           {{ errore }}
         </p>
 
         <label>
           Nome
 
-          <input class="dmc-campo"
+          <input
+            class="dmc-campo"
             v-model="impostazioni.nome"
             data-focus-iniziale
             type="text"
@@ -629,7 +499,8 @@ function eliminaCampagnaAttiva() {
         <label>
           Descrizione
 
-          <textarea class="dmc-campo"
+          <textarea
+            class="dmc-campo"
             v-model="impostazioni.descrizione"
             rows="5"
             placeholder="Qual è l'ambientazione?"
@@ -640,27 +511,16 @@ function eliminaCampagnaAttiva() {
           Stato
 
           <select class="dmc-campo" v-model="impostazioni.stato">
-            <option value="preparazione">
-              In preparazione
-            </option>
+            <option value="preparazione">In preparazione</option>
 
-            <option value="in-corso">
-              In corso
-            </option>
+            <option value="in-corso">In corso</option>
 
-            <option value="conclusa">
-              Conclusa
-            </option>
+            <option value="conclusa">Conclusa</option>
           </select>
         </label>
 
         <div class="azioni dmc-azioni">
-          <button
-            type="submit"
-            class="bottone dmc-btn dmc-btn--secondary"
-          >
-            Salva modifiche
-          </button>
+          <button type="submit" class="bottone dmc-btn dmc-btn--secondary">Salva modifiche</button>
 
           <button
             type="button"
@@ -682,10 +542,7 @@ function eliminaCampagnaAttiva() {
           </button>
 
           <div v-else class="conferma">
-            <strong>
-              Eliminare definitivamente questa campagna
-              e tutti i suoi contenuti?
-            </strong>
+            <strong> Eliminare definitivamente questa campagna e tutti i suoi contenuti? </strong>
 
             <div class="azioni dmc-azioni">
               <button
@@ -709,9 +566,7 @@ function eliminaCampagnaAttiva() {
       </form>
     </div>
 
-    <footer class="footer-app">
-      DMC · Dungeon Master Companion · Versione di sviluppo
-    </footer>
+    <footer class="footer-app">DMC · Dungeon Master Companion · Versione di sviluppo</footer>
   </div>
 </template>
 

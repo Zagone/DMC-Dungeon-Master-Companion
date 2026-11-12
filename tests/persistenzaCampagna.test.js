@@ -2,29 +2,33 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { nextTick } from 'vue'
 
-const chiave = id => 'dmc_dati_campagna_v1_' + id
+const chiave = (id) => 'dmc_dati_campagna_v1_' + id
 const valori = new Map()
 let fallimento = false
 let scritture = 0
 const eventi = new Map()
 
 globalThis.window = {
-  addEventListener(nome, gestore) { eventi.set(nome, gestore) },
+  addEventListener(nome, gestore) {
+    eventi.set(nome, gestore)
+  },
 }
 globalThis.localStorage = {
-  getItem(k) { return valori.get(k) ?? null },
+  getItem(k) {
+    return valori.get(k) ?? null
+  },
   setItem(k, v) {
     if (fallimento && k === chiave('prima')) throw new Error('Quota simulata')
     scritture++
     valori.set(k, String(v))
   },
-  removeItem(k) { valori.delete(k) },
+  removeItem(k) {
+    valori.delete(k)
+  },
 }
 
-const {
-  apriDatiCampagna, chiudiDatiCampagna, datiCampagna,
-  campagnaDatiId, erroreDatiCampagna,
-} = await import('../src/stato/statoDatiCampagna.js')
+const { apriDatiCampagna, chiudiDatiCampagna, datiCampagna, campagnaDatiId, erroreDatiCampagna } =
+  await import('../src/stato/statoDatiCampagna.js')
 
 test('apertura, modifiche raggruppate e salvataggio su chiusura', async () => {
   assert.equal(apriDatiCampagna('prima'), true)

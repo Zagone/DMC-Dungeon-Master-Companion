@@ -1,4 +1,3 @@
-
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
@@ -6,10 +5,7 @@ import { usaModale } from '../stato/usaModale.js'
 
 import GestioneArchivioDMC from '../components/GestioneArchivioDMC.vue'
 
-import {
-  campagneOrdinate,
-  creaCampagna,
-} from '../stato/statoCampagne.js'
+import { campagneOrdinate, creaCampagna } from '../stato/statoCampagne.js'
 
 const router = useRouter()
 
@@ -18,11 +14,7 @@ const modaleCreazione = ref(null)
 const nomeNuovaCampagna = ref('')
 const errore = ref('')
 
-usaModale(
-  creazioneAperta,
-  modaleCreazione,
-  chiudiCreazione
-)
+usaModale(creazioneAperta, modaleCreazione, chiudiCreazione)
 
 function statoTesto(stato) {
   const etichette = {
@@ -39,9 +31,7 @@ function dataIt(valore) {
 
   const data = new Date(valore)
 
-  return Number.isNaN(data.getTime())
-    ? '—'
-    : data.toLocaleDateString('it-IT')
+  return Number.isNaN(data.getTime()) ? '—' : data.toLocaleDateString('it-IT')
 }
 
 function tornaDashboard() {
@@ -76,9 +66,7 @@ function nuovaCampagna() {
   })
 
   if (!risultato.successo) {
-    errore.value =
-      risultato.messaggio ||
-      'Impossibile creare la campagna.'
+    errore.value = risultato.messaggio || 'Impossibile creare la campagna.'
     return
   }
 
@@ -92,54 +80,29 @@ function nuovaCampagna() {
     <main class="lv-main dmc-contenitore">
       <section class="lv-intestazione">
         <div class="lv-intro">
-          <button
-            type="button"
-            class="lv-indietro"
-            @click="tornaDashboard"
-          >
+          <button type="button" class="lv-indietro" @click="tornaDashboard">
             ← Torna alla dashboard
           </button>
 
-          <span class="lv-sopratitolo">
-            LE TUE AVVENTURE
-          </span>
+          <span class="lv-sopratitolo"> LE TUE AVVENTURE </span>
 
           <h1>Le mie campagne</h1>
 
-          <p>
-            Tutti i mondi che hai creato e custodito.
-          </p>
+          <p>Tutti i mondi che hai creato e custodito.</p>
         </div>
 
-        <button
-          type="button"
-          class="lv-bottone-principale dmc-btn"
-          @click="apriCreazione"
-        >
+        <button type="button" class="lv-bottone-principale dmc-btn" @click="apriCreazione">
           + Nuova campagna
         </button>
       </section>
 
-      <section
-        class="lv-campagne"
-        aria-label="Elenco campagne"
-      >
-        <div
-          v-if="!campagneOrdinate.length"
-          class="lv-vuoto dmc-pannello"
-        >
+      <section class="lv-campagne" aria-label="Elenco campagne">
+        <div v-if="!campagneOrdinate.length" class="lv-vuoto dmc-pannello">
           <strong>La tua libreria è vuota.</strong>
 
-          <p>
-            Crea la prima campagna per iniziare
-            a costruire la tua avventura.
-          </p>
+          <p>Crea la prima campagna per iniziare a costruire la tua avventura.</p>
 
-          <button
-            type="button"
-            class="lv-bottone-principale dmc-btn"
-            @click="apriCreazione"
-          >
+          <button type="button" class="lv-bottone-principale dmc-btn" @click="apriCreazione">
             Crea la prima campagna
           </button>
         </div>
@@ -153,10 +116,7 @@ function nuovaCampagna() {
             @click="apriCampagna(campagna.id)"
           >
             <span class="lv-stato">
-              <span
-                class="lv-pallino"
-                aria-hidden="true"
-              ></span>
+              <span class="lv-pallino" aria-hidden="true"></span>
 
               {{ statoTesto(campagna.stato) }}
             </span>
@@ -166,10 +126,7 @@ function nuovaCampagna() {
             </strong>
 
             <span class="lv-descrizione">
-              {{
-                campagna.descrizione ||
-                'Nessuna descrizione inserita.'
-              }}
+              {{ campagna.descrizione || 'Nessuna descrizione inserita.' }}
             </span>
 
             <span class="lv-card-piede">
@@ -187,15 +144,10 @@ function nuovaCampagna() {
     </main>
 
     <footer class="lv-footer dmc-contenitore">
-      DMC · Dungeon Master Companion ·
-      Versione di sviluppo
+      DMC · Dungeon Master Companion · Versione di sviluppo
     </footer>
 
-    <div
-      v-if="creazioneAperta"
-      class="lv-overlay dmc-overlay"
-      @click.self="chiudiCreazione"
-    >
+    <div v-if="creazioneAperta" class="lv-overlay dmc-overlay" @click.self="chiudiCreazione">
       <form
         ref="modaleCreazione"
         class="lv-modale dmc-modale"
@@ -206,27 +158,19 @@ function nuovaCampagna() {
         tabindex="-1"
         @submit.prevent="nuovaCampagna"
       >
-        <h2 id="lv-titolo-modale">
-          Nuova campagna
-        </h2>
+        <h2 id="lv-titolo-modale">Nuova campagna</h2>
 
-        <p id="lv-descrizione-modale">
-          È sufficiente un nome.
-          Gli strumenti partiranno vuoti.
-        </p>
+        <p id="lv-descrizione-modale">È sufficiente un nome. Gli strumenti partiranno vuoti.</p>
 
-        <p
-          v-if="errore"
-          class="lv-errore"
-          role="alert"
-        >
+        <p v-if="errore" class="lv-errore" role="alert">
           {{ errore }}
         </p>
 
         <label class="lv-etichetta">
           Nome della campagna
 
-          <input class="dmc-campo"
+          <input
+            class="dmc-campo"
             v-model="nomeNuovaCampagna"
             type="text"
             maxlength="100"
@@ -237,12 +181,7 @@ function nuovaCampagna() {
         </label>
 
         <div class="lv-azioni dmc-azioni">
-          <button
-            type="submit"
-            class="lv-bottone-principale dmc-btn"
-          >
-            Crea campagna
-          </button>
+          <button type="submit" class="lv-bottone-principale dmc-btn">Crea campagna</button>
 
           <button
             type="button"
@@ -256,7 +195,6 @@ function nuovaCampagna() {
     </div>
   </div>
 </template>
-
 
 <style scoped>
 /*
@@ -608,4 +546,3 @@ function nuovaCampagna() {
   }
 }
 </style>
-

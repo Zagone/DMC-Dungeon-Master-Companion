@@ -1,16 +1,8 @@
+import { createRouter, createWebHashHistory } from 'vue-router'
 
-import {
-  createRouter,
-  createWebHashHistory,
-} from 'vue-router'
+import { sezioniCampagna } from '../dati/sezioniCampagna.js'
 
-import {
-  sezioniCampagna,
-} from '../dati/sezioniCampagna.js'
-
-import {
-  trovaCampagna,
-} from '../stato/statoCampagne.js'
+import { trovaCampagna } from '../stato/statoCampagne.js'
 
 /*
  * R3 — Caricamento differito delle viste.
@@ -22,20 +14,15 @@ import {
  * lo stesso modulo e lo stesso chunk.
  */
 
-const DashboardView = () =>
-  import('../views/DashboardView.vue')
+const DashboardView = () => import('../views/DashboardView.vue')
 
-const LibreriaView = () =>
-  import('../views/LibreriaView.vue')
+const LibreriaView = () => import('../views/LibreriaView.vue')
 
-const CampagnaView = () =>
-  import('../views/CampagnaView.vue')
+const CampagnaView = () => import('../views/CampagnaView.vue')
 
-const BestiarioView = () =>
-  import('../views/BestiarioView.vue')
+const BestiarioView = () => import('../views/BestiarioView.vue')
 
-const CompendioView = () =>
-  import('../views/CompendioView.vue')
+const CompendioView = () => import('../views/CompendioView.vue')
 
 const router = createRouter({
   history: createWebHashHistory(),
@@ -82,27 +69,20 @@ const router = createRouter({
   },
 })
 
-router.beforeEach(to => {
-  if (
-    !['campagna', 'sezione-campagna'].includes(to.name)
-  ) {
+router.beforeEach((to) => {
+  if (!['campagna', 'sezione-campagna'].includes(to.name)) {
     return true
   }
 
   const id = to.params.id
 
-  if (
-    typeof id !== 'string' ||
-    !trovaCampagna(id)
-  ) {
+  if (typeof id !== 'string' || !trovaCampagna(id)) {
     return { name: 'libreria' }
   }
 
   if (to.name === 'sezione-campagna') {
     const sezioneValida = sezioniCampagna.some(
-      sezione =>
-        sezione.id !== 'panoramica' &&
-        sezione.id === to.params.sezione
+      (sezione) => sezione.id !== 'panoramica' && sezione.id === to.params.sezione,
     )
 
     if (!sezioneValida) {

@@ -1,4 +1,3 @@
-
 /*
  * DMC — Barra sticky della Battaglia
  *
@@ -17,7 +16,7 @@
 
 .campagna-view {
   --dmc-durata-sticky: 260ms;
-  --dmc-curva-sticky: cubic-bezier(.22, 1, .36, 1);
+  --dmc-curva-sticky: cubic-bezier(0.22, 1, 0.36, 1);
 
   /*
    * Compensazione visiva verificata nel layout corrente.
@@ -26,9 +25,8 @@
   --dmc-compensazione-battaglia: 3px;
 
   --dmc-offset-battaglia: calc(
-    var(--dmc-topbar-height, 58px) +
-    var(--dmc-altezza-navigazione-campagna, 70px) +
-    var(--dmc-compensazione-battaglia)
+    var(--dmc-topbar-height, 58px) + var(--dmc-altezza-navigazione-campagna, 70px) +
+      var(--dmc-compensazione-battaglia)
   );
 }
 
@@ -42,10 +40,8 @@
   border-radius: var(--dmc-radius-md);
 
   transition:
-    padding var(--dmc-durata-sticky)
-      var(--dmc-curva-sticky),
-    gap var(--dmc-durata-sticky)
-      var(--dmc-curva-sticky),
+    padding var(--dmc-durata-sticky) var(--dmc-curva-sticky),
+    gap var(--dmc-durata-sticky) var(--dmc-curva-sticky),
     border-radius var(--dmc-durata-sticky) ease,
     box-shadow var(--dmc-durata-sticky) ease;
 }
@@ -61,8 +57,7 @@
   visibility: visible;
 
   transition:
-    max-height var(--dmc-durata-sticky)
-      var(--dmc-curva-sticky),
+    max-height var(--dmc-durata-sticky) var(--dmc-curva-sticky),
     opacity 160ms ease,
     visibility 0s linear 0s;
 }
@@ -73,21 +68,17 @@
   overflow: hidden;
 
   transition:
-    max-height var(--dmc-durata-sticky)
-      var(--dmc-curva-sticky),
+    max-height var(--dmc-durata-sticky) var(--dmc-curva-sticky),
     opacity 160ms ease,
     margin var(--dmc-durata-sticky) ease;
 }
 
-.campagna-view
-.battaglia-dmc
-.barra-superiore .azioni {
+.campagna-view .battaglia-dmc .barra-superiore .azioni {
   max-height: 70px;
   overflow: hidden;
 
   transition:
-    max-height var(--dmc-durata-sticky)
-      var(--dmc-curva-sticky),
+    max-height var(--dmc-durata-sticky) var(--dmc-curva-sticky),
     opacity 160ms ease;
 }
 
@@ -107,15 +98,13 @@
 
 /* MODALITÀ COMPATTA */
 
-.campagna-view.dmc-battaglia-compatta
-.battaglia-dmc .barra-comando {
+.campagna-view.dmc-battaglia-compatta .battaglia-dmc .barra-comando {
   padding: 8px 10px;
   gap: 0;
   box-shadow: var(--dmc-shadow-medium);
 }
 
-.campagna-view.dmc-battaglia-compatta
-.battaglia-dmc .barra-superiore {
+.campagna-view.dmc-battaglia-compatta .battaglia-dmc .barra-superiore {
   max-height: 0;
   min-height: 0;
   padding: 0;
@@ -127,49 +116,42 @@
   pointer-events: none;
 
   transition:
-    max-height var(--dmc-durata-sticky)
-      var(--dmc-curva-sticky),
+    max-height var(--dmc-durata-sticky) var(--dmc-curva-sticky),
     opacity 150ms ease,
     visibility 0s linear var(--dmc-durata-sticky);
 }
 
 /* TURNO ATTIVO */
 
-.campagna-view.dmc-battaglia-compatta
-.battaglia-dmc .barra-navigazione {
+.campagna-view.dmc-battaglia-compatta .battaglia-dmc .barra-navigazione {
   gap: 7px;
   padding-top: 0;
   border-top-color: transparent;
 }
 
-.campagna-view.dmc-battaglia-compatta
-.battaglia-dmc .gruppo-attivo {
+.campagna-view.dmc-battaglia-compatta .battaglia-dmc .gruppo-attivo {
   flex: 1 1 auto;
   min-width: 0;
   gap: 5px;
   padding-right: 0;
 }
 
-.campagna-view.dmc-battaglia-compatta
-.battaglia-dmc .gruppo-attivo strong {
+.campagna-view.dmc-battaglia-compatta .battaglia-dmc .gruppo-attivo strong {
   font-size: 14px;
   line-height: 1.35;
 }
 
-.campagna-view.dmc-battaglia-compatta
-.battaglia-dmc .etichetta {
+.campagna-view.dmc-battaglia-compatta .battaglia-dmc .etichetta {
   font-size: 9px;
 }
 
 /* COMANDI DEL TURNO */
 
-.campagna-view.dmc-battaglia-compatta
-.battaglia-dmc .controlli-turno {
+.campagna-view.dmc-battaglia-compatta .battaglia-dmc .controlli-turno {
   gap: 5px;
 }
 
-.campagna-view.dmc-battaglia-compatta
-.battaglia-dmc .controlli-turno .pulsante {
+.campagna-view.dmc-battaglia-compatta .battaglia-dmc .controlli-turno .pulsante {
   min-height: 30px;
   padding: 5px 8px;
   font-size: 11px;
@@ -177,8 +159,7 @@
 
 /* ORDINE DEI TURNI */
 
-.campagna-view.dmc-battaglia-compatta
-.battaglia-dmc .ordine-compatto {
+.campagna-view.dmc-battaglia-compatta .battaglia-dmc .ordine-compatto {
   max-height: 0;
   opacity: 0;
   padding-top: 0;
@@ -197,8 +178,7 @@
 
 /* MENU INIZIATIVA */
 
-.campagna-view.dmc-battaglia-compatta
-.battaglia-dmc .menu-aperto {
+.campagna-view.dmc-battaglia-compatta .battaglia-dmc .menu-aperto {
   max-height: min(55vh, 440px);
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -260,33 +240,28 @@
 }
 
 @media (max-width: 650px) {
-  .campagna-view.dmc-battaglia-compatta
-  .battaglia-dmc .barra-navigazione {
+  .campagna-view.dmc-battaglia-compatta .battaglia-dmc .barra-navigazione {
     flex-wrap: wrap;
     align-items: center;
   }
 
-  .campagna-view.dmc-battaglia-compatta
-  .battaglia-dmc .gruppo-attivo {
+  .campagna-view.dmc-battaglia-compatta .battaglia-dmc .gruppo-attivo {
     flex: 1 1 100%;
   }
 
-  .campagna-view.dmc-battaglia-compatta
-  .battaglia-dmc .controlli-turno {
+  .campagna-view.dmc-battaglia-compatta .battaglia-dmc .controlli-turno {
     flex: 1 1 auto;
     justify-content: flex-start;
   }
 
-  .campagna-view.dmc-battaglia-compatta
-  .battaglia-dmc .controlli-turno .pulsante {
+  .campagna-view.dmc-battaglia-compatta .battaglia-dmc .controlli-turno .pulsante {
     white-space: nowrap;
   }
 }
 
 /* ACCESSIBILITÀ */
 
-.campagna-view .battaglia-dmc
-.barra-comando button:focus-visible {
+.campagna-view .battaglia-dmc .barra-comando button:focus-visible {
   outline: 3px solid var(--dmc-blue);
   outline-offset: 2px;
 }
@@ -296,14 +271,15 @@
     --dmc-durata-sticky: 0ms;
   }
 
-  .campagna-view .battaglia-dmc
-  :is(
-    .barra-comando,
-    .barra-superiore,
-    .barra-superiore h2,
-    .barra-superiore .azioni,
-    .ordine-compatto
-  ) {
+  .campagna-view
+    .battaglia-dmc
+    :is(
+      .barra-comando,
+      .barra-superiore,
+      .barra-superiore h2,
+      .barra-superiore .azioni,
+      .ordine-compatto
+    ) {
     transition: none !important;
   }
 
