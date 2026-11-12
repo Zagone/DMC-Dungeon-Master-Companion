@@ -13,8 +13,10 @@ import {
 
 import {
   creatureBestiario,
+  pngPersonalizzati,
   risolviVoceIncontro,
 } from '../stato/statoBestiario.js'
+import { collegaPNGDaBestiario } from '../dati/collegamentoPNG.js'
 
 import {
   copiaDati,
@@ -41,6 +43,8 @@ const conferma = ref(null)
 const messaggio = ref('')
 const nuovaSessione = ref('')
 const nuovoPNG = ref('')
+const pngBestiarioSelezionato = ref('')
+const messaggioPNG = ref('')
 const pngApertoId = ref(null)
 const ricercaCreatura = ref('')
 const creaturaSelezionataId = ref('')
@@ -444,6 +448,31 @@ function creaPNG() {
 
   pngApertoId.value = png.id
   nuovoPNG.value = ''
+}
+
+const pngBestiarioCollegabili = computed(() =>
+  (pngPersonalizzati.value || [])
+    .filter(p => !(dati.value?.pngNarrativi || []).some(n => n.creaturaId === p.id))
+    .sort((a, b) => a.nome.localeCompare(b.nome, 'it'))
+)
+
+const pngBestiarioConsultabili = computed(() =>
+  (creatureBestiario.value || []).filter(c => c.categoria === 'png')
+    .sort((a, b) => a.nome.localeCompare(b.nome, 'it'))
+)
+
+function aggiungiPNGDaBestiario() {
+  preparaCampagna()
+  messaggioPNG.value = ''
+  const creatura = pngPersonalizzati.value.find(c => c.id === pngBestiarioSelezionato.value)
+  const risultato = collegaPNGDaBestiario(dati.value?.pngNarrativi, creatura, idUnivoco)
+  if (!risultato.successo) {
+    messaggioPNG.value = risultato.motivo
+    return
+  }
+  pngApertoId.value = risultato.png.id
+  pngBestiarioSelezionato.value = ''
+  messaggioPNG.value = 'PNG collegato alla campagna. Puoi aggiungere ruolo, personalità e informazioni narrative.'
 }
 
 function eliminaPNG(png) {
@@ -2007,6 +2036,28 @@ function caricaIncontro(scena) {
             </button>
           </form>
 
+          <div class="nuova-sessione" style="margin:12px 0;padding:14px;border:1px solid var(--dmc-border-soft);border-radius:8px">
+            <label class="campo-flessibile">
+              Aggiungi dal Bestiario (PNG personalizzati)
+              <select v-model="pngBestiarioSelezionato" class="dmc-campo">
+                <option value="">Seleziona un PNG già creato…</option>
+                <option v-for="creatura in pngBestiarioCollegabili" :key="creatura.id" :value="creatura.id">
+                  {{ creatura.nome }}
+                </option>
+              </select>
+            </label>
+            <button type="button" class="dmc-btn dmc-btn--secondary" :disabled="!pngBestiarioSelezionato" @click="aggiungiPNGDaBestiario">
+              + Collega PNG
+            </button>
+            <p v-if="!pngPersonalizzati.length" class="testo-secondario">
+              Nessun PNG personale nel Bestiario. Puoi crearne uno nella sezione Bestiario e collegarlo qui.
+            </p>
+            <p v-else-if="!pngBestiarioCollegabili.length" class="testo-secondario">
+              Tutti i PNG personali del Bestiario sono già collegati a questa campagna.
+            </p>
+            <p v-if="messaggioPNG" role="status">{{ messaggioPNG }}</p>
+          </div>
+
           <article
             v-for="png in dati?.pngNarrativi || []"
             :key="png.id"
@@ -2144,12 +2195,15 @@ function caricaIncontro(scena) {
                   v-model="png.creaturaId"
                   class="dmc-campo"
                 >
+                  <option v-if="png.creaturaId && !pngBestiarioConsultabili.some(c => c.id === png.creaturaId)" :value="png.creaturaId">
+                    Riferimento non più disponibile ({{ png.creaturaId }})
+                  </option>
                   <option value="">
                     Nessuno
                   </option>
 
                   <option
-                    v-for="creatura in creatureDisponibili"
+                    v-for="creatura in pngBestiarioConsultabili"
                     :key="creatura.id"
                     :value="creatura.id"
                   >
