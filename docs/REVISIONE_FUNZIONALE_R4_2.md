@@ -67,3 +67,7 @@ Il componente `GestioneSessioni.vue` è stato alleggerito mediante l'estrazione 
 La logica di normalizzazione e valutazione degli incontri era già stata estratta in `preparazioneSessioni.js` e `valutazioneIncontro.js`. I formati dei dati persistenti e il flusso di navigazione non sono stati modificati. Pipeline test/lint/build superata (run 43278854013).
 
 **Limite e collaudo:** rimangono nel componente principale le schermate di preparazione delle scene e conduzione, che richiedono un successivo refactoring più impegnativo. La pipeline non sostituisce la verifica manuale dei componenti appena estratti (aggiunta e rimozione PNG, persistenza dopo refresh, assegnazione a scena e aggiornamento attività in conduzione).
+
+## Ulteriore estrazione delle impostazioni di sessione
+
+Introdotto `src/components/ImpostazioniSessione.vue` per i campi di titolo, data, numero e livello dei PG, stato, obiettivi e resoconto. `GestioneSessioni.vue` mantiene la responsabilità dei dati persistenti e applica gli aggiornamenti ricevuti tramite evento `aggiorna-campo`. Il layout espandibile e il percorso guidato a tre fasi restano invariati. Verifiche automatiche test, ESLint, Oxlint e build superate (GitHub Actions run 43280420426). Collaudo manuale raccomandato: modifica campi, cambio sezione e refresh per verificare la persistenza.
