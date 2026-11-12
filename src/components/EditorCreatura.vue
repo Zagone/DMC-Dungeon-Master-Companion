@@ -1,6 +1,6 @@
 
 <script setup>
-import { ref, nextTick, watch } from 'vue'
+import { computed, ref, nextTick, watch } from 'vue'
 
 import { tipiCreatura } from '../stato/statoBestiario.js'
 
@@ -42,6 +42,24 @@ watch(
 )
 
 const errore = ref('')
+const sezioneAttiva = ref('identita')
+const sezioniEditor = [
+  { id: 'identita', titolo: 'Identità' },
+  { id: 'statistiche', titolo: 'Statistiche' },
+  { id: 'capacita', titolo: 'Capacità' },
+  { id: 'azioni', titolo: 'Azioni' },
+  { id: 'descrizione', titolo: 'Descrizione' },
+  { id: 'revisione', titolo: 'Revisione' },
+]
+const indiceSezione = computed(() => sezioniEditor.findIndex(v => v.id === sezioneAttiva.value))
+const gruppiCapacita = gruppiRegole.filter(g => g.campo === 'capacita')
+const gruppiAzioni = gruppiRegole.filter(g => g.campo !== 'capacita')
+function vaiASezione(id) {
+  sezioneAttiva.value = id
+  errore.value = ''
+}
+function precedente() { if (indiceSezione.value > 0) vaiASezione(sezioniEditor[indiceSezione.value - 1].id) }
+function successiva() { if (indiceSezione.value < sezioniEditor.length - 1) vaiASezione(sezioniEditor[indiceSezione.value + 1].id) }
 const nomeInput = ref(null)
 
 nextTick(() => nomeInput.value?.focus())
@@ -93,6 +111,7 @@ function salva() {
 
   if (!creatura.nome) {
     errore.value = 'Inserisci il nome.'
+    sezioneAttiva.value = 'identita'
     return
   }
 
@@ -102,6 +121,7 @@ function salva() {
   ) {
     errore.value =
       'Per usare la scheda negli incontri servono CA intera non negativa e PF massimi interi maggiori di zero.'
+    sezioneAttiva.value = 'statistiche'
     return
   }
 
@@ -113,6 +133,7 @@ function salva() {
       ) {
         errore.value =
           `Completa nome e descrizione in ${gruppo.titolo}, oppure rimuovi la voce.`
+        sezioneAttiva.value = gruppo.campo === 'capacita' ? 'capacita' : 'azioni'
         return
       }
     }
@@ -151,6 +172,18 @@ function salva() {
       Conferma la scheda quando è pronta per gli incontri.
     </p>
 
+    <nav class="navigazione-sezioni" aria-label="Sezioni della scheda">
+      <button v-for="(sezione, indice) in sezioniEditor"
+        :key="sezione.id"
+        type="button"
+        :class="{ selezionata: sezioneAttiva === sezione.id }"
+        :aria-current="sezioneAttiva === sezione.id ? 'step' : undefined"
+        @click="vaiASezione(sezione.id)"
+      ><span class="numero-sezione">{{ indice + 1 }}</span>{{ sezione.titolo }}</button>
+    </nav>
+    <p class="indicazione-sezione">Sezione {{ indiceSezione + 1 }} di {{ sezioniEditor.length }}. Puoi passare liberamente da una sezione all'altra senza perdere i campi compilati.</p>
+    <section v-show="sezioneAttiva === 'identita'" class="pannello-sezione" aria-labelledby="editor-identita">
+      <h4 id="editor-identita">Identità della creatura</h4>
     <div class="griglia">
       <label class="largo">
         Nome
@@ -219,6 +252,11 @@ function salva() {
         </select>
       </label>
 
+    </div>
+    </section>
+    <section v-show="sezioneAttiva === 'statistiche'" class="pannello-sezione" aria-labelledby="editor-statistiche">
+      <h4 id="editor-statistiche">Statistiche e combattimento</h4>
+    <div class="griglia">
       <label
         v-for="[campo, titolo] in numeri"
         :key="campo"
@@ -239,7 +277,6 @@ function salva() {
         <input class="dmc-campo" v-model="scheda[campo]" />
       </label>
     </div>
-
     <fieldset>
       <legend>
         Caratteristiche, modificatori e salvezze
@@ -311,66 +348,11 @@ function salva() {
       </button>
     </fieldset>
 
-    <div class="griglia">
-      <label
-        v-for="[campo, titolo] in elenchi"
-        :key="campo"
-      >
-        {{ titolo }}
-
-        <small>
-          Una voce per riga; conserva le condizioni d’uso.
-        </small>
-
-        <textarea class="dmc-campo"
-          :value="scheda[campo].join('\n')"
-          rows="3"
-          @input="elenco(campo, $event.target.value)"
-        ></textarea>
-      </label>
-    </div>
-
-    <fieldset>
-      <legend>Sciame (facoltativo)</legend>
-
-      <label class="scelta">
-        <input
-          type="checkbox"
-          :checked="!!scheda.sciame"
-          @change="
-            scheda.sciame = $event.target.checked
-              ? {
-                  tipoCreature: '',
-                  tagliaCreature: '',
-                  testoFonte: ''
-                }
-              : null
-          "
-        />
-
-        Questa creatura è uno sciame
-      </label>
-
-      <div
-        v-if="scheda.sciame"
-        class="griglia"
-      >
-        <label
-          v-for="[campo, titolo] in [
-            ['tipoCreature', 'Tipo dei componenti'],
-            ['tagliaCreature', 'Taglia dei componenti'],
-            ['testoFonte', 'Descrizione dello sciame']
-          ]"
-          :key="campo"
-        >
-          {{ titolo }}
-          <input class="dmc-campo" v-model="scheda.sciame[campo]" />
-        </label>
-      </div>
-    </fieldset>
-
+    </section>
+    <section v-show="sezioneAttiva === 'capacita'" class="pannello-sezione" aria-labelledby="editor-capacita">
+      <h4 id="editor-capacita">Capacità e tratti speciali</h4>
     <fieldset
-      v-for="gruppo in gruppiRegole"
+      v-for="gruppo in gruppiCapacita"
       :key="gruppo.campo"
     >
       <legend>{{ gruppo.titolo }}</legend>
@@ -430,6 +412,131 @@ function salva() {
       </button>
     </fieldset>
 
+    </section>
+    <section v-show="sezioneAttiva === 'azioni'" class="pannello-sezione" aria-labelledby="editor-azioni">
+      <h4 id="editor-azioni">Azioni, reazioni e capacità speciali</h4>
+    <fieldset
+      v-for="gruppo in gruppiAzioni"
+      :key="gruppo.campo"
+    >
+      <legend>{{ gruppo.titolo }}</legend>
+
+      <label
+        v-if="gruppo.campo === 'azioniLeggendarie'"
+      >
+        Utilizzi, recupero e regole generali
+
+        <textarea class="dmc-campo"
+          v-model="scheda.regoleAzioniLeggendarie"
+          rows="4"
+        ></textarea>
+      </label>
+
+      <div
+        v-for="(regola, indice) in scheda[gruppo.campo]"
+        :key="indice"
+        class="regola-editor"
+      >
+        <label>
+          Nome della voce
+          <input class="dmc-campo"
+            v-model="regola.nome"
+            required
+          />
+        </label>
+
+        <label>
+          Regola completa
+          <textarea class="dmc-campo"
+            v-model="regola.descrizione"
+            required
+            rows="5"
+          ></textarea>
+        </label>
+
+        <button class="dmc-btn dmc-btn--secondary"
+          type="button"
+          :aria-label="
+            `Rimuovi ${gruppo.titolo} ${indice + 1}`
+          "
+          @click="scheda[gruppo.campo].splice(indice, 1)"
+        >
+          Rimuovi voce
+        </button>
+      </div>
+
+      <button class="dmc-btn dmc-btn--secondary"
+        type="button"
+        @click="scheda[gruppo.campo].push({
+          nome: '',
+          descrizione: ''
+        })"
+      >
+        + Aggiungi: {{ gruppo.titolo }}
+      </button>
+    </fieldset>
+
+    </section>
+    <section v-show="sezioneAttiva === 'descrizione'" class="pannello-sezione" aria-labelledby="editor-descrizione">
+      <h4 id="editor-descrizione">Dettagli, difese e descrizione</h4>
+    <div class="griglia">
+      <label
+        v-for="[campo, titolo] in elenchi"
+        :key="campo"
+      >
+        {{ titolo }}
+
+        <small>
+          Una voce per riga; conserva le condizioni d’uso.
+        </small>
+
+        <textarea class="dmc-campo"
+          :value="scheda[campo].join('\n')"
+          rows="3"
+          @input="elenco(campo, $event.target.value)"
+        ></textarea>
+      </label>
+    </div>
+
+    <fieldset>
+      <legend>Sciame (facoltativo)</legend>
+
+      <label class="scelta">
+        <input
+          type="checkbox"
+          :checked="!!scheda.sciame"
+          @change="
+            scheda.sciame = $event.target.checked
+              ? {
+                  tipoCreature: '',
+                  tagliaCreature: '',
+                  testoFonte: ''
+                }
+              : null
+          "
+        />
+
+        Questa creatura è uno sciame
+      </label>
+
+      <div
+        v-if="scheda.sciame"
+        class="griglia"
+      >
+        <label
+          v-for="[campo, titolo] in [
+            ['tipoCreature', 'Tipo dei componenti'],
+            ['tagliaCreature', 'Taglia dei componenti'],
+            ['testoFonte', 'Descrizione dello sciame']
+          ]"
+          :key="campo"
+        >
+          {{ titolo }}
+          <input class="dmc-campo" v-model="scheda.sciame[campo]" />
+        </label>
+      </div>
+    </fieldset>
+
     <label>
       Fonte o riferimento personale
       <input class="dmc-campo" v-model="scheda.fonte" />
@@ -443,6 +550,21 @@ function salva() {
       ></textarea>
     </label>
 
+    </section>
+    <section v-show="sezioneAttiva === 'revisione'" class="pannello-sezione" aria-labelledby="editor-revisione">
+      <h4 id="editor-revisione">Revisione prima del salvataggio</h4>
+      <div class="riepilogo-editor">
+        <p><strong>Nome:</strong> {{ scheda.nome || 'Da definire' }}</p>
+        <p><strong>Categoria:</strong> {{ scheda.categoria === 'png' ? 'PNG personalizzato' : 'Homebrew' }}</p>
+        <p><strong>Stato:</strong> {{ scheda.statoScheda === 'pronta' ? 'Pronta per gli incontri' : 'Bozza' }}</p>
+        <p><strong>Tipo e taglia:</strong> {{ scheda.tipo || '—' }} · {{ scheda.taglia || '—' }}</p>
+        <p><strong>CA e PF massimi:</strong> {{ scheda.ca ?? '—' }} · {{ scheda.pfMax ?? '—' }}</p>
+        <p><strong>GS:</strong> {{ scheda.gs || '—' }}</p>
+        <p><strong>Tratti:</strong> {{ scheda.capacita.length }}</p>
+        <p><strong>Azioni:</strong> {{ scheda.azioni.length }} · <strong>Azioni bonus:</strong> {{ scheda.azioniBonus.length }} · <strong>Reazioni:</strong> {{ scheda.reazioni.length }}</p>
+      </div>
+      <p>Controlla le sezioni precedenti. Puoi sempre tornare a modificarle prima di salvare.</p>
+    </section>
     <p
       v-if="errore"
       class="errore"
@@ -452,6 +574,8 @@ function salva() {
     </p>
 
     <div class="azioni">
+      <button type="button" class="dmc-btn dmc-btn--secondary" :disabled="indiceSezione === 0" @click="precedente">Indietro</button>
+      <button v-if="indiceSezione < sezioniEditor.length - 1" type="button" class="dmc-btn" @click="successiva">Continua</button>
       <button
         type="submit"
         class="primario dmc-btn"
@@ -845,5 +969,17 @@ function salva() {
     transition: none;
   }
 }
+
+/* Navigazione editor a sezioni: un solo pannello visibile, campi reattivi preservati. */
+.navigazione-sezioni { display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px; }
+.navigazione-sezioni button { justify-content:flex-start;min-width:0;text-align:left;padding:11px;border:1px solid var(--dmc-border-soft);border-radius:8px;background:var(--dmc-ink);color:var(--dmc-cream); }
+.navigazione-sezioni button.selezionata {border-color:var(--dmc-amber);background:var(--dmc-surface-soft);color:var(--dmc-amber-light);}
+.numero-sezione {display:inline-flex;justify-content:center;align-items:center;flex-shrink:0;width:23px;height:23px;border-radius:50%;border:1px solid currentColor;}
+.indicazione-sezione {font-size:12px;color:var(--dmc-muted-light);}
+.pannello-sezione {display:grid;gap:15px;min-width:0;}
+.pannello-sezione h4 {margin:0;color:var(--dmc-amber-light);font-size:17px;}
+.riepilogo-editor {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;padding:15px;border:1px solid var(--dmc-border-soft);border-radius:8px;background:var(--dmc-ink);}
+.riepilogo-editor p {line-height:1.55;}
+@media(max-width:700px) {.navigazione-sezioni{grid-template-columns:repeat(2,minmax(0,1fr));}.riepilogo-editor{grid-template-columns:1fr;}}
 </style>
 
