@@ -130,7 +130,7 @@ export function estraiTestiOggettiMagiciSRD(archivio, schede) {
       const chiave = chiaveSRD(righe[i])
       const scheda = schedePerChiave.get(chiave)
       const rigaTipologica = righe[i + 1] || ''
-      const intestazione = /^(oggetto meraviglioso|anello|armatura|arma|bacchetta|bastone|pergamena|pozione|verga),/i.test(rigaTipologica)
+      const intestazione = /^(oggetto meraviglioso|anello|armatura|arma|bacchetta|bastone|pergamena|pozione|verga)(?:\\s*\\([^)]*\\))?\\s*,/i.test(rigaTipologica)
         && /^[A-ZÀ-Ú]/.test(righe[i]) && righe[i].length <= 100
         && !/[.:;!?]$/.test(righe[i])
       // Interrompi anche se il titolo successivo non è tra le schede indicizzate:
