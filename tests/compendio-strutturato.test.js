@@ -8,9 +8,11 @@ import {
   estraiTestiOriginiSRD,
   estraiTestiOggettiMagiciSRD,
   estraiTestiEquipaggiamentoSRD,
+  estraiTestiStrumentiSRD,
 } from '../src/dati/letturaStrutturataSRD.js'
 import { estraiIndiceOggettiMagici } from '../src/dati/indiceOggettiMagiciSRD.js'
 import { EQUIPAGGIAMENTO_AVVENTURA_SRD } from '../src/dati/equipaggiamentoAvventuraSRD.js'
+import { STRUMENTI_SRD } from '../src/dati/strumentiSRD.js'
 
 function archivio(nome) {
   return JSON.parse(readFileSync(new URL('../public/compendio/' + nome + '.json', import.meta.url), 'utf8'))
@@ -67,6 +69,14 @@ test('Le descrizioni dell’equipaggiamento sono delimitate per singolo oggetto'
   assert.match(acido.testo, /2d6 danni da acido/i)
   assert.equal(acido.testo.includes('Acqua santa'), false)
   assert.match(dati.get('Corda').testo, /corda/i)
+})
+
+test('Tutti i 25 strumenti riportano utilizzi, creazioni e varianti pertinenti', () => {
+  const dati = estraiTestiStrumentiSRD(archivio('equipaggiamento'), STRUMENTI_SRD)
+  assert.equal(dati.size, 25)
+  assert.match(dati.get('Scorte da alchimista').testo, /Utilizzo:/)
+  assert.match(dati.get('Strumento musicale').testo, /Varianti:/)
+  assert.equal(dati.get('Strumento musicale').testo.includes('Abiti da viaggiatore'), false)
 })
 
 test('La lettura restituisce blocchi tipografici, non HTML o pagine grezze', () => {
