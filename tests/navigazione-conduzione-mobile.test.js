@@ -76,3 +76,20 @@ test('Il menu compatto mantiene tutte le sezioni e una uscita accessibile', () =
   assert.match(css, /\.mini-uscita-campagna:focus-visible/)
   assert.match(pagina, /@click="tornaDashboard"/)
 })
+
+test('Mini sticky leggermente più larga sui tablet, ma invariata sui telefoni', () => {
+  const inizio = css.indexOf('/* Più spazio ai controlli della mini sticky sui tablet.')
+  const fine = css.indexOf('@media (max-width: 700px)', inizio)
+  assert.ok(inizio >= 0 && fine > inizio)
+  const regoleTablet = css.slice(inizio, fine)
+
+  assert.match(regoleTablet, /\(min-width: 701px\) and \(max-width: 1024px\)/)
+  assert.match(regoleTablet, /\(min-width: 701px\) and \(max-width: 1440px\) and \(any-pointer: coarse\)/)
+  assert.match(regoleTablet, /\.campagna-view\.campagna-in-conduzione \.mini-uscita-campagna/)
+  assert.match(regoleTablet, /flex-basis: 72px;/)
+  assert.match(regoleTablet, /\.campagna-view\.campagna-in-conduzione \.mini-selettore-campagna/)
+  assert.match(regoleTablet, /width: 156px;/)
+  // Il mobile usa ancora i valori base, senza le regole tablet.
+  assert.match(css, /flex: 0 0 64px;/)
+  assert.match(css, /width: 134px;/)
+})
