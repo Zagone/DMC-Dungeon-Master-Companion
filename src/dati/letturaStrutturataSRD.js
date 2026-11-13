@@ -5,6 +5,8 @@
  * pp. 202–218. La segmentazione del testo resta automatica: non attribuisce
  * una verifica editoriale al contenuto estratto.
  */
+import { estraiVociOggettiMagici } from './indiceOggettiMagiciSRD.js'
+
 const INTESTAZIONI_GLOSSARIO = String.raw`Abilità|Accecato [condizione]|Affascinato [condizione]|Afferrare|Afferrato [condizione]|Aiuto [azione]|Al giorno|Alleato|Allineamento|Amichevole [atteggiamento]|Area di effetto|Arma|Armi improvvisate|Arrotondare per difetto|Assordato [condizione]|Attacchi di opportunità|Attacco [azione]|Attacco con arma|Attacco con incantesimo|Atteggiamento|Avvelenato [condizione]|Avventura|Azione|Azione bonus|Bersaglio|Caduta [pericolo]|Campagna|Capacità di trasporto|Cilindro [area di effetto]|Classe Armatura|Classe Difficoltà|Colpo critico|Colpo senz'armi|Competenza|Competenza nelle armature|Concentrazione|Condizione|Cono [area di effetto]|Copertura|Creatura|Cubo [area di effetto]|Dadi Vita|Danni|Disidratazione [pericolo]|Disimpegno [azione]|Effetti simultanei|Effetto magico|Emanazione [area di effetto]|Fluttuare|Focus da incantatore|Grado di sfida|Guarigione|Illusioni|Immunità|Incantesimo|Incapacitato [condizione]|Incontro|Indebolimento [condizione]|Indifferente [atteggiamento]|In fiamme [pericolo]|Influenza [azione]|Iniziativa|Invisibile [condizione]|Ispirazione eroica|Leggermente oscurata|Linea [area di effetto]|Luce fioca|Luce intensa|Maestria|Magia [azione]|Maledizioni|Malnutrizione [pericolo]|Morte|Mostro|Mutaforma|Nascondersi [azione]|Nemico|Nuotare|Oggetto|Oscurità|Ostile [atteggiamento]|Paralizzato [condizione]|Percezione passiva|Percezione tellurica|Pericolo|Personaggio giocante|Personaggio non giocante|Pesantemente oscurata|Pietrificato [condizione]|Portata|Possessione|Prepararsi [azione]|Privo di sensi [condizione]|Prono [condizione]|Prova con D20|Prova di caratteristica|Punteggio di caratteristica e modificatore|Punti esperienza|Punti ferita|Punti ferita temporanei|Reazione|Resistenza|Ricerca [azione]|Riposo breve|Riposo lungo|Rituale|Rompere gli oggetti|Saltare|Salto in alto|Salto in lungo|Sanguinante|Scalare|Scatto [azione]|Scheda delle statistiche|Scheda del personaggio|Schivata [azione]|Scurovisione|Sfera [area di effetto]|Sintonia|Soffocamento [pericolo]|Soglia di danno|Sorpresa|Spaventato [condizione]|Spazio libero|Spazio occupato|Stabile|Stordito [condizione]|Strisciare|Studio [azione]|Svantaggio|Taglia|Telepatia|Teletrasporto|Terreno difficile|Tipi di danno|Tipo di creatura|Tiro per colpire|Tiro per i danni|Tiro salvezza|Tiro salvezza contro morte|Tramortire una creatura|Trattenuto [condizione]|Trucchetto|Utilizzo [azione]|Vantaggio|Velocità`.split('|')
 
 
@@ -106,7 +108,22 @@ export function estraiGlossarioSRD(archivio) {
 
 export function estraiTestiSpecieSRD(archivio) {
   if (!Array.isArray(archivio?.pagine)) throw new TypeError('Archivio specie non valido')
-  return new Map(raccoltaSezioni(archivio, NOMI_SPECIE, 94, 97)
+  // Nella pagina 97 la tabella "Retaggi immondi" occupa entrambe le colonne
+  // ed è estratta dopo la scheda Umano. Il suo contenuto è già rappresentato
+  // nei dati strutturati delle opzioni tiefling: non appartiene all'Umano.
+  const pagine = archivio.pagine.map((pagina) => {
+    if (pagina.pagina !== 97) return pagina
+    const originale = pagina.testo
+    const primaTabella = originale.split(/\n\s*Retaggi immondi\s*\n/i)[0]
+    const inizioUmano = originale.search(/\n\s*Umano\s*\n/)
+    // Le due metà della tabella sono estratte separatamente, prima e dopo
+    // la scheda Umano. Conserviamo quindi il suo testo esplicitamente.
+    const testoUmano = inizioUmano < 0
+      ? ''
+      : originale.slice(inizioUmano).split(/\n\s*Livello 3\s+Livello 5\s*\n/i)[0]
+    return { ...pagina, testo: primaTabella + '\n' + testoUmano }
+  })
+  return new Map(raccoltaSezioni({ ...archivio, pagine }, NOMI_SPECIE, 94, 97)
     .map((v) => [v.nome, { testo: v.testo, pagina: v.pagina, pagine: v.pagine }]))
 }
 
@@ -119,51 +136,14 @@ export function estraiTestiOriginiSRD(archivio) {
 /** Associa la descrizione all'oggetto individuando il titolo e la riga tipologica
  * con rarità. Gli indici automatici non sono marcati come verificati. */
 export function estraiTestiOggettiMagiciSRD(archivio, schede) {
-  const schedePerChiave = new Map(schede.map((s) => [chiaveSRD(s.nome), s]))
-  const risultati = new Map()
-  const titoli = []
-  let corrente = null
-  for (const pagina of archivio?.pagine || []) {
-    if (pagina.pagina < 237) continue
-    const righe = righePulite(pagina.testo)
-    for (let i = 0; i < righe.length; i++) {
-      const chiave = chiaveSRD(righe[i])
-      const scheda = schedePerChiave.get(chiave)
-      const rigaTipologica = righe[i + 1] || ''
-      const intestazione = /^(oggetto meraviglioso|anello|armatura|arma|bacchetta|bastone|pergamena|pozione|verga)(?:\s*\([^)]*\))?\s*,/i.test(rigaTipologica)
-        && /^[A-ZÀ-Ú]/.test(righe[i]) && righe[i].length <= 100
-        && !/[.:;!?]$/.test(righe[i])
-      // Interrompi anche se il titolo successivo non è tra le schede indicizzate:
-      // in caso contrario il testo dell'oggetto precedente verrebbe contaminato.
-      if (intestazione) {
-        if (!scheda) {
-          corrente = null
-          i++
-          continue
-        }
-        corrente = { scheda, pagina: pagina.pagina, righe: [], pagine: [pagina.pagina] }
-        titoli.push(corrente)
-        i++
-        continue
-      }
-      if (corrente) {
-        if (!corrente.pagine.includes(pagina.pagina)) corrente.pagine.push(pagina.pagina)
-        corrente.righe.push(righe[i])
-      }
-    }
-  }
-  for (const voce of titoli) {
-    const descrizione = voce.righe.join('\n').trim()
-    if (descrizione.length < 15) continue
-    risultati.set(chiaveSRD(voce.scheda.nome), {
-      ...voce.scheda,
-      descrizione,
-      descrizioneEstratta: true,
-      dettagliCompleti: false,
-      pagineFonte: voce.pagine,
-    })
-  }
-  return schede.map((voce) => risultati.get(chiaveSRD(voce.nome)) || voce)
+  const complete = new Map(
+    estraiVociOggettiMagici(archivio)
+      .map((voce) => [chiaveSRD(voce.nome), voce]),
+  )
+  return schede.map((scheda) => {
+    const contenuto = complete.get(chiaveSRD(scheda.nome))
+    return contenuto ? { ...scheda, ...contenuto, id: scheda.id } : scheda
+  })
 }
 
 /**

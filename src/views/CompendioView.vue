@@ -20,12 +20,17 @@ import {
   estraiTestoSingolaVoceSRD,
   estraiTestiEquipaggiamentoSRD,
   estraiTestiStrumentiSRD,
+  estraiTestiSpecieSRD,
+  estraiTestiOriginiSRD,
 } from '../dati/letturaStrutturataSRD.js'
 import TestoCompendioSRD from '../components/TestoCompendioSRD.vue'
 
 const ricerca = ref('')
 const archivioCompleto = ref(null)
 const schedeSpecie = ref(new Map())
+const testiSpecie = ref(new Map())
+const testiOrigini = ref(new Map())
+const testiClassi = ref(new Map())
 const schedeBackground = new Map(BACKGROUND_SRD.map((v) => [v.nome, v]))
 const schedeTalenti = ref([])
 const schedeOggettiMagici = ref([])
@@ -45,11 +50,11 @@ const categorieInCorso = new Map()
 async function caricaCategoria(categoriaRichiesta) {
   const destinazioni = categoriaRichiesta
     ? [categoriaRichiesta]
-    : ['Incantesimi', 'Specie', 'Talenti', 'Oggetti magici', 'Regole', 'Equipaggiamento']
+    : ['Incantesimi', 'Specie', 'Talenti', 'Oggetti magici', 'Regole', 'Equipaggiamento', 'Classi', 'Origini']
   await Promise.all(
     destinazioni.map(async (nome) => {
       const sezione = nome === 'Condizioni' ? 'Regole' : nome
-      if (!['Incantesimi', 'Specie', 'Talenti', 'Oggetti magici', 'Regole', 'Equipaggiamento'].includes(sezione))
+      if (!['Incantesimi', 'Specie', 'Talenti', 'Oggetti magici', 'Regole', 'Equipaggiamento', 'Classi', 'Origini'].includes(sezione))
         return
       if (categorieCaricate.has(sezione)) return
       if (categorieInCorso.has(sezione)) return categorieInCorso.get(sezione)
@@ -58,8 +63,18 @@ async function caricaCategoria(categoriaRichiesta) {
         try {
           const archivio = await caricaSezioneSRD(sezione === 'Regole' ? 'Condizioni' : sezione)
           if (nome === 'Incantesimi') archivioCompleto.value = validaArchivioIncantesimi(archivio)
-          if (nome === 'Specie')
+          if (nome === 'Specie') {
             schedeSpecie.value = new Map(estraiSchedeSpecieSRD(archivio).map((v) => [v.nome, v]))
+            testiSpecie.value = estraiTestiSpecieSRD(archivio)
+          }
+          if (sezione === 'Origini') testiOrigini.value = estraiTestiOriginiSRD(archivio)
+          if (sezione === 'Classi') {
+            testiClassi.value = new Map(
+              REGOLE_SRD.filter((v) => v.categoria === 'Classi').map((v) => [
+                v.nome, estrattoVoceSRD(archivio, v).testo,
+              ]),
+            )
+          }
           if (nome === 'Talenti') schedeTalenti.value = estraiTalentiSRD(archivio)
           if (nome === 'Oggetti magici')
             schedeOggettiMagici.value = estraiTestiOggettiMagiciSRD(
@@ -241,7 +256,23 @@ const vociCompendio = computed(() => {
       }
       if (v.categoria === 'Specie') {
         const dettagli = schedeSpecie.value.get(v.nome)
-        return dettagli ? { ...v, schedaSpecie: dettagli, pagineFonte: dettagli.pagine } : v
+        const corpo = testiSpecie.value.get(v.nome)
+        return dettagli
+          ? {
+              ...v,
+              schedaSpecie: dettagli,
+              descrizioneSpecie: corpo?.testo || '',
+              pagineFonte: dettagli.pagine,
+            }
+          : v
+      }
+      if (v.categoria === 'Origini') {
+        const corpo = testiOrigini.value.get(v.nome)
+        return corpo ? { ...v, descrizioneOrigine: corpo.testo } : v
+      }
+      if (v.categoria === 'Classi') {
+        const corpo = testiClassi.value.get(v.nome)
+        return corpo ? { ...v, descrizioneClasse: corpo } : v
       }
       return v
     }),
@@ -324,12 +355,32 @@ const categorie = [
   { id: 'Equipaggiamento', titolo: 'Equipaggiamento', descrizione: 'Armi, armature e strumenti.' },
   { id: 'Oggetti magici', titolo: 'Oggetti magici', descrizione: 'Oggetti e artefatti.' },
 ]
-const risultati = computed(() => {
-  const q = ricerca.value
+// L'indice viene ricalcolato solo quando il catalogo cambia, non a ogni battuta.
+const normalizzaRicerca = (testo) =>
+  String(testo || '')
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
     .toLocaleLowerCase('it-IT')
-    .trim()
+
+const indiceRicerca = computed(
+  () =>
+    new Map(
+      vociCompendio.value.map((voce) => [
+        voce.id,
+        normalizzaRicerca(
+          [
+            voce.nome, voce.sintesi, voce.scuola, voce.descrizione,
+            voce.descrizioneSpecie, voce.descrizioneOrigine, voce.descrizioneClasse,
+            voce.schedaTalento?.descrizione, voce.schedaSpecie?.tratti?.join(' '),
+            voce.tipo, voce.rarita,
+          ].filter(Boolean).join(' '),
+        ),
+      ]),
+    ),
+)
+
+const risultati = computed(() => {
+  const q = normalizzaRicerca(ricerca.value).trim()
   const voci = vociCompendio.value.filter(
     (v) =>
       (!categoria.value || v.categoria === categoria.value) &&
@@ -345,14 +396,7 @@ const risultati = computed(() => {
       (!tempo.value || (v.tempoLancio || '').toLocaleLowerCase('it-IT').includes(tempo.value)) &&
       (!componente.value ||
         new RegExp('(^|[, ])' + componente.value + '(?=[, (]|$)').test(v.componenti || '')) &&
-      (!q ||
-        [v.nome, v.sintesi || '', v.scuola || ''].some((t) =>
-          t
-            .normalize('NFD')
-            .replace(/[\u0300-\u036f]/g, '')
-            .toLocaleLowerCase('it-IT')
-            .includes(q),
-        )),
+      (!q || indiceRicerca.value.get(v.id)?.includes(q)),
   )
   return voci
     .filter(
@@ -378,15 +422,28 @@ const risultatiPagina = computed(() =>
 )
 // La scheda apre automaticamente il testo pertinente; non espone più
 // un pulsante per visualizzare un'intera pagina grezza del PDF.
+let versioneConsultazione = 0
+
+function annullaConsultazione() {
+  versioneConsultazione += 1
+  testoFonte.value = ''
+  erroreFonte.value = ''
+  voceFonte.value = null
+  caricamentoFonte.value = false
+}
+
+// Una nuova consultazione prevale sulla precedente anche con richieste
+// concorrenti: una risposta tardiva non può sovrascrivere la voce aperta.
 async function consultaFonte(regola) {
-  if (caricamentoFonte.value || !['Classi', 'Specie', 'Origini', 'Regole', 'Condizioni'].includes(regola.categoria)) return
+  if (!['Classi', 'Origini', 'Regole', 'Condizioni'].includes(regola.categoria)) return
+  const versione = ++versioneConsultazione
   testoFonte.value = ''
   erroreFonte.value = ''
   voceFonte.value = regola.id
   caricamentoFonte.value = true
   try {
     const dati = await caricaSezioneSRD(regola.categoria)
-    if (voceFonte.value !== regola.id) return
+    if (versione !== versioneConsultazione || aperta.value !== regola.id) return
     const testo = regola.categoria === 'Classi'
       ? estrattoVoceSRD(dati, regola).testo
       : estraiTestoSingolaVoceSRD(dati, regola)
@@ -395,11 +452,14 @@ async function consultaFonte(regola) {
       erroreFonte.value = 'La descrizione completa non è ancora associata con certezza a questa voce.'
     }
   } catch (errore) {
-    if (voceFonte.value === regola.id) erroreFonte.value = errore.message
+    if (versione === versioneConsultazione && aperta.value === regola.id) {
+      erroreFonte.value = errore.message || 'Impossibile caricare la voce.'
+    }
   } finally {
-    caricamentoFonte.value = false
+    if (versione === versioneConsultazione) caricamentoFonte.value = false
   }
 }
+
 function scegliCategoria(id) {
   categoria.value = id
   if (id) void caricaCategoria(id)
@@ -413,9 +473,7 @@ function scegliCategoria(id) {
   soloDettagli.value = false
   pagina.value = 1
   aperta.value = null
-  testoFonte.value = ''
-  erroreFonte.value = ''
-  voceFonte.value = null
+  annullaConsultazione()
 }
 function pulisci() {
   ricerca.value = ''
@@ -431,9 +489,7 @@ function pulisci() {
   soloDettagli.value = false
   pagina.value = 1
   aperta.value = null
-  testoFonte.value = ''
-  erroreFonte.value = ''
-  voceFonte.value = null
+  annullaConsultazione()
 }
 watch(ricerca, (valore) => {
   if (valore.trim()) void caricaCategoria('')
@@ -458,9 +514,7 @@ watch(
   () => {
     pagina.value = 1
     aperta.value = null
-    testoFonte.value = ''
-    erroreFonte.value = ''
-    voceFonte.value = null
+    annullaConsultazione()
   },
 )
 </script>
@@ -476,7 +530,7 @@ watch(
       </p>
       <label class="compendio-ricerca">
         <span class="sr-only">Cerca nel compendio</span>
-        <input v-model="ricerca" type="search" placeholder="Cerca nel compendio..." />
+        <input v-model="ricerca" type="search" placeholder="Cerca regole, effetti, incantesimi..." />
       </label>
     </header>
 
@@ -626,11 +680,15 @@ watch(
                     testoFonte = ''
                     erroreFonte = ''
                     voceFonte = null
-                    if (!regola.dettagliCompleti) void consultaFonte(regola)
+                    if (
+                      !regola.dettagliCompleti &&
+                      !regola.descrizioneClasse &&
+                      !regola.descrizioneOrigine &&
+                      ['Classi', 'Origini', 'Regole', 'Condizioni'].includes(regola.categoria)
+                    ) void consultaFonte(regola)
                   } else if (aperta === regola.id) {
                     aperta = null
-                    testoFonte = ''
-                    erroreFonte = ''
+                    annullaConsultazione()
                   }
                 }
               "
@@ -772,6 +830,14 @@ watch(
                     </tbody>
                   </table>
                 </div>
+                <section v-if="regola.descrizioneClasse" class="compendio-capitolo">
+                  <h4>Progressione e privilegi della classe</h4>
+                  <p class="compendio-nota">
+                    Trascrizione dell'intera sezione della classe nell'SRD. Le tabelle complesse
+                    richiedono ancora una rappresentazione strutturata e un controllo editoriale.
+                  </p>
+                  <TestoCompendioSRD :testo="regola.descrizioneClasse" :etichetta="'Classe ' + regola.nome" />
+                </section>
                 <div v-if="regola.schedaTalento" class="compendio-estratto-specie">
                   <small
                     >{{ regola.schedaTalento.categoriaTalento }} · Pagina SRD
@@ -808,6 +874,10 @@ watch(
                     {{ regola.schedaBackground.equipaggiamentoB }}
                   </p>
                 </div>
+                <div v-if="regola.descrizioneOrigine" class="compendio-estratto-specie">
+                  <h4>Testo della descrizione SRD</h4>
+                  <TestoCompendioSRD :testo="regola.descrizioneOrigine" :etichetta="'Origine ' + regola.nome" />
+                </div>
                 <div v-if="regola.schedaSpecie" class="compendio-estratto-specie">
                   <small
                     >Metadati verificati sul PDF SRD 5.2.1 · descrizioni dei tratti ancora da
@@ -832,7 +902,16 @@ watch(
                     </div>
                   </dl>
                   <strong>Tratti della specie</strong>
-                  <ul>
+                  <p class="compendio-nota">
+                    Sono inclusi gli effetti descritti nell'SRD, oltre all'indice dei tratti.
+                    Le trascrizioni automatiche richiedono ancora la revisione editoriale.
+                  </p>
+                  <TestoCompendioSRD
+                    v-if="regola.descrizioneSpecie"
+                    :testo="regola.descrizioneSpecie"
+                    :etichetta="'Tratti della specie ' + regola.nome"
+                  />
+                  <ul v-else>
                     <li v-for="tratto in regola.schedaSpecie.tratti" :key="tratto">{{ tratto }}</li>
                   </ul>
                   <div v-if="regola.schedaSpecie.opzioni.length" class="compendio-opzioni-specie">
@@ -879,8 +958,10 @@ watch(
                 </p>
                 <small>SRD 5.2.1 italiano · riferimento PDF: pagina {{ regola.pagina }}</small>
                 <div
-                  v-if="['Classi', 'Specie', 'Origini', 'Regole', 'Condizioni'].includes(regola.categoria)
-                    && !regola.dettagliCompleti"
+                  v-if="['Classi', 'Origini', 'Regole', 'Condizioni'].includes(regola.categoria)
+                    && !regola.dettagliCompleti
+                    && !regola.descrizioneClasse
+                    && !regola.descrizioneOrigine"
                   class="compendio-fonte"
                   aria-live="polite"
                 >
@@ -932,6 +1013,12 @@ watch(
   padding-top: 38px;
   padding-bottom: 65px;
 }
+.compendio-capitolo {
+  margin-block: 1.15rem;
+  border-top: 1px solid rgba(229, 166, 92, 0.25);
+  padding-top: 1rem;
+}
+.compendio-capitolo h4 { color: #e5a65c; margin: 0 0 0.65rem; }
 .compendio-eroe {
   max-width: 900px;
   margin: 0 auto 34px;
