@@ -410,6 +410,9 @@ function esistonoDati(campi) {
         <p class="testo-regola">
           {{ regola.descrizione }}
         </p>
+        <p v-if="regola.notaCapitello" class="nota-capitello">
+          {{ regola.notaCapitello }}
+        </p>
       </article>
     </section>
 
@@ -825,5 +828,14 @@ tbody tr:last-child td {
   .regola {
     padding: 10px;
   }
+}
+/* Indicazioni contestuali del DM: sempre sotto la regola a cui si riferiscono. */
+.regola .nota-capitello {
+  font-size: 0.74rem;
+  font-style: italic;
+  font-weight: 400;
+  line-height: 1.45;
+  color: var(--dmc-muted-light);
+  white-space: pre-line;
 }
 </style>

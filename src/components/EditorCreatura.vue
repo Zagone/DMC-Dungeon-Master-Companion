@@ -379,6 +379,16 @@ function salva() {
             <textarea class="dmc-campo" v-model="regola.descrizione" required rows="5"></textarea>
           </label>
 
+          <label>
+            Nota contestuale del DM (facoltativa, in corsivo)
+            <textarea
+              class="dmc-campo"
+              v-model="regola.notaCapitello"
+              rows="2"
+              placeholder="Es. Capitello Memoria — annulla la prima Campana dell'Oblio"
+            ></textarea>
+          </label>
+
           <button
             class="dmc-btn dmc-btn--secondary"
             type="button"
@@ -427,6 +437,16 @@ function salva() {
           <label>
             Regola completa
             <textarea class="dmc-campo" v-model="regola.descrizione" required rows="5"></textarea>
+          </label>
+
+          <label>
+            Nota contestuale del DM (facoltativa, in corsivo)
+            <textarea
+              class="dmc-campo"
+              v-model="regola.notaCapitello"
+              rows="2"
+              placeholder="Es. Capitello Memoria — annulla la prima Campana dell'Oblio"
+            ></textarea>
           </label>
 
           <button
