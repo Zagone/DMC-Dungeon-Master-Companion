@@ -253,3 +253,26 @@ L'intervento applica il principio di **priorità del contenuto operativo**: dura
 Sono predisposti test di regressione statici per controllare la condizione di attivazione, il breakpoint per tablet in orientamento orizzontale, la presenza delle cinque sezioni e delle etichette accessibili. I test di codice e la build **non** costituiscono prova di corretta resa visiva su iPadOS: dopo il deploy occorre controllare iPad verticale/orizzontale, telefoni piccoli, focus tastiera, interazione touch e passaggio fra Conduzione e Battaglia.
 
 **Ambito del cambiamento:** `CampagnaView.vue`, `navigazione-campagna.css`, test dedicati. Nessuna modifica a salvataggi, sessioni, scene, bestiario o export/import.
+
+## 13 novembre 2026 — Correzione R4.10b: sticky adattiva in funzione dello scorrimento
+
+### Feedback e problema di implementazione
+
+La prima versione della barra mini della Conduzione (R4.10) risultava visibile **anche prima di scorrere la pagina**. L'intento progettuale era diverso: mantenere la navigazione estesa nella posizione iniziale, per garantire l'orientamento e la scoperta delle sezioni, e passare al controllo minimale **solo quando la testata della campagna non è più visibile**.
+
+Il feedback ha inoltre evidenziato la presenza dell'etichetta «Sezione della campagna», ritenuta ridondante, e la preferenza per un comando testuale «Home» al posto della sola freccia.
+
+### Correzione tecnica
+
+In `CampagnaView.vue`, il valore calcolato `navigazioneConduzioneMini` ora richiede **tutte** le seguenti condizioni:
+1. sezione corrente `sessioni`;
+2. Conduzione di una sessione effettivamente attiva;
+3. `navigazioneCompatta.value === true`, stato già rilevato dalla posizione della testata della campagna rispetto alla topbar tramite `getBoundingClientRect()` e aggiornato al movimento di scroll.
+
+La pillola viene visualizzata solo sotto i breakpoint mobile/tablet, compresi gli iPad touch in orizzontale. Ritornando in alto, lo stato di scroll torna falso e la barra completa riappare. Il comando di uscita mostra il testo **Home** e mantiene un'etichetta accessibile che esplicita la destinazione. Il menu mantiene un'etichetta accessibile discreta («Vai alla sezione») ma non visualizza l'inutile scritta «Sezione della campagna».
+
+### Motivazione UX e verifiche
+
+La modifica distingue **navigazione di orientamento** e **navigazione persistente di servizio**: la prima mostra le scelte quando l'utente entra nella campagna; la seconda minimizza l'ingombro durante la lettura di una scena dopo lo scroll. L'aggiornamento riduce il carico visivo senza nascondere permanentemente le opzioni.
+
+I nuovi test di regressione verificano il vincolo allo scroll, il ritorno all'interfaccia estesa e l'etichetta Home. Restano da validare visivamente sul sito Netlify: transizione in salita/discesa, iPad verticale/orizzontale, leggibilità del selettore e interazione con la barra Battaglia. Nessuna modifica ai salvataggi o ai dati delle campagne.
