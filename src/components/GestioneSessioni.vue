@@ -8,6 +8,7 @@ import EditorDettagliScena from './EditorDettagliScena.vue'
 import ConduzioneSessione from './ConduzioneSessione.vue'
 import { preparaSessione as normalizzaSessione } from '../dati/preparazioneSessioni.js'
 import { valutaIncontro } from '../dati/valutazioneIncontro.js'
+import { suggerimentiCreatureNonCollegate } from '../dati/promemoriaIncontro.js'
 
 import {
   datiCampagna,
@@ -401,17 +402,9 @@ const totaleNemici = (scena) =>
     0,
   )
 
+// Solo promemoria: richiedeCreature non deve bloccare il combattimento.
 function creatureDaCollegare(scena) {
-  return (scena?.incontro?.richiedeCreature || []).filter(
-    (nome) =>
-      !(scena.incontro.nemici || []).some((voce) => {
-        const scheda = risolviVoceIncontro(voce)
-
-        return [nomeCreatura(voce), ...(scheda?.aliases || [])].some((alias) =>
-          normalizza(alias).includes(normalizza(nome)),
-        )
-      }),
-  )
+  return suggerimentiCreatureNonCollegate(scena, risolviVoceIncontro)
 }
 
 function difficolta(scena, sessione) {
@@ -420,7 +413,6 @@ function difficolta(scena, sessione) {
     livello: sessione.livelloPrevisto,
     nemici: scena?.incontro?.nemici,
     risolviCreatura: risolviVoceIncontro,
-    collegamentiMancanti: creatureDaCollegare(scena).length > 0,
   })
 }
 
@@ -462,17 +454,18 @@ function aggiungiCreatura(scena) {
 }
 
 function richiediCaricamento(scena) {
-  if (creatureDaCollegare(scena).length || !totaleNemici(scena)) {
-    messaggio.value = 'Prima completa l’incontro e collega le creature richieste.'
-
+  if (!totaleNemici(scena)) {
+    messaggio.value = 'Aggiungi almeno un nemico all’incontro prima di caricarlo.'
     return
   }
 
+  messaggio.value = ''
   conferma.value = `carica-${scena.id}`
 }
 
 function caricaIncontro(scena) {
-  if (creatureDaCollegare(scena).length) return
+  // La lista narrativa richiedeCreature non è un vincolo.
+  // Controlliamo solo le creature realmente associate alla scena.
 
   const istanze = []
   const nomi = new Set()
