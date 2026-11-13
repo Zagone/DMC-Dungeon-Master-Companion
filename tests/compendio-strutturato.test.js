@@ -107,7 +107,7 @@ test('Oggetti magici: titolo e tipologia spezzati non contaminano le schede succ
     'Oggetto successivo',
     'Oggetto meraviglioso, comune',
     'Ultima descrizione.',
-  ].join('\\n')
+  ].join('\n')
   const voci = estraiVociOggettiMagici({ pagine: [{ pagina: 237, testo }] })
   assert.equal(voci.length, 4)
   assert.equal(voci[1].nome, 'Braciere del comando degli elementali del fuoco')
