@@ -13,6 +13,15 @@ import { STRUMENTI_SRD } from '../dati/strumentiSRD.js'
 import { EQUIPAGGIAMENTO_AVVENTURA_SRD } from '../dati/equipaggiamentoAvventuraSRD.js'
 import { CAVALCATURE_SRD, FINIMENTI_SRD, NAVI_SRD } from '../dati/cavalcatureVeicoliSRD.js'
 import { estraiIndiceOggettiMagici } from '../dati/indiceOggettiMagiciSRD.js'
+import {
+  chiaveSRD,
+  estraiGlossarioSRD,
+  estraiTestiOggettiMagiciSRD,
+  estraiTestoSingolaVoceSRD,
+  estraiTestiEquipaggiamentoSRD,
+  estraiTestiStrumentiSRD,
+} from '../dati/letturaStrutturataSRD.js'
+import TestoCompendioSRD from '../components/TestoCompendioSRD.vue'
 
 const ricerca = ref('')
 const archivioCompleto = ref(null)
@@ -20,6 +29,9 @@ const schedeSpecie = ref(new Map())
 const schedeBackground = new Map(BACKGROUND_SRD.map((v) => [v.nome, v]))
 const schedeTalenti = ref([])
 const schedeOggettiMagici = ref([])
+const schedeGlossario = ref([])
+const testiEquipaggiamento = ref(new Map())
+const testiStrumenti = ref(new Map())
 const testoFonte = ref('')
 const voceFonte = ref(null)
 const erroreFonte = ref('')
@@ -33,33 +45,45 @@ const categorieInCorso = new Map()
 async function caricaCategoria(categoriaRichiesta) {
   const destinazioni = categoriaRichiesta
     ? [categoriaRichiesta]
-    : ['Incantesimi', 'Specie', 'Talenti', 'Oggetti magici']
+    : ['Incantesimi', 'Specie', 'Talenti', 'Oggetti magici', 'Regole', 'Equipaggiamento']
   await Promise.all(
     destinazioni.map(async (nome) => {
-      if (!['Incantesimi', 'Specie', 'Talenti', 'Oggetti magici'].includes(nome)) return
-      if (categorieCaricate.has(nome)) return
-      if (categorieInCorso.has(nome)) return categorieInCorso.get(nome)
+      const sezione = nome === 'Condizioni' ? 'Regole' : nome
+      if (!['Incantesimi', 'Specie', 'Talenti', 'Oggetti magici', 'Regole', 'Equipaggiamento'].includes(sezione))
+        return
+      if (categorieCaricate.has(sezione)) return
+      if (categorieInCorso.has(sezione)) return categorieInCorso.get(sezione)
       const richiesta = (async () => {
-        caricamentoCategorie.value = new Set([...caricamentoCategorie.value, nome])
+        caricamentoCategorie.value = new Set([...caricamentoCategorie.value, sezione])
         try {
-          const archivio = await caricaSezioneSRD(nome)
+          const archivio = await caricaSezioneSRD(sezione === 'Regole' ? 'Condizioni' : sezione)
           if (nome === 'Incantesimi') archivioCompleto.value = validaArchivioIncantesimi(archivio)
           if (nome === 'Specie')
             schedeSpecie.value = new Map(estraiSchedeSpecieSRD(archivio).map((v) => [v.nome, v]))
           if (nome === 'Talenti') schedeTalenti.value = estraiTalentiSRD(archivio)
           if (nome === 'Oggetti magici')
-            schedeOggettiMagici.value = estraiIndiceOggettiMagici(archivio)
-          categorieCaricate.add(nome)
+            schedeOggettiMagici.value = estraiTestiOggettiMagiciSRD(
+              archivio, estraiIndiceOggettiMagici(archivio),
+            )
+          if (sezione === 'Equipaggiamento') {
+            testiEquipaggiamento.value = estraiTestiEquipaggiamentoSRD(archivio, EQUIPAGGIAMENTO_AVVENTURA_SRD)
+            testiStrumenti.value = estraiTestiStrumentiSRD(archivio, STRUMENTI_SRD)
+          }
+          if (sezione === 'Regole') {
+            schedeGlossario.value = estraiGlossarioSRD(archivio)
+            categorieCaricate.add('Condizioni')
+          }
+          categorieCaricate.add(sezione)
         } catch (errore) {
           console.warn('Caricamento del compendio non riuscito per ' + nome, errore)
         } finally {
-          categorieInCorso.delete(nome)
+          categorieInCorso.delete(sezione)
           const attive = new Set(caricamentoCategorie.value)
-          attive.delete(nome)
+          attive.delete(sezione)
           caricamentoCategorie.value = attive
         }
       })()
-      categorieInCorso.set(nome, richiesta)
+      categorieInCorso.set(sezione, richiesta)
       return richiesta
     }),
   )
@@ -106,6 +130,13 @@ const vociCompendio = computed(() => {
     dettagliCompleti: false,
   }))
   const schedeStrumenti = STRUMENTI_SRD.map((strumento) => ({
+    ...(testiStrumenti.value.has(strumento.nome)
+      ? {
+          descrizione: testiStrumenti.value.get(strumento.nome).testo,
+          descrizioneEstratta: true,
+          pagineFonte: testiStrumenti.value.get(strumento.nome).pagine,
+        }
+      : {}),
     id:
       'equip-strumento-' +
       strumento.nome
@@ -121,6 +152,13 @@ const vociCompendio = computed(() => {
     dettagliCompleti: false,
   }))
   const schedeAvventura = EQUIPAGGIAMENTO_AVVENTURA_SRD.map((oggetto) => ({
+    ...(testiEquipaggiamento.value.has(oggetto.nome)
+      ? {
+          descrizione: testiEquipaggiamento.value.get(oggetto.nome).testo,
+          descrizioneEstratta: true,
+          pagineFonte: testiEquipaggiamento.value.get(oggetto.nome).pagine,
+        }
+      : {}),
     id:
       'equip-avventura-' +
       oggetto.nome
@@ -171,8 +209,16 @@ const vociCompendio = computed(() => {
   const oggettiAggiuntivi = schedeOggettiMagici.value.filter(
     (v) => !indiceOggettiEsistenti.has(v.nome.toLocaleLowerCase('it-IT')),
   )
+  const nomiGlossario = new Set(
+    schedeGlossario.value.map((voce) => voce.categoria + ':' + chiaveSRD(voce.nome)),
+  )
+  const base = REGOLE_SRD.filter((voce) => {
+    if (!['Regole', 'Condizioni'].includes(voce.categoria)) return true
+    const nome = voce.nome === 'Azioni bonus' ? 'Azione bonus' : voce.nome
+    return !nomiGlossario.has(voce.categoria + ':' + chiaveSRD(nome))
+  })
   return [
-    ...REGOLE_SRD.map((v) => {
+    ...base.map((v) => {
       if (v.categoria === 'Incantesimi') {
         const dettagli = nuove.get(v.nome)
         return dettagli
@@ -199,6 +245,7 @@ const vociCompendio = computed(() => {
       }
       return v
     }),
+    ...schedeGlossario.value,
     ...talentiAggiuntivi,
     ...schedeArmi,
     ...schedeArmature,
@@ -329,12 +376,10 @@ const pagineTotali = computed(() => Math.max(1, Math.ceil(risultati.value.length
 const risultatiPagina = computed(() =>
   risultati.value.slice((pagina.value - 1) * perPagina, pagina.value * perPagina),
 )
+// La scheda apre automaticamente il testo pertinente; non espone più
+// un pulsante per visualizzare un'intera pagina grezza del PDF.
 async function consultaFonte(regola) {
-  if (caricamentoFonte.value) return
-  if (testoFonte.value && voceFonte.value === regola.id) {
-    testoFonte.value = ''
-    return
-  }
+  if (caricamentoFonte.value || !['Classi', 'Specie', 'Origini', 'Regole', 'Condizioni'].includes(regola.categoria)) return
   testoFonte.value = ''
   erroreFonte.value = ''
   voceFonte.value = regola.id
@@ -342,8 +387,13 @@ async function consultaFonte(regola) {
   try {
     const dati = await caricaSezioneSRD(regola.categoria)
     if (voceFonte.value !== regola.id) return
-    testoFonte.value = estrattoVoceSRD(dati, regola).testo
-    if (!testoFonte.value) erroreFonte.value = 'La pagina non è presente in questo archivio.'
+    const testo = regola.categoria === 'Classi'
+      ? estrattoVoceSRD(dati, regola).testo
+      : estraiTestoSingolaVoceSRD(dati, regola)
+    testoFonte.value = testo
+    if (!testo) {
+      erroreFonte.value = 'La descrizione completa non è ancora associata con certezza a questa voce.'
+    }
   } catch (errore) {
     if (voceFonte.value === regola.id) erroreFonte.value = errore.message
   } finally {
@@ -576,6 +626,7 @@ watch(
                     testoFonte = ''
                     erroreFonte = ''
                     voceFonte = null
+                    if (!regola.dettagliCompleti) void consultaFonte(regola)
                   } else if (aperta === regola.id) {
                     aperta = null
                     testoFonte = ''
@@ -597,12 +648,12 @@ watch(
                 ><span aria-hidden="true">⌄</span>
               </summary>
               <div class="compendio-testo">
-                <p
+                <div
                   v-if="regola.dettagliCompleti && regola.descrizione"
                   class="compendio-descrizione"
                 >
-                  {{ regola.descrizione }}
-                </p>
+                  <TestoCompendioSRD :testo="regola.descrizione" :etichetta="'Regole di ' + regola.nome" />
+                </div>
                 <p v-else>{{ regola.sintesi }}</p>
                 <div v-if="regola.schedaArma" class="compendio-arma">
                   <p>
@@ -625,9 +676,12 @@ watch(
                   {{ regola.richiedeSintonia ? 'Richiesta' : 'Non indicata' }}
                 </p>
                 <p v-if="regola.indicizzazioneAutomatica" class="compendio-nota">
-                  Voce indicizzata automaticamente dal PDF: nome, categoria e rarità non ancora
-                  revisionati. Consulta la pagina SRD per il testo originale.
+                  Voce estratta automaticamente dall'SRD: la revisione editoriale resta necessaria.
                 </p>
+                <div v-if="regola.descrizioneEstratta && regola.descrizione" class="compendio-descrizione">
+                  <h4>Descrizione dell'oggetto</h4>
+                  <TestoCompendioSRD :testo="regola.descrizione" :etichetta="'Descrizione di ' + regola.nome" />
+                </div>
                 <div v-if="regola.schedaTrasporto" class="compendio-trasporto">
                   <template v-if="regola.schedaTrasporto.gruppo === 'cavalcature'">
                     <p>
@@ -658,14 +712,14 @@ watch(
                       {{ regola.schedaTrasporto.sogliaDanno }}
                     </p>
                   </template>
-                  <p>Statistiche della tabella SRD: consulta la fonte per le regole complete.</p>
+                  <p class="compendio-nota">Statistiche SRD. Le regole d'uso specifiche non sono ancora state revisionate.</p>
                 </div>
                 <div v-if="regola.schedaAvventura" class="compendio-avventura">
                   <p>
                     <strong>Peso:</strong> {{ regola.schedaAvventura.peso }} ·
                     <strong>Costo:</strong> {{ regola.schedaAvventura.costo }}
                   </p>
-                  <p>Descrizione sintetica: consulta la fonte SRD per le regole complete.</p>
+                  <p class="compendio-nota">Dati tabellari SRD; descrizione d'uso non ancora revisionata.</p>
                 </div>
                 <div v-if="regola.schedaStrumento" class="compendio-strumento">
                   <p>
@@ -676,7 +730,7 @@ watch(
                     <strong>Costo:</strong> {{ regola.schedaStrumento.costo }} ·
                     <strong>Peso:</strong> {{ regola.schedaStrumento.peso }}
                   </p>
-                  <p>Per utilizzi, creazioni e varianti, consulta la pagina SRD indicata.</p>
+                  <p class="compendio-nota">Utilizzi, creazioni e varianti sono in revisione editoriale.</p>
                 </div>
                 <div v-if="regola.schedaArmatura" class="compendio-armatura">
                   <p>
@@ -724,7 +778,7 @@ watch(
                     {{ regola.schedaTalento.pagine.join(', ') }} · Testo estratto, da
                     revisionare</small
                   >
-                  <pre>{{ regola.schedaTalento.descrizione }}</pre>
+                  <TestoCompendioSRD :testo="regola.schedaTalento.descrizione" />
                 </div>
                 <div v-if="regola.schedaBackground" class="compendio-background">
                   <dl class="compendio-scheda-incantesimo">
@@ -824,19 +878,23 @@ watch(
                   {{ regola.livello === 0 ? 'Trucchetto' : regola.livello }}
                 </p>
                 <small>SRD 5.2.1 italiano · riferimento PDF: pagina {{ regola.pagina }}</small>
-                <div v-if="regola.categoria !== 'Incantesimi'" class="compendio-fonte">
-                  <button type="button" :disabled="caricamentoFonte" @click="consultaFonte(regola)">
-                    Consulta testo della pagina SRD
-                  </button>
-                  <p
-                    v-if="erroreFonte && voceFonte === regola.id && aperta === regola.id"
-                    role="status"
-                  >
+                <div
+                  v-if="['Classi', 'Specie', 'Origini', 'Regole', 'Condizioni'].includes(regola.categoria)
+                    && !regola.dettagliCompleti"
+                  class="compendio-fonte"
+                  aria-live="polite"
+                >
+                  <p v-if="caricamentoFonte && voceFonte === regola.id" role="status">
+                    Caricamento del contenuto pertinente…
+                  </p>
+                  <p v-else-if="erroreFonte && voceFonte === regola.id" role="status" class="compendio-nota">
                     {{ erroreFonte }}
                   </p>
-                  <pre v-if="testoFonte && voceFonte === regola.id && aperta === regola.id">{{
-                    testoFonte
-                  }}</pre>
+                  <TestoCompendioSRD
+                    v-else-if="testoFonte && voceFonte === regola.id && aperta === regola.id"
+                    :testo="testoFonte"
+                    :etichetta="'Testo SRD di ' + regola.nome"
+                  />
                 </div>
               </div>
             </details>

@@ -124,3 +124,40 @@ Aggiornato `tests/equipaggiamento-avventura-srd.test.js` per copertura numerica,
 ## Cavalcature, finimenti e veicoli — novembre 2026
 
 Aggiunte 25 schede tabellari in `src/dati/cavalcatureVeicoliSRD.js`, confrontate con le tabelle originali del PDF italiano SRD 5.2.1, pp. 113–114: **8 cavalcature e animali** (nome, capacità di trasporto, costo), **10 finimenti e veicoli da tiro** (peso e costo) e **7 veicoli aerei e imbarcazioni** (velocità, equipaggio, passeggeri, carico in tonnellate, CA, PF, soglia di danno e costo). Le tre categorie sono ricercabili e filtrabili separatamente all'interno di Equipaggiamento nel Compendio. Gli identificativi sono indipendenti dalle altre voci. I dati tabellari sono distinti dalle regole descrittive che rimangono consultabili nella fonte; `dettagliCompleti:false` evita di segnalarle come schede normative esaustive. Test di consistenza in `tests/cavalcature-veicoli-srd.test.js`. Pipeline test/lint/build superata (run 43276219156).
+
+## [2026-11-13] R4.4 — Consultazione delle singole voci senza pagina grezza
+
+**Obiettivo dell'intervento.** Ridurre la dipendenza dal pulsante «Consulta testo della pagina SRD»: il testo pertinente è ora mostrato direttamente all'apertura della scheda nel Compendio, senza un blocco HTML `<pre>` contenente pagine PDF intere.
+
+**Base codice.** Ramo `feature/r4-2-gestione-dati-integrazione`, commit `ab4c50c`. Modifiche sviluppate nel ramo `feature/r4-4-compendio-strutturato` (PR #2). I dati delle campagne, l'import/export e il bestiario delle 330 creature già verificate non sono stati modificati.
+
+### Componenti
+- `src/dati/letturaStrutturataSRD.js`: normalizzazione dei testi sorgente, segmentazione delle singole voci e preparazione dei blocchi tipografici; nessun HTML ricavato direttamente dal contenuto.
+- `src/components/TestoCompendioSRD.vue`: visualizzazione leggibile e responsiva di intestazioni, paragrafi, elenchi e rubriche delle regole, con token di Crooked Realms.
+- `src/views/CompendioView.vue`: voci arricchite, caricamento differito, contenuto integrato al dettaglio, rimozione del vecchio pulsante e del visualizzatore della pagina.
+- `src/dati/indiceOggettiMagiciSRD.js`: riconoscimento di categorie di armi con specificazione tra parentesi e rarità al femminile.
+- `tests/compendio-strutturato.test.js`: test di delimitazione del testo, categoria, assenza di contaminazione di esempi noti e rimozione del visualizzatore.
+
+### Copertura estratta (non equivale alla revisione editoriale)
+- **Glossario:** 146 voci segmentate dalle pp. 202–218, di cui 15 condizioni; intestazioni e relative pagine confrontate con l'impaginazione originale.
+- **Specie:** tutte e 9 le sezioni individuate, con eventuale continuazione tra pagine.
+- **Origini:** individuate le 4 sezioni di background.
+- **Equipaggiamento d'avventura:** descrizioni individuate per 80 delle 82 voci tabellari; le due pergamene magiche rimangono da trattare con le voci degli oggetti magici.
+- **Strumenti:** estratte descrizioni, utilizzi, creazioni e varianti per tutte le 25 schede tabellari (pp. 105–107), ancora soggette a controllo editoriale.
+- **Oggetti magici:** indicizzazione ampliata; le descrizioni sono estrazioni automatiche non ancora verificate. L'algoritmo interrompe il testo anche in corrispondenza di intestazioni non indicizzate.
+- **Classi:** consultazione inline dell'intervallo di pagine pertinenti alla classe (non ancora ogni privilegio normalizzato in una scheda).
+- **Incantesimi:** rimane la disponibilità dei 339 testi già estratti, ora leggibili attraverso il componente tipografico.
+
+### Verifiche effettuate
+GitHub Actions, run [43333381996](https://github.com/Zagone/DMC-Dungeon-Master-Companion/actions/runs/43333381996): **104 test superati**, ESLint e Oxlint superati, **build di produzione riuscita**. Si tratta di verifiche automatiche; non certificano la qualità editoriale dei testi estratti né sostituiscono il test UX con Dungeon Master esterni.
+
+### Limiti residui — da non nascondere
+1. L'estrazione di parole spezzate su righe del PDF può contenere imperfezioni; la corrispondenza di ogni frase con l'SRD richiede revisione editoriale.
+2. Le tabelle di progressione delle classi e alcune tabelle estese non sono ancora rappresentate da dati tabellari strutturati e verificati.
+3. Due voci dell'equipaggiamento non hanno una descrizione individuale associata dall'estrattore.
+4. Non tutti gli oggetti magici individuati sono stati verificati individualmente, né è certificata la copertura esaustiva del catalogo.
+5. Alcune voci del vecchio indice possono restare sintetiche quando non esiste un'associazione testuale affidabile.
+6. Il collaudo visivo e con lettori di schermo su dispositivi reali e i test con utenti esterni restano da svolgere.
+
+**Criterio per dichiarare il Compendio completo:** tutte le voci verificate individualmente contro il PDF SRD 5.2.1, prive di contaminazione, con effetti e tabelle pertinenti leggibili senza riferimenti esterni. Questo criterio non è ancora soddisfatto.
+
