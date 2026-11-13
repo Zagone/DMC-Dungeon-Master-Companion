@@ -139,13 +139,13 @@ export function estraiTestiOggettiMagiciSRD(archivio, schede) {
   const titoli = []
   let corrente = null
   const rigaTipo = (riga) =>
-    /^(oggetto meraviglioso|anello|armatura|arma|bacchetta|bastone|pergamena|pozione|verga)(?:\\s*\\([^)]*\\))?\\s*,/i.test(riga)
+    /^(oggetto meraviglioso|anello|armatura|arma|bacchetta|bastone|pergamena|pozione|verga)(?:\s*\([^)]*\))?\s*,/i.test(riga)
   const possibileTitolo = (riga) =>
     /^[A-ZÀ-Ú]/.test(riga) &&
     riga.length >= 4 &&
     riga.length <= 100 &&
     !/[.:;!?]$/.test(riga) &&
-    !/^(?:Il|La|Le|Lo|Un|Una|Uno|Se|Quando|Finché|Ogni|Ciascun|Per|Con|Inoltre|Questo|Questa|Questi|Queste|Tabella)\\b/i.test(riga)
+    !/^(?:Il|La|Le|Lo|Un|Una|Uno|Se|Quando|Finché|Ogni|Ciascun|Per|Con|Inoltre|Questo|Questa|Questi|Queste|Tabella)\b/i.test(riga)
 
   for (const pagina of archivio?.pagine || []) {
     if (pagina.pagina < 237) continue
