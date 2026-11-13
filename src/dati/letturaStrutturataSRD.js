@@ -111,10 +111,15 @@ export function estraiTestiSpecieSRD(archivio) {
   // nei dati strutturati delle opzioni tiefling: non appartiene all'Umano.
   const pagine = archivio.pagine.map((pagina) => {
     if (pagina.pagina !== 97) return pagina
-    return {
-      ...pagina,
-      testo: pagina.testo.replace(/\n\s*Retaggi immondi\s*\n[\s\S]*$/i, ''),
-    }
+    const originale = pagina.testo
+    const primaTabella = originale.split(/\n\s*Retaggi immondi\s*\n/i)[0]
+    const inizioUmano = originale.search(/\n\s*Umano\s*\n/)
+    // Le due metà della tabella sono estratte separatamente, prima e dopo
+    // la scheda Umano. Conserviamo quindi il suo testo esplicitamente.
+    const testoUmano = inizioUmano < 0
+      ? ''
+      : originale.slice(inizioUmano).split(/\n\s*Livello 3\s+Livello 5\s*\n/i)[0]
+    return { ...pagina, testo: primaTabella + '\n' + testoUmano }
   })
   return new Map(raccoltaSezioni({ ...archivio, pagine }, NOMI_SPECIE, 94, 97)
     .map((v) => [v.nome, { testo: v.testo, pagina: v.pagina, pagine: v.pagine }]))
