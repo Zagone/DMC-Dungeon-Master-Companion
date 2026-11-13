@@ -1,6 +1,6 @@
 # Dungeon Master Companion — Pubblicazione su Cloudflare Pages
 
-**Stato:** repository predisposto; **attivazione Cloudflare e pubblicazione effettiva ancora da eseguire** dall'account proprietario.
+**Stato storico (13 novembre 2026):** progetto Cloudflare collegato a GitHub; i primi due deploy sono falliti nella fase finale e un terzo è stato interrotto. **Il provider scelto per la pubblicazione riuscita è ora Netlify**: vedere [PUBBLICAZIONE_NETLIFY.md](PUBBLICAZIONE_NETLIFY.md). Le istruzioni seguenti documentano l'opzione Cloudflare inizialmente valutata, non il deployment attivo.
 
 **Data della decisione:** 13 novembre 2026  
 **Applicazione:** Dungeon Master Companion (DMC), Vue 3 + Vite, SPA  

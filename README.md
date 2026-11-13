@@ -22,27 +22,25 @@ npm run preview
 
 I dati personali vengono conservati nel browser tramite `localStorage`; il clone del repository **non contiene** le campagne o i mostri salvati sul computer dell'utente. Per trasferirli usare gli strumenti di esportazione/importazione dell'Archivio. Cambiare origine/porta dell'app può comportare uno spazio `localStorage` distinto.
 
-## Pubblicazione su Cloudflare Pages
+## Distribuzione online — Netlify
 
-**Stato:** configurazione predisposta, **non ancora pubblicata**. È necessario collegare il repository GitHub all'account Cloudflare e completare il primo deployment. La pubblicazione non viene avviata dal solo commit in GitHub.
+**Primo deployment di produzione riuscito** il 13 novembre 2026; la dashboard Netlify indica `Published`, ma segnala ancora il progetto come **Private** fino all'eventuale azione del proprietario `Make public`. L'accesso anonimo e il collaudo iPad non sono ancora confermati.
 
-Configurazione da inserire nel pannello **Workers & Pages → Create application → Pages → GitHub**:
+**URL assegnato:** https://dmc-dungeon-master-companion.netlify.app
 
-| Parametro | Valore |
+Configurazione attiva:
+
+| Impostazione | Valore |
 | --- | --- |
 | Repository | `Zagone/DMC-Dungeon-Master-Companion` |
-| Production branch | `feature/r4-2-gestione-dati-integrazione` (non `main`) |
-| Framework | Vue / Vite |
+| Branch di produzione | `feature/r4-2-gestione-dati-integrazione` |
 | Build command | `npm run build` |
-| Build output directory | `dist` |
-| Root directory | `/` |
-| Node.js | `24.12.0` (tramite `.node-version`) |
+| Publish directory | `dist` |
+| Base directory | Vuota |
 
-Il router utilizza `createWebHashHistory()`, quindi non servono regole di riscrittura delle URL. Il dominio HTTPS `*.pages.dev` verrà assegnato **soltanto dopo il primo deploy riuscito**.
+Il router usa `createWebHashHistory()`; non richiede redirect di navigazione per le rotte hash. Il sito non è una PWA offline e conserva campagne e homebrew nel `localStorage` di ciascun browser. Per trasferire i dati fra PC e iPad utilizzare export/import JSON.
 
-**iPad:** DMC sarà raggiungibile da Safari all'URL Cloudflare anche a PC spento, ma non è ancora una PWA offline. Campagne e homebrew rimangono nel `localStorage` del singolo browser; trasferirli tramite esportazione/importazione JSON. Eseguire un backup **prima** di usare il nuovo dominio e non dare per scontata la sincronizzazione.
-
-Le istruzioni operative, il protocollo di collaudo e gli aspetti metodologici per la tesi sono in [docs/PUBBLICAZIONE_CLOUDFLARE_PAGES.md](docs/PUBBLICAZIONE_CLOUDFLARE_PAGES.md) e [docs/DIARIO_TESI.md](docs/DIARIO_TESI.md).
+Le istruzioni di visibilità, la checklist di collaudo e la decisione di migrare da Cloudflare Pages sono in [docs/PUBBLICAZIONE_NETLIFY.md](docs/PUBBLICAZIONE_NETLIFY.md) e nel [diario della tesi](docs/DIARIO_TESI.md). La vecchia guida [Cloudflare Pages](docs/PUBBLICAZIONE_CLOUDFLARE_PAGES.md) è conservata come documento storico del tentativo non riuscito.
 
 ## Funzionalità principali
 
