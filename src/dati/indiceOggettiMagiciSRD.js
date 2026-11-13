@@ -112,5 +112,5 @@ export function estraiVociOggettiMagici(archivio) {
 }
 export function estraiIndiceOggettiMagici(archivio) {
   return estraiVociOggettiMagici(archivio)
-    .map(({ descrizione, descrizioneEstratta, ...metadatiVoce }) => metadatiVoce)
+    .map(({ descrizione: _descrizione, descrizioneEstratta: _descrizioneEstratta, ...metadatiVoce }) => metadatiVoce)
 }
