@@ -143,12 +143,13 @@ Aggiunte 25 schede tabellari in `src/dati/cavalcatureVeicoliSRD.js`, confrontate
 - **Specie:** tutte e 9 le sezioni individuate, con eventuale continuazione tra pagine.
 - **Origini:** individuate le 4 sezioni di background.
 - **Equipaggiamento d'avventura:** descrizioni individuate per 80 delle 82 voci tabellari; le due pergamene magiche rimangono da trattare con le voci degli oggetti magici.
+- **Strumenti:** estratte descrizioni, utilizzi, creazioni e varianti per tutte le 25 schede tabellari (pp. 105–107), ancora soggette a controllo editoriale.
 - **Oggetti magici:** indicizzazione ampliata; le descrizioni sono estrazioni automatiche non ancora verificate. L'algoritmo interrompe il testo anche in corrispondenza di intestazioni non indicizzate.
 - **Classi:** consultazione inline dell'intervallo di pagine pertinenti alla classe (non ancora ogni privilegio normalizzato in una scheda).
 - **Incantesimi:** rimane la disponibilità dei 339 testi già estratti, ora leggibili attraverso il componente tipografico.
 
 ### Verifiche effettuate
-GitHub Actions, run [43333063692](https://github.com/Zagone/DMC-Dungeon-Master-Companion/actions/runs/43333063692): **103 test superati**, ESLint e Oxlint superati, **build di produzione riuscita**. Si tratta di verifiche automatiche; non certificano la qualità editoriale dei testi estratti né sostituiscono il test UX con Dungeon Master esterni.
+GitHub Actions, run [43333381996](https://github.com/Zagone/DMC-Dungeon-Master-Companion/actions/runs/43333381996): **104 test superati**, ESLint e Oxlint superati, **build di produzione riuscita**. Si tratta di verifiche automatiche; non certificano la qualità editoriale dei testi estratti né sostituiscono il test UX con Dungeon Master esterni.
 
 ### Limiti residui — da non nascondere
 1. L'estrazione di parole spezzate su righe del PDF può contenere imperfezioni; la corrispondenza di ogni frase con l'SRD richiede revisione editoriale.
