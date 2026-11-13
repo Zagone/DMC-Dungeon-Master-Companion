@@ -84,6 +84,9 @@ function etichette(regola) {
             </div>
           </div>
           <p>{{ voce.descrizione }}</p>
+          <p v-if="voce.notaCapitello" class="nota-capitello">
+            {{ voce.notaCapitello }}
+          </p>
         </article>
       </details>
     </div>
@@ -96,6 +99,9 @@ function etichette(regola) {
       <article v-for="(tratto, indice) in tratti" :key="indice" class="azione">
         <strong>{{ tratto.nome }}</strong>
         <p>{{ tratto.descrizione }}</p>
+        <p v-if="tratto.notaCapitello" class="nota-capitello">
+          {{ tratto.notaCapitello }}
+        </p>
       </article>
     </details>
 
@@ -248,6 +254,17 @@ function etichette(regola) {
 }
 .nota {
   color: var(--dmc-muted-light);
+}
+
+/* Indicazioni narrative dei capitelli: informative, non automazioni.
+   Dimensione e corsivo le distinguono dalla regola dell'abilità. */
+.azione .nota-capitello {
+  font-size: 0.74rem;
+  font-style: italic;
+  font-weight: 400;
+  line-height: 1.45;
+  color: var(--dmc-muted-light);
+  white-space: pre-line;
 }
 .intestazione-azione {
   display: flex;
