@@ -7,6 +7,7 @@ import { estraiSchedeSpecieSRD } from '../dati/estrazioneSpecieSRD.js'
 import { BACKGROUND_SRD } from '../dati/backgroundSRD.js'
 import { estraiTalentiSRD } from '../dati/estrazioneTalentiSRD.js'
 import { estraiClassiSRD } from '../dati/estrazioneClassiSRD.js'
+import { PROGRESSIONI_CLASSI_SRD } from '../dati/progressioniClassiSRD.js'
 import { MONETE_SRD } from '../dati/moneteSRD.js'
 import { ARMI_SEMPLICI_SRD } from '../dati/armiSempliciSRD.js'
 import { ARMI_DA_GUERRA_SRD, ARMATURE_SRD } from '../dati/armiArmatureSRD.js'
@@ -25,6 +26,7 @@ import {
   estraiTestiOriginiSRD,
 } from '../dati/letturaStrutturataSRD.js'
 import TestoCompendioSRD from '../components/TestoCompendioSRD.vue'
+import TabellaProgressioneClasse from '../components/TabellaProgressioneClasse.vue'
 
 const ricerca = ref('')
 const archivioCompleto = ref(null)
@@ -269,6 +271,7 @@ const vociCompendio = computed(() => {
         const corpo = testiClassi.value.get(v.nome)
         return corpo
           ? { ...v, descrizioneClasse: corpo.testo, privilegiClasse: corpo.privilegi,
+              tabellaProgressione: PROGRESSIONI_CLASSI_SRD[v.nome],
               pagineClasse: corpo.pagine }
           : v
       }
@@ -829,33 +832,21 @@ watch(
                   </table>
                 </div>
                 <section v-if="regola.descrizioneClasse" class="compendio-capitolo">
-                  <h4>Privilegi della classe</h4>
+                  <h4>Progressione della classe</h4>
+                  <TabellaProgressioneClasse
+                    v-if="regola.tabellaProgressione"
+                    :tabella="regola.tabellaProgressione"
+                  />
                   <p class="compendio-nota">
-                    Il testo è delimitato all'inizio e alla fine della classe nell'SRD.
-                    L'indice dei privilegi riporta i livelli esplicitamente identificati
-                    nel testo; non sostituisce le tabelle di progressione da verificare.
+                    I valori delle tabelle sono ricostruiti dall'SRD 5.2.1.
+                    Le descrizioni dei privilegi e delle sottoclassi sono consultabili
+                    di seguito. Il testo delle sezioni narrative estratto dal PDF
+                    è ancora soggetto a revisione editoriale.
                   </p>
-                  <details v-if="regola.privilegiClasse?.length" class="compendio-indice-privilegi">
-                    <summary>
-                      Privilegi per livello ({{ regola.privilegiClasse.length }} voci)
-                    </summary>
-                    <div class="compendio-indice-scroll">
-                      <table>
-                        <thead>
-                          <tr><th scope="col">Livello</th><th scope="col">Privilegio</th><th scope="col">Pagina</th></tr>
-                        </thead>
-                        <tbody>
-                          <tr v-for="(privilegio, i) in regola.privilegiClasse" :key="i">
-                            <td>{{ privilegio.livello }}</td>
-                            <td>{{ privilegio.nome }}</td>
-                            <td>{{ privilegio.pagina }}</td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
+                  <details class="compendio-descrizione-classe">
+                    <summary>Descrizioni dei privilegi e delle sottoclassi</summary>
+                    <TestoCompendioSRD :testo="regola.descrizioneClasse" :etichetta="'Classe ' + regola.nome" />
                   </details>
-                  <h4>Descrizione integrale della classe</h4>
-                  <TestoCompendioSRD :testo="regola.descrizioneClasse" :etichetta="'Classe ' + regola.nome" />
                 </section>
                 <div v-if="regola.schedaTalento" class="compendio-estratto-specie">
                   <small
@@ -1032,27 +1023,24 @@ watch(
   padding-top: 38px;
   padding-bottom: 65px;
 }
-.compendio-indice-privilegi {
-  margin-block: 1rem 1.5rem;
-  border: 1px solid rgba(229, 166, 92, 0.36);
-  border-radius: 10px;
-  background: rgba(36, 45, 56, 0.55);
+.compendio-descrizione-classe {
+  margin-top: 1.15rem;
+  border-top: 1px solid rgba(229, 166, 92, 0.28);
+  padding-top: 0.85rem;
 }
-.compendio-indice-privilegi > summary {
+.compendio-descrizione-classe summary {
   cursor: pointer;
-  padding: 0.8rem 1rem;
+  padding: 0.65rem 0;
   color: #e5a65c;
-  font-weight: 650;
+  font-weight: 700;
 }
-.compendio-indice-privilegi > summary:focus-visible {
+.compendio-descrizione-classe summary:focus-visible {
   outline: 2px solid #e5a65c;
   outline-offset: 3px;
 }
-.compendio-indice-scroll { overflow-x: auto; }
-.compendio-indice-scroll table { width: 100%; border-collapse: collapse; }
-.compendio-indice-scroll th,
-.compendio-indice-scroll td { padding: 0.5rem 0.75rem; text-align: left; border-top: 1px solid rgba(229, 166, 92, 0.16); }
-.compendio-indice-scroll td:first-child { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.compendio-descrizione-classe > article {
+  margin-block: 0.65rem;
+}
 .compendio-capitolo {
   margin-block: 1.15rem;
   border-top: 1px solid rgba(229, 166, 92, 0.25);

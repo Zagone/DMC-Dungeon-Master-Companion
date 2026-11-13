@@ -194,3 +194,27 @@ Le 12 schede dispongono ora di un **indice per livello** composto dai titoli ric
 **Nota editoriale:** l'indice individua le intestazioni esplicite «Livello N: ...» presenti nel testo e può includere privilegi di sottoclasse. Non ricostruisce tutte le tabelle di avanzamento, gli slot incantesimo né le progressioni delle risorse. Non è quindi una prova di completezza delle regole.
 
 **Verifiche:** test dedicati per tutti i 12 titoli, corrispondenza delle pagine, assenza di contaminazione tra classi adiacenti e indice dei privilegi. GitHub Actions [run 43416172758](https://github.com/Zagone/DMC-Dungeon-Master-Companion/actions/runs/43416172758) superata per test, ESLint, Oxlint e build Vite. Restano da svolgere verifica editoriale puntuale delle tabelle e collaudo visuale/accessibilità in browser.
+
+## R4.7 — Progressioni tabellari delle dodici classi (13 novembre 2026)
+
+### Fonte e metodo
+
+Le tabelle sono state ricostruite dal file originale `IT_SRD_CC_v5.2.1_copia.pdf` in italiano, alle pagine del documento **32, 36, 42, 47, 53, 56, 59, 66, 70, 75, 80 e 86**. L'analisi ha utilizzato le **coordinate dei termini nelle celle** del PDF, evitando il testo lineare delle pagine che nella R4.6 aveva mescolato colonne, tabelle e paragrafi.
+
+Il nuovo modulo `src/dati/progressioniClassiSRD.js` contiene:
+- **12 progressioni**, una per classe;
+- **20 righe per progressione, per un totale di 240 livelli**;
+- nomi dei privilegi riportati nei prospetti SRD;
+- bonus di competenza controllato contro l'SRD, dal +2 al +6;
+- tutte le colonne numeriche pertinenti alla singola classe (tra cui Ira e danni dell'ira, padronanze, dado bardico, attacco furtivo, punti concentrazione, movimento, trucchetti, preparati, punti stregoneria, suppliche e risorse del warlock);
+- matrici degli **slot per livello di incantesimo**: 9 colonne per cinque classi a progressione completa; 5 colonne per Paladino e Ranger.
+
+Le due matrici condivise sono state confrontate **livello per livello** per le classi che le utilizzano, senza dedurre automaticamente tabelle per altre classi.
+
+La vista utilizza `src/components/TabellaProgressioneClasse.vue`: tabella con intestazioni di colonne, livelli come intestazioni di riga, navigazione tramite tastiera, scorrimento orizzontale su mobile e intestazione della prima colonna mantenuta visibile. La visualizzazione mantiene i colori Crooked Realms e evita grandi effetti sfocati. Il corpo descrittivo dei privilegi resta disponibile in una sezione espandibile separata.
+
+### Verifiche e ambito
+
+I test `tests/progressioni-classi-srd.test.js` controllano 12 × 20 righe, schema e lunghezza di ogni record, progressione del bonus competenza, matrici degli slot e valori specifici di almeno sei classi. Anche il collegamento con la vista Vue e la struttura semantica della tabella sono oggetto di verifiche statiche.
+
+**Limiti:** la trascrizione delle celle deriva dal layout del PDF, ma non è stata effettuata una revisione editoriale riga per riga da parte di un esperto delle regole. Le descrizioni narrative e i testi delle sottoclassi presenti nell'archivio per pagine possono ancora conservare spezzature o tabelle secondarie non riorganizzate. Il collaudo visivo/manuale con browser e tecnologie assistive rimane da completare. Nessuna modifica a salvataggi, campagne, import/export o bestiario.
