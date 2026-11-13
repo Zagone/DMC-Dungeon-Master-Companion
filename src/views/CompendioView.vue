@@ -514,9 +514,7 @@ watch(
   () => {
     pagina.value = 1
     aperta.value = null
-    testoFonte.value = ''
-    erroreFonte.value = ''
-    voceFonte.value = null
+    annullaConsultazione()
   },
 )
 </script>
@@ -686,7 +684,7 @@ watch(
                       !regola.dettagliCompleti &&
                       !regola.descrizioneClasse &&
                       !regola.descrizioneOrigine &&
-                      regola.categoria !== 'Specie'
+                      ['Classi', 'Origini', 'Regole', 'Condizioni'].includes(regola.categoria)
                     ) void consultaFonte(regola)
                   } else if (aperta === regola.id) {
                     aperta = null
