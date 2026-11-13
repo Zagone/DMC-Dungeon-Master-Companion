@@ -361,3 +361,11 @@ La nuova barra è ottenuta riutilizzando il componente esistente `GestioneBattag
 La soluzione deve essere valutata sul sito Netlify con test pratici su iPad (verticale e orizzontale), smartphone e desktop. Verificare in particolare: visibilità completa delle schede in scroll, attivazione/ripristino della mini barra, cambiamento dell'iniziativa, menu accessibile, stato di round, assenza di elementi sovrapposti, focus tastiera e comportamento con nomi lunghi o molte iniziative. **Non sono ancora disponibili risultati empirici** che dimostrino un miglioramento misurato dell'usabilità; è una modifica sperimentale in risposta al feedback del progettista.
 
 **Ambito:** `CampagnaView.vue`, `navigazione-campagna.css`, `GestioneBattaglia.vue`, `sticky-battaglia.css`, `stickyBattaglia.js`, test di regressione e diario. Nessuna modifica alla persistenza o alla struttura delle campagne.
+
+### R4.12b — Correzione dell'offset della barra sticky Battaglia su tablet (13 novembre 2026)
+
+La prima prova della R4.12 su tablet ha evidenziato una **parziale sovrapposizione della barra operativa del combattimento con l'interfaccia superiore del browser**. Per migliorare la visibilità senza modificare l'altezza della barra o ridurre le aree touch, è stato aumentato da 4 px a **16 px** il margine tra la barra DMC e la sticky Battaglia sui dispositivi piccoli o touch, conservando invariato il layout desktop.
+
+In `sticky-battaglia.css`, il nuovo valore viene definito dalla proprietà custom `--dmc-margine-sticky-battaglia-touch` e riutilizzato per `top` e `scroll-margin-top`. In `stickyBattaglia.js`, la soglia di attivazione della modalità compatta legge lo stesso valore CSS, evitando disallineamenti tra la posizione effettiva della sticky e la logica di interazione. Il test responsive verifica entrambi.
+
+**Verifica residua:** ripetere la prova su Safari iPadOS, anche ruotando il tablet e facendo comparire o scomparire la barra del browser. L'assenza di sovrapposizioni richiede conferma sul dispositivo reale.
