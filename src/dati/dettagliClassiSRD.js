@@ -207,6 +207,7 @@ function separaPrivilegi(righe) {
     }
     const trovato = INTESTAZIONE_LIVELLO.exec(riga)
     if (trovato) {
+      const paginaTitolo = righe[i].pagina
       const nomeBase = trovato[2]
       let nome = nomeBase
       if (/\b(?:di|del|della|dello|dei|degli|delle|per|con|e)$/i.test(nomeBase)) {
@@ -216,7 +217,7 @@ function separaPrivilegi(righe) {
           i++
         }
       }
-      corrente = { livello: Number(trovato[1]), nome, pagina: righe[i].pagina, testo: '' }
+      corrente = { livello: Number(trovato[1]), nome, pagina: paginaTitolo, testo: '' }
       voci.push(corrente)
       continue
     }
