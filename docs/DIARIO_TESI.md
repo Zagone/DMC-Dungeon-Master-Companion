@@ -160,3 +160,19 @@ Per evitare di attribuire funzionalità non ancora realizzate, il requisito imme
 **Verifiche da eseguire dopo il deploy:** apertura HTTPS, caricamento archivi JSON, navigazione e refresh, persistenza in Safari su iPad, trasferimento di backup da PC, conduzione delle scene e battaglia, layout verticale/orizzontale e interazione con i pannelli del Compendio. Vanno registrati risultati osservabili e non semplici aspettative.
 
 **Rilevanza per la tesi.** L'intervento conclude una prima fase di passaggio dall'implementazione locale alla predisposizione per il contesto reale d'uso. La distribuzione online crea le condizioni per svolgere prove di usabilità su dispositivi diversi; non costituisce di per sé una dimostrazione dell'efficacia dell'interfaccia o della robustezza della persistenza.
+
+## 13 novembre 2026 — Primo tentativo di distribuzione su Cloudflare Pages
+
+**Evidenza osservata nel pannello Cloudflare.** Il progetto `dmc-dungeon-master-companion` è stato creato e collegato al repository GitHub. Due tentativi iniziali di deploy hanno terminato la build Vite correttamente e caricato gli asset statici sul servizio, ma la fase conclusiva è fallita.
+
+L'estratto del registro del primo tentativo riporta:
+- `built` e fase di build completata;
+- `Success! Uploaded 0 files (43 already uploaded)`, seguito da `Upload complete!`;
+- `Success: Assets published!`;
+- `Error: Failed to publish your Function. Got error: Unknown internal error occurred.`
+
+Nel pannello il progetto compare con **No production deployment yet** e due tentativi falliti. Queste informazioni consentono di distinguere la **compilazione riuscita del front-end** dal **fallimento nella pubblicazione finale**. Il messaggio è generico e non prova un errore nel codice dell'applicazione né identifica con certezza la causa lato Cloudflare.
+
+**Azione successiva.** Poiché la dashboard non mette a disposizione dell'utente le operazioni di ripetizione o eliminazione dei due tentativi, un aggiornamento documentale versionato sul ramo di produzione viene utilizzato per richiedere una **nuova esecuzione automatica del deployment** attraverso l'integrazione GitHub–Cloudflare. Non sono modificati i file applicativi, i salvataggi o la configurazione di build. L'effettivo avvio, l'esito della nuova esecuzione e l'accessibilità dell'URL vanno verificati nel pannello Cloudflare e, in caso di successo, da Safari su iPad.
+
+**Stato alla redazione della presente annotazione:** hosting non ancora validato, nessuna produzione funzionante dichiarata. In caso di persistenza dello stesso errore è opportuno raccogliere il nuovo log e rivolgersi al supporto Cloudflare, evitando di trattare la compilazione riuscita come prova di distribuzione completata.
