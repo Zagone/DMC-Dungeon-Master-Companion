@@ -32,8 +32,8 @@ test('Desktop mantiene la navigazione sticky e la gestione compatta precedente',
 test('Su touch la barra Battaglia resta una sola riga compatta sotto la topbar', () => {
   assert.ok(battaglia.includes('@media ' + queryTouch + ' {'))
   assert.match(battaglia, /--dmc-margine-sticky-battaglia-touch: 16px;/)
-  assert.match(battaglia, /top: calc\\(var\\(--dmc-topbar-height\\) \\+ var\\(--dmc-margine-sticky-battaglia-touch\\)\\)/)
-  assert.match(battaglia, /scroll-margin-top: calc\\(var\\(--dmc-topbar-height\\) \\+ var\\(--dmc-margine-sticky-battaglia-touch\\)\\)/)
+  assert.ok(battaglia.includes('top: calc(var(--dmc-topbar-height) + var(--dmc-margine-sticky-battaglia-touch));'))
+  assert.ok(battaglia.includes('scroll-margin-top: calc(var(--dmc-topbar-height) + var(--dmc-margine-sticky-battaglia-touch));'))
   assert.match(battaglia, /\.campagna-view\.dmc-battaglia-compatta \.battaglia-dmc \.barra-navigazione \{\s*display: flex;\s*flex-wrap: nowrap;/)
   assert.match(battaglia, /min-height: 42px;/)
   assert.match(battaglia, /\.campagna-view\.dmc-battaglia-compatta \.battaglia-dmc \.controlli-turno \{\s*display: flex;\s*flex: 0 0 auto;\s*flex-wrap: nowrap;/)
@@ -46,8 +46,8 @@ test('Su touch la barra Battaglia resta una sola riga compatta sotto la topbar',
 test('La soglia di riduzione della Battaglia su touch non usa la barra campagna statica', () => {
   assert.match(controllo, /const modalitaTouch = window\.matchMedia\(/)
   assert.match(controllo, /if \(modalitaTouch\.matches\) \{/)
-  assert.match(controllo, /getComputedStyle\\(barra\\)\\.getPropertyValue\\('--dmc-margine-sticky-battaglia-touch'\\)/)
-  assert.match(controllo, /const compatta = posizioneBattaglia <= altezzaTopbar \\+ distanzaSticky \\+ MARGINE/)
+  assert.ok(controllo.includes("getComputedStyle(barra).getPropertyValue('--dmc-margine-sticky-battaglia-touch')"))
+  assert.ok(controllo.includes('const compatta = posizioneBattaglia <= altezzaTopbar + distanzaSticky + MARGINE'))
   assert.match(controllo, /pagina\.classList\.toggle\('dmc-battaglia-compatta', compatta\)/)
 })
 
