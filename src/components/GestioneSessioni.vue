@@ -572,6 +572,8 @@ function caricaIncontro(scena) {
       :png-scena="pngScena"
       :testo-indizio="testoIndizio"
       :totale-nemici="totaleNemici"
+      :creature-da-collegare="creatureDaCollegare"
+      :difficolta="difficolta"
       :richiedi-caricamento="richiediCaricamento"
       :carica-incontro="caricaIncontro"
       :nome-creatura="nomeCreatura"

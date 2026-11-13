@@ -309,3 +309,30 @@ Dopo il consolidamento della testata immersiva è stato richiesto un incremento 
 Per viewport tablet (701–1024 px e dispositivi touch fino a 1440 px), il comando **Home** passa da 64 a 72 px, il selettore delle sezioni da 134 a 156 px e lo spazio fra i controlli da 3 a 5 px. La larghezza complessiva cresce così da circa 210 a circa 240 px. L'altezza resta invariata. Su smartphone fino a 700 px e su desktop rimangono le dimensioni precedenti.
 
 **Motivazione UX:** incrementare leggermente l'area disponibile per i comandi su tablet, conservando la centralità e la gerarchia visiva della navigazione. Sono stati aggiunti controlli statici sui breakpoint; la verifica visiva su iPad rimane necessaria.
+
+## 13 novembre 2026 — R4.11c: errore di rendering nelle scene con incontri
+
+### Segnalazione
+
+Durante l'uso di DMC su tablet, nella campagna *Il Sesto Rintocco*, l'apertura di alcune scene con collegamenti ai combattimenti produceva uno schermo scuro sul quale rimaneva soltanto l'indicazione del nome dell'applicazione e della versione di sviluppo. Il footer «Versione di sviluppo» è presente anche in `CampagnaView.vue`, per cui **non costituisce prova di un ritorno alla Dashboard**.
+
+### Diagnosi verificata nel codice
+
+Nel componente `ConduzioneSessione.vue` la sezione condizionale `<!-- INCONTRO -->` viene renderizzata quando la scena contiene nemici oppure note di bilanciamento. Il template richiama:
+
+- `difficolta(scena, sessione)`, per presentare la valutazione dell'incontro;
+- `creatureDaCollegare(scena)`, per verificare le creature ancora da associare e disabilitare l'avvio del combattimento quando necessario.
+
+Le due funzioni **erano correttamente definite in `GestioneSessioni.vue`, ma non incluse tra le proprietà (`props`) del componente figlio né trasmesse nell'istanza `<ConduzioneSessione>`**. Il percorso di rendering, quindi, poteva generare un'eccezione solo nelle scene per le quali la sezione Incontro risultava visibile. È una causa individuata staticamente e coerente con il sintomo riferito; non sono stati acquisiti log della console Safari per dimostrare il messaggio preciso emesso nel dispositivo.
+
+### Correzione
+
+Sono state aggiunte entrambe le proprietà come funzioni obbligatorie al contratto del componente figlio; in `GestioneSessioni.vue` vengono ora collegate con gli attributi `:creature-da-collegare` e `:difficolta`. Non è stata modificata la logica di calcolo, la struttura dei dati dell'incontro, il passaggio alla Battaglia o la persistenza delle campagne.
+
+È stato aggiunto `tests/conduzione-incontri-regressione.test.js`, che verifica: contratto di proprietà, collegamento dal genitore, utilizzo di entrambi i metodi nel riquadro condizionale e permanenza dei controlli «Carica in Battaglia».
+
+### Verifica e limiti
+
+La correzione è soggetta a test Node, ESLint, Oxlint e build Vite della pipeline GitHub. Il collaudo definitivo rimane **riprodurre la scena specifica su Safari iPadOS dopo il deploy Netlify**, verificare che l'incontro sia leggibile e che l'avvio della Battaglia funzioni senza perdere i dati. Eseguire un backup JSON della campagna prima del nuovo test.
+
+**Valore per la tesi:** l'episodio mette in evidenza la necessità di coprire nei test anche i rami condizionali dell'interfaccia Vue e i contratti fra componenti, non solo l'integrità dei dati.

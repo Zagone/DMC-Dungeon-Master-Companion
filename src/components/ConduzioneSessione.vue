@@ -24,6 +24,8 @@ const props = defineProps({
   pngScena: { type: Function, required: true },
   testoIndizio: { type: Function, required: true },
   totaleNemici: { type: Function, required: true },
+  creatureDaCollegare: { type: Function, required: true },
+  difficolta: { type: Function, required: true },
   richiediCaricamento: { type: Function, required: true },
   caricaIncontro: { type: Function, required: true },
   nomeCreatura: { type: Function, required: true },
@@ -55,6 +57,8 @@ const attivitaInCorso = props.attivitaInCorso
 const pngScena = props.pngScena
 const testoIndizio = props.testoIndizio
 const totaleNemici = props.totaleNemici
+const creatureDaCollegare = props.creatureDaCollegare
+const difficolta = props.difficolta
 const richiediCaricamento = props.richiediCaricamento
 const caricaIncontro = props.caricaIncontro
 const nomeCreatura = props.nomeCreatura
