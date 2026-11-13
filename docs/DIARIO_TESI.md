@@ -93,3 +93,70 @@ Rimangono inoltre aperte la revisione editoriale completa del Compendio SRD e la
 ### Considerazione conclusiva
 
 Questa fase ha mostrato come il lavoro di progettazione non si esaurisca nell'aggiunta di funzionalità. Una volta realizzati i flussi principali, l'uso dell'applicazione rende evidenti problemi di orientamento, priorità delle informazioni e organizzazione tecnica. Le revisioni della R4.2 hanno quindi perseguito due obiettivi complementari: **ridurre la complessità percepita dal Dungeon Master** e **rendere il codice più modulare**, preservando il funzionamento delle campagne già create. L'efficacia delle scelte UX rimane da verificare attraverso un collaudo strutturato, evitando di trasformare impressioni informali in risultati sperimentali.
+
+## 13 novembre 2026 — Dal Compendio strutturato alla distribuzione multipiattaforma
+
+### Contesto: necessità di utilizzo su iPad e disponibilità fuori dall'ambiente di sviluppo
+
+DMC nasce come applicazione web per Dungeon Master, ma fino a questa fase veniva avviata principalmente tramite il server di sviluppo Vite su un computer Windows. Questa modalità era adeguata alla programmazione, non all'uso quotidiano su dispositivi diversi: per raggiungere l'app dall'iPad, infatti, sarebbe stato necessario mantenere acceso il PC e condividere la stessa rete locale.
+
+**Esigenza emersa:** poter aprire DMC da Safari su iPad, dal computer e da altri dispositivi, con un unico URL e senza dipendere dall'ambiente locale di sviluppo. Questa esigenza evidenzia la distinzione fra un prototipo funzionante in un ambiente controllato e un servizio web effettivamente accessibile nel suo contesto d'uso.
+
+### 1. Evoluzione del Compendio SRD e organizzazione dell'informazione
+
+Nel corso delle revisioni R4.4–R4.8, il Compendio è passato dalla semplice indicizzazione di porzioni del PDF alla rappresentazione più strutturata delle informazioni dell'SRD italiana 5.2.1. Lavorare direttamente sui testi estratti ha evidenziato errori caratteristici dei documenti a colonne: tabelle inserite nel corpo di una descrizione, parti di voci adiacenti associate alla scheda sbagliata e privilegi di classe non facilmente individuabili.
+
+Sono stati effettuati i seguenti interventi:
+
+- Delimitazione delle dodici classi a partire dalle intestazioni effettive, per evitare contaminazioni tra sezioni che condividono una pagina.
+- Ricostruzione delle **240 righe di progressione** (20 livelli per ciascuna delle 12 classi), con risorse specifiche e slot incantesimo.
+- Distinzione esplicita tra **tratti iniziali**, **progressione numerica**, **privilegi di classe** e **sottoclasse prevista dall'SRD**, con descrizioni collegate ai rispettivi livelli.
+- Estrazione separata delle opzioni di Metamagia dello Stregone e delle Suppliche occulte del Warlock.
+- Chiusura iniziale della tabella di avanzamento e della sezione sottoclasse, con apertura su richiesta; nella tabella l'utente può selezionare un livello oppure confrontarli tutti.
+
+**Motivazione progettuale.** La quantità delle informazioni è elevata, ma la maggior parte non è necessaria contemporaneamente. L'adozione di pannelli richiudibili applica la *divulgazione progressiva*, lasciando accessibili i contenuti approfonditi senza sovraccaricare la schermata. L'effetto atteso è una consultazione più mirata durante la preparazione e la conduzione di una sessione. Non sono ancora disponibili misure sperimentali di efficienza, tempo di ricerca o soddisfazione; pertanto tali effetti restano **ipotesi da validare**.
+
+**Distinzione metodologica.** Una tabella presente e leggibile non implica che tutto il Compendio sia editorialmente completo. Le descrizioni normative ricavate dal PDF continuano a richiedere revisione puntuale, come descritto in `docs/COMPENDIO_SRD_STATO.md`.
+
+### 2. Decisione di distribuzione: hosting statico su Cloudflare Pages
+
+Sono state considerate due strade operative: l'accesso al server Vite tramite rete Wi-Fi locale, utilizzabile solo con PC acceso, e la pubblicazione permanente della build statica su un servizio HTTPS. Per rispondere all'esigenza di utilizzare DMC su iPad anche fuori dalla rete domestica, è stata scelta la seconda soluzione.
+
+Il servizio individuato è **Cloudflare Pages**, nella configurazione gratuita per siti statici e con distribuzione da repository GitHub. La scelta deriva dalle caratteristiche tecniche dell'architettura esistente:
+
+- DMC è sviluppata con **Vue 3 + Vite**, che produce un insieme di file statici nella directory `dist`.
+- Il **router hash** già presente (`createWebHashHistory()`) gestisce la navigazione sul client, senza introdurre un server applicativo per le rotte.
+- Gli archivi SRD JSON possono essere distribuiti come risorse statiche e caricati all'occorrenza.
+- Collegare il ramo di sviluppo al servizio di hosting consente di associare le pubblicazioni a commit e pipeline di verifica, preservando la tracciabilità del processo.
+
+**Configurazione predisposta:** versione di Node.js stabilizzata tramite `.node-version` (`24.12.0`), comando `npm run build`, directory `dist` e ramo `feature/r4-2-gestione-dati-integrazione`. Quest'ultimo è stato scelto perché `main` non contiene ancora gli ultimi interventi del progetto.
+
+**Perimetro dei costi:** per la versione statica, il piano Free di Cloudflare Pages offre un livello di risorse adeguato alla sperimentazione iniziale, senza costo mensile previsto per l'hosting. La valutazione non comprende un eventuale dominio personalizzato o futuri servizi backend, che andrebbero preventivati a parte.
+
+### 3. Persistenza e limiti della distribuzione su più dispositivi
+
+La pubblicazione del front-end **non equivale alla sincronizzazione dei dati**. L'architettura attuale salva campagne, homebrew e preferenze nel `localStorage` del browser. Tale spazio è associato al dispositivo e all'origine del sito: i dati presenti nel browser del PC non saranno automaticamente disponibili sull'iPad né sulla versione `*.pages.dev`.
+
+La continuità dei dati tra dispositivi è quindi garantita, allo stato attuale, soltanto dal trasferimento **manuale dei file JSON** tramite le funzioni di esportazione e importazione dell'Archivio. Questa scelta permette di pubblicare la web app senza introdurre immediatamente sistemi di autenticazione o un database, ma limita la continuità d'uso fra dispositivi.
+
+Questa limitazione diventa un requisito di progettazione per un'eventuale fase successiva: valutare un modello di accesso autenticato e sincronizzazione cloud senza compromettere esportabilità, controllo dell'utente sui dati e interoperabilità.
+
+### 4. Pubblicazione web, installabilità e disponibilità offline
+
+Sono stati distinti tre concetti che possono essere facilmente confusi:
+
+1. **Sito pubblicato:** accessibile da un browser tramite URL HTTPS, anche a computer di sviluppo spento.
+2. **Collegamento nella schermata Home:** permette l'apertura rapida dall'iPad, ma non garantisce di per sé disponibilità offline.
+3. **PWA offline:** richiede una strategia aggiuntiva di manifest, cache e service worker, non attivata dalla sola pubblicazione su Cloudflare Pages.
+
+Per evitare di attribuire funzionalità non ancora realizzate, il requisito immediato è limitato alla pubblicazione e all'uso online multipiattaforma. L'eventuale modalità offline è registrata come evoluzione separata.
+
+### 5. Verifiche, evidenze e attività ancora da effettuare
+
+**Preparazione effettuata nel repository:** guida di configurazione e attivazione Cloudflare, blocco esplicito della versione Node, definizione delle impostazioni della build e protocollo di collaudo iPad/desktop. Il documento di riferimento è `docs/PUBBLICAZIONE_CLOUDFLARE_PAGES.md`.
+
+**Stato della pubblicazione:** al momento di questa annotazione, **il collegamento dell'account Cloudflare al repository e il primo deploy non sono ancora stati eseguiti**. Non esiste quindi un URL di produzione verificato da riportare come risultato. L'attivazione deve essere completata nel pannello Cloudflare dal proprietario dell'account.
+
+**Verifiche da eseguire dopo il deploy:** apertura HTTPS, caricamento archivi JSON, navigazione e refresh, persistenza in Safari su iPad, trasferimento di backup da PC, conduzione delle scene e battaglia, layout verticale/orizzontale e interazione con i pannelli del Compendio. Vanno registrati risultati osservabili e non semplici aspettative.
+
+**Rilevanza per la tesi.** L'intervento conclude una prima fase di passaggio dall'implementazione locale alla predisposizione per il contesto reale d'uso. La distribuzione online crea le condizioni per svolgere prove di usabilità su dispositivi diversi; non costituisce di per sé una dimostrazione dell'efficacia dell'interfaccia o della robustezza della persistenza.
