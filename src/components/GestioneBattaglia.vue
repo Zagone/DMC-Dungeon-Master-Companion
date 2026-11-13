@@ -1284,9 +1284,10 @@ function nuovoIncontro() {
         <!-- AZIONI E DETTAGLI TATTICI: sotto le condizioni, tutti espandibili. -->
         <SchedaTatticaCreatura :creatura="nemico" />
 
-        <!-- SCHEDA COMPLETA DEL NEMICO -->
+        <!-- SCHEDA COMPLETA DEL NEMICO: mantenuta solo su desktop.
+             Su touch il compendio tattico resta la vista operativa. -->
 
-        <details>
+        <details class="scheda-originale-nemico">
           <summary>Consulta la scheda originale completa</summary>
 
           <SchedaCreatura :creatura="nemico" combattimento />
@@ -2210,6 +2211,13 @@ function nuovoIncontro() {
   .chip-iniziativa,
   .condizioni-chevron {
     transition: none;
+  }
+}
+/* Sui dispositivi touch la scheda tattica riporta le informazioni
+   operative senza duplicarle nel pannello originale completo. */
+@media (max-width: 1024px), (max-width: 1440px) and (any-pointer: coarse) {
+  .battaglia-dmc .scheda-originale-nemico {
+    display: none;
   }
 }
 </style>
