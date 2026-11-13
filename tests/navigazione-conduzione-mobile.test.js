@@ -21,10 +21,10 @@ test('La pillola mobile è visibile esclusivamente durante la Conduzione', () =>
     /:class="\{ 'campagna-in-conduzione': navigazioneConduzioneMini \}"/,
   )
   assert.match(pagina, /v-if="navigazioneConduzioneMini"/)
-  assert.match(css, /@media \(max-width: 1024px\)/)
+  assert.match(css, /@media \(max-width: 1024px\), \(max-width: 1440px\) and \(any-pointer: coarse\)/)
   assert.match(css, /\.campagna-view\.campagna-in-conduzione \.navigazione-persistente/)
   assert.match(css, /\.campagna-view \.navigazione-conduzione-mobile \{\s*display: none;/)
-  assert.doesNotMatch(css.split('@media (max-width: 1024px)')[0], /\.tabs \{\s*display: none;/)
+  assert.doesNotMatch(css.split('@media (max-width: 1024px),')[0], /\.tabs \{\s*display: none;/)
 })
 
 test('La pillola è centrata, compatta e conserva la posizione sticky sotto la topbar', () => {
