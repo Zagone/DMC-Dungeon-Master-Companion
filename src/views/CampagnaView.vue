@@ -129,6 +129,13 @@ const navigazioneConduzioneMini = computed(
   () => intestazioneInConduzione.value && navigazioneCompatta.value,
 )
 
+// Il passaggio tra preparazione e conduzione cambia l'altezza della testata:
+// riallineiamo la soglia di attivazione della barra sticky dopo il rendering.
+watch(intestazioneInConduzione, async () => {
+  await nextTick()
+  aggiornaMisure()
+})
+
 const CHIAVE_RECENTI = 'dmc_campagne_recenti_v1'
 
 function registraApertura(id) {
