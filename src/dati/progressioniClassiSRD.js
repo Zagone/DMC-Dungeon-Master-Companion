@@ -184,7 +184,7 @@ function creaTabella(nome, voce) {
     const privilegi = testo.slice(0, divisore)
     // Mantieni la virgola decimale italiana nelle velocità del Monaco.
     const altreCelle = testo.slice(divisore + 1)
-      .replace(/(\\+\\d+),(\\d+ m)/g, '$1§$2')
+      .replace(/(\+\d+),(\d+ m)/g, '$1§$2')
       .split(',')
       .map((cella) => cella.replace('§', ','))
     const livello = indice + 1
