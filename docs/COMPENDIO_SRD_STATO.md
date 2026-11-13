@@ -184,3 +184,13 @@ GitHub Actions, run [43333381996](https://github.com/Zagone/DMC-Dungeon-Master-C
 - Le progressioni delle dodici classi richiedono ancora la ricostruzione e la validazione delle tabelle in formato dati.
 - La revisione voce per voce della corrispondenza fra contenuto mostrato e SRD ufficiale italiana 5.2.1 resta indispensabile prima di qualificare il Compendio come completo.
 - Il benchmark UX comparativo con RollCamp e Make a Master è un'attività distinta, già registrata nel progetto, e non viene considerato eseguito da questa integrazione.
+
+## R4.6 — Classi: confini effettivi e indice dei privilegi (13 novembre 2026)
+
+È stato introdotto il modulo `src/dati/estrazioneClassiSRD.js`, che identifica per ogni classe l'intestazione effettiva anziché usare soltanto le pagine iniziali. Questo corregge la contaminazione fra classi che condividono una pagina, ad esempio Barbaro/Bardo (p. 35), Chierico/Druido (p. 46) e Stregone/Warlock (p. 85).
+
+Le 12 schede dispongono ora di un **indice per livello** composto dai titoli riconoscibili dei privilegi con pagina di riferimento. La UI mostra tale indice in una tabella espandibile, con intestazioni semantiche e scroll orizzontale sui dispositivi piccoli; il testo completo della classe resta consultabile subito sotto.
+
+**Nota editoriale:** l'indice individua le intestazioni esplicite «Livello N: ...» presenti nel testo e può includere privilegi di sottoclasse. Non ricostruisce tutte le tabelle di avanzamento, gli slot incantesimo né le progressioni delle risorse. Non è quindi una prova di completezza delle regole.
+
+**Verifiche:** test dedicati per tutti i 12 titoli, corrispondenza delle pagine, assenza di contaminazione tra classi adiacenti e indice dei privilegi. GitHub Actions [run 43416172758](https://github.com/Zagone/DMC-Dungeon-Master-Companion/actions/runs/43416172758) superata per test, ESLint, Oxlint e build Vite. Restano da svolgere verifica editoriale puntuale delle tabelle e collaudo visuale/accessibilità in browser.
