@@ -1,10 +1,12 @@
 <script setup>
 import { computed } from 'vue'
 import { azioniDellaScheda, chiaviCaratteristiche } from '../dati/modelloCreatura.js'
+import { haContenutoTattico, haDettagliExtraTattici } from '../dati/visibilitaTattica.js'
 
 const props = defineProps({
   creatura: { type: Object, required: true },
 })
+const haDatiExtra = computed(() => haDettagliExtraTattici(props.creatura))
 const sezioniOperative = computed(() =>
   [
     { campo: 'azioni', titolo: 'Azioni', voci: azioniDellaScheda(props.creatura) },
@@ -133,7 +135,10 @@ function etichette(regola) {
       </div>
     </details>
 
-    <details class="sezione-espandibile">
+    <details
+      class="sezione-espandibile difese-extra-tattiche"
+      :class="{ 'dettagli-vuoti': !haDatiExtra }"
+    >
       <summary>Difese, immunità e informazioni aggiuntive</summary>
       <dl class="extra">
         <template
@@ -153,11 +158,19 @@ function etichette(regola) {
               creatura[riga[0]] && (!Array.isArray(creatura[riga[0]]) || creatura[riga[0]].length)
             "
           >
-            <dt>{{ riga[1] }}</dt>
-            <dd v-if="riga[0] === 'abilita'">
+            <dt :class="{ 'dettaglio-assente': !haContenutoTattico(creatura[riga[0]]) }">
+              {{ riga[1] }}
+            </dt>
+            <dd
+              v-if="riga[0] === 'abilita'"
+              :class="{ 'dettaglio-assente': !haContenutoTattico(creatura[riga[0]]) }"
+            >
               {{ creatura.abilita.map((a) => a.nome + ' ' + modificatore(a.bonus)).join('; ') }}
             </dd>
-            <dd v-else>
+            <dd
+              v-else
+              :class="{ 'dettaglio-assente': !haContenutoTattico(creatura[riga[0]]) }"
+            >
               {{
                 Array.isArray(creatura[riga[0]]) ? creatura[riga[0]].join('; ') : creatura[riga[0]]
               }}
@@ -327,5 +340,13 @@ tbody th {
 .tattica-creatura :is(summary):focus-visible {
   outline: 2px solid var(--dmc-amber);
   outline-offset: -2px;
+}
+/* Riduzione delle sezioni senza informazioni solo su tablet e telefono.
+   Il desktop conserva la visualizzazione integrale precedente. */
+@media (max-width: 1024px), (max-width: 1440px) and (any-pointer: coarse) {
+  .tattica-creatura .difese-extra-tattiche.dettagli-vuoti,
+  .tattica-creatura .difese-extra-tattiche .dettaglio-assente {
+    display: none;
+  }
 }
 </style>
