@@ -20,12 +20,17 @@ import {
   estraiTestoSingolaVoceSRD,
   estraiTestiEquipaggiamentoSRD,
   estraiTestiStrumentiSRD,
+  estraiTestiSpecieSRD,
+  estraiTestiOriginiSRD,
 } from '../dati/letturaStrutturataSRD.js'
 import TestoCompendioSRD from '../components/TestoCompendioSRD.vue'
 
 const ricerca = ref('')
 const archivioCompleto = ref(null)
 const schedeSpecie = ref(new Map())
+const testiSpecie = ref(new Map())
+const testiOrigini = ref(new Map())
+const testiClassi = ref(new Map())
 const schedeBackground = new Map(BACKGROUND_SRD.map((v) => [v.nome, v]))
 const schedeTalenti = ref([])
 const schedeOggettiMagici = ref([])
@@ -45,11 +50,11 @@ const categorieInCorso = new Map()
 async function caricaCategoria(categoriaRichiesta) {
   const destinazioni = categoriaRichiesta
     ? [categoriaRichiesta]
-    : ['Incantesimi', 'Specie', 'Talenti', 'Oggetti magici', 'Regole', 'Equipaggiamento']
+    : ['Incantesimi', 'Specie', 'Talenti', 'Oggetti magici', 'Regole', 'Equipaggiamento', 'Classi', 'Origini']
   await Promise.all(
     destinazioni.map(async (nome) => {
       const sezione = nome === 'Condizioni' ? 'Regole' : nome
-      if (!['Incantesimi', 'Specie', 'Talenti', 'Oggetti magici', 'Regole', 'Equipaggiamento'].includes(sezione))
+      if (!['Incantesimi', 'Specie', 'Talenti', 'Oggetti magici', 'Regole', 'Equipaggiamento', 'Classi', 'Origini'].includes(sezione))
         return
       if (categorieCaricate.has(sezione)) return
       if (categorieInCorso.has(sezione)) return categorieInCorso.get(sezione)
@@ -58,8 +63,18 @@ async function caricaCategoria(categoriaRichiesta) {
         try {
           const archivio = await caricaSezioneSRD(sezione === 'Regole' ? 'Condizioni' : sezione)
           if (nome === 'Incantesimi') archivioCompleto.value = validaArchivioIncantesimi(archivio)
-          if (nome === 'Specie')
+          if (nome === 'Specie') {
             schedeSpecie.value = new Map(estraiSchedeSpecieSRD(archivio).map((v) => [v.nome, v]))
+            testiSpecie.value = estraiTestiSpecieSRD(archivio)
+          }
+          if (sezione === 'Origini') testiOrigini.value = estraiTestiOriginiSRD(archivio)
+          if (sezione === 'Classi') {
+            testiClassi.value = new Map(
+              REGOLE_SRD.filter((v) => v.categoria === 'Classi').map((v) => [
+                v.nome, estrattoVoceSRD(archivio, v).testo,
+              ]),
+            )
+          }
           if (nome === 'Talenti') schedeTalenti.value = estraiTalentiSRD(archivio)
           if (nome === 'Oggetti magici')
             schedeOggettiMagici.value = estraiTestiOggettiMagiciSRD(
@@ -241,7 +256,23 @@ const vociCompendio = computed(() => {
       }
       if (v.categoria === 'Specie') {
         const dettagli = schedeSpecie.value.get(v.nome)
-        return dettagli ? { ...v, schedaSpecie: dettagli, pagineFonte: dettagli.pagine } : v
+        const corpo = testiSpecie.value.get(v.nome)
+        return dettagli
+          ? {
+              ...v,
+              schedaSpecie: dettagli,
+              descrizioneSpecie: corpo?.testo || '',
+              pagineFonte: dettagli.pagine,
+            }
+          : v
+      }
+      if (v.categoria === 'Origini') {
+        const corpo = testiOrigini.value.get(v.nome)
+        return corpo ? { ...v, descrizioneOrigine: corpo.testo } : v
+      }
+      if (v.categoria === 'Classi') {
+        const corpo = testiClassi.value.get(v.nome)
+        return corpo ? { ...v, descrizioneClasse: corpo } : v
       }
       return v
     }),
