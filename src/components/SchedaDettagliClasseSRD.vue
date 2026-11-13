@@ -22,8 +22,8 @@ const tratti = computed(() => [
 
 <template>
   <article class="scheda-classe-srd" :aria-label="'Scheda completa del ' + scheda.nome">
-    <section class="scheda-classe-srd__sezione" aria-labelledby="tratti-classe">
-      <h4 id="tratti-classe">Tratti iniziali</h4>
+    <section class="scheda-classe-srd__sezione">
+      <h4>Tratti iniziali</h4>
       <dl class="scheda-classe-srd__tratti">
         <div v-for="[nome, valore] in tratti" :key="nome" class="scheda-classe-srd__tratto">
           <dt>{{ nome }}</dt>
