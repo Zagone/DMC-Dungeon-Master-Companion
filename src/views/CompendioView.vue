@@ -422,15 +422,28 @@ const risultatiPagina = computed(() =>
 )
 // La scheda apre automaticamente il testo pertinente; non espone più
 // un pulsante per visualizzare un'intera pagina grezza del PDF.
+let versioneConsultazione = 0
+
+function annullaConsultazione() {
+  versioneConsultazione += 1
+  testoFonte.value = ''
+  erroreFonte.value = ''
+  voceFonte.value = null
+  caricamentoFonte.value = false
+}
+
+// Una nuova consultazione prevale sulla precedente anche con richieste
+// concorrenti: una risposta tardiva non può sovrascrivere la voce aperta.
 async function consultaFonte(regola) {
-  if (caricamentoFonte.value || !['Classi', 'Specie', 'Origini', 'Regole', 'Condizioni'].includes(regola.categoria)) return
+  if (!['Classi', 'Origini', 'Regole', 'Condizioni'].includes(regola.categoria)) return
+  const versione = ++versioneConsultazione
   testoFonte.value = ''
   erroreFonte.value = ''
   voceFonte.value = regola.id
   caricamentoFonte.value = true
   try {
     const dati = await caricaSezioneSRD(regola.categoria)
-    if (voceFonte.value !== regola.id) return
+    if (versione !== versioneConsultazione || aperta.value !== regola.id) return
     const testo = regola.categoria === 'Classi'
       ? estrattoVoceSRD(dati, regola).testo
       : estraiTestoSingolaVoceSRD(dati, regola)
@@ -439,11 +452,14 @@ async function consultaFonte(regola) {
       erroreFonte.value = 'La descrizione completa non è ancora associata con certezza a questa voce.'
     }
   } catch (errore) {
-    if (voceFonte.value === regola.id) erroreFonte.value = errore.message
+    if (versione === versioneConsultazione && aperta.value === regola.id) {
+      erroreFonte.value = errore.message || 'Impossibile caricare la voce.'
+    }
   } finally {
-    caricamentoFonte.value = false
+    if (versione === versioneConsultazione) caricamentoFonte.value = false
   }
 }
+
 function scegliCategoria(id) {
   categoria.value = id
   if (id) void caricaCategoria(id)
@@ -457,9 +473,7 @@ function scegliCategoria(id) {
   soloDettagli.value = false
   pagina.value = 1
   aperta.value = null
-  testoFonte.value = ''
-  erroreFonte.value = ''
-  voceFonte.value = null
+  annullaConsultazione()
 }
 function pulisci() {
   ricerca.value = ''
@@ -475,9 +489,7 @@ function pulisci() {
   soloDettagli.value = false
   pagina.value = 1
   aperta.value = null
-  testoFonte.value = ''
-  erroreFonte.value = ''
-  voceFonte.value = null
+  annullaConsultazione()
 }
 watch(ricerca, (valore) => {
   if (valore.trim()) void caricaCategoria('')
@@ -678,8 +690,7 @@ watch(
                     ) void consultaFonte(regola)
                   } else if (aperta === regola.id) {
                     aperta = null
-                    testoFonte = ''
-                    erroreFonte = ''
+                    annullaConsultazione()
                   }
                 }
               "
