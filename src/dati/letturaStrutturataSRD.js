@@ -5,6 +5,8 @@
  * pp. 202–218. La segmentazione del testo resta automatica: non attribuisce
  * una verifica editoriale al contenuto estratto.
  */
+import { estraiVociOggettiMagici } from './indiceOggettiMagiciSRD.js'
+
 const INTESTAZIONI_GLOSSARIO = String.raw`Abilità|Accecato [condizione]|Affascinato [condizione]|Afferrare|Afferrato [condizione]|Aiuto [azione]|Al giorno|Alleato|Allineamento|Amichevole [atteggiamento]|Area di effetto|Arma|Armi improvvisate|Arrotondare per difetto|Assordato [condizione]|Attacchi di opportunità|Attacco [azione]|Attacco con arma|Attacco con incantesimo|Atteggiamento|Avvelenato [condizione]|Avventura|Azione|Azione bonus|Bersaglio|Caduta [pericolo]|Campagna|Capacità di trasporto|Cilindro [area di effetto]|Classe Armatura|Classe Difficoltà|Colpo critico|Colpo senz'armi|Competenza|Competenza nelle armature|Concentrazione|Condizione|Cono [area di effetto]|Copertura|Creatura|Cubo [area di effetto]|Dadi Vita|Danni|Disidratazione [pericolo]|Disimpegno [azione]|Effetti simultanei|Effetto magico|Emanazione [area di effetto]|Fluttuare|Focus da incantatore|Grado di sfida|Guarigione|Illusioni|Immunità|Incantesimo|Incapacitato [condizione]|Incontro|Indebolimento [condizione]|Indifferente [atteggiamento]|In fiamme [pericolo]|Influenza [azione]|Iniziativa|Invisibile [condizione]|Ispirazione eroica|Leggermente oscurata|Linea [area di effetto]|Luce fioca|Luce intensa|Maestria|Magia [azione]|Maledizioni|Malnutrizione [pericolo]|Morte|Mostro|Mutaforma|Nascondersi [azione]|Nemico|Nuotare|Oggetto|Oscurità|Ostile [atteggiamento]|Paralizzato [condizione]|Percezione passiva|Percezione tellurica|Pericolo|Personaggio giocante|Personaggio non giocante|Pesantemente oscurata|Pietrificato [condizione]|Portata|Possessione|Prepararsi [azione]|Privo di sensi [condizione]|Prono [condizione]|Prova con D20|Prova di caratteristica|Punteggio di caratteristica e modificatore|Punti esperienza|Punti ferita|Punti ferita temporanei|Reazione|Resistenza|Ricerca [azione]|Riposo breve|Riposo lungo|Rituale|Rompere gli oggetti|Saltare|Salto in alto|Salto in lungo|Sanguinante|Scalare|Scatto [azione]|Scheda delle statistiche|Scheda del personaggio|Schivata [azione]|Scurovisione|Sfera [area di effetto]|Sintonia|Soffocamento [pericolo]|Soglia di danno|Sorpresa|Spaventato [condizione]|Spazio libero|Spazio occupato|Stabile|Stordito [condizione]|Strisciare|Studio [azione]|Svantaggio|Taglia|Telepatia|Teletrasporto|Terreno difficile|Tipi di danno|Tipo di creatura|Tiro per colpire|Tiro per i danni|Tiro salvezza|Tiro salvezza contro morte|Tramortire una creatura|Trattenuto [condizione]|Trucchetto|Utilizzo [azione]|Vantaggio|Velocità`.split('|')
 
 
@@ -134,58 +136,14 @@ export function estraiTestiOriginiSRD(archivio) {
 /** Associa la descrizione all'oggetto individuando il titolo e la riga tipologica
  * con rarità. Gli indici automatici non sono marcati come verificati. */
 export function estraiTestiOggettiMagiciSRD(archivio, schede) {
-  const schedePerChiave = new Map(schede.map((s) => [chiaveSRD(s.nome), s]))
-  const risultati = new Map()
-  const titoli = []
-  let corrente = null
-  const rigaTipo = (riga) =>
-    /^(oggetto meraviglioso|anello|armatura|arma|bacchetta|bastone|pergamena|pozione|verga)(?:\s*\([^)]*\))?\s*,/i.test(riga)
-  const possibileTitolo = (riga) =>
-    /^[A-ZÀ-Ú]/.test(riga) &&
-    riga.length >= 4 &&
-    riga.length <= 100 &&
-    !/[.:;!?]$/.test(riga) &&
-    !/^(?:Il|La|Le|Lo|Un|Una|Uno|Se|Quando|Finché|Ogni|Ciascun|Per|Con|Inoltre|Questo|Questa|Questi|Queste|Tabella)\b/i.test(riga)
-
-  for (const pagina of archivio?.pagine || []) {
-    if (pagina.pagina < 237) continue
-    const righe = righePulite(pagina.testo)
-    for (let i = 0; i < righe.length; i++) {
-      const singola = schedePerChiave.get(chiaveSRD(righe[i]))
-      const doppia = schedePerChiave.get(chiaveSRD(righe[i] + ' ' + (righe[i + 1] || '')))
-      const titoloDueRighe = Boolean(doppia && rigaTipo(righe[i + 2] || ''))
-      const titoloUnaRiga = Boolean(rigaTipo(righe[i + 1] || ''))
-      const intestazione =
-        (titoloDueRighe && possibileTitolo(righe[i])) ||
-        (titoloUnaRiga && possibileTitolo(righe[i]))
-      // Non trattare come titolo la prima frase di un effetto che termina
-      // con una parola come "anello": la riga successiva potrebbe iniziare
-      // casualmente con "Anello," e simulare una riga tipologica.
-      if (intestazione) {
-        const scheda = titoloDueRighe ? doppia : singola
-        corrente = scheda ? { scheda, pagina: pagina.pagina, righe: [], pagine: [pagina.pagina] } : null
-        if (corrente) titoli.push(corrente)
-        i += titoloDueRighe ? 2 : 1
-        continue
-      }
-      if (corrente) {
-        if (!corrente.pagine.includes(pagina.pagina)) corrente.pagine.push(pagina.pagina)
-        corrente.righe.push(righe[i])
-      }
-    }
-  }
-  for (const voce of titoli) {
-    const descrizione = voce.righe.join('\n').trim()
-    if (descrizione.length < 15) continue
-    risultati.set(chiaveSRD(voce.scheda.nome), {
-      ...voce.scheda,
-      descrizione,
-      descrizioneEstratta: true,
-      dettagliCompleti: false,
-      pagineFonte: voce.pagine,
-    })
-  }
-  return schede.map((voce) => risultati.get(chiaveSRD(voce.nome)) || voce)
+  const complete = new Map(
+    estraiVociOggettiMagici(archivio)
+      .map((voce) => [chiaveSRD(voce.nome), voce]),
+  )
+  return schede.map((scheda) => {
+    const contenuto = complete.get(chiaveSRD(scheda.nome))
+    return contenuto ? { ...scheda, ...contenuto, id: scheda.id } : scheda
+  })
 }
 
 /**
