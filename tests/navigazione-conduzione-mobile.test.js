@@ -14,7 +14,11 @@ const css = readFileSync(
 test('La pillola mobile è visibile esclusivamente durante la Conduzione', () => {
   assert.match(
     pagina,
-    /navigazioneConduzioneMini = computed\([\s\S]*?sezione\.value === 'sessioni' && Boolean\(conduzioneAttiva\.value\) && navigazioneCompatta\.value/,
+    /intestazioneInConduzione = computed\([\s\S]*?sezione\.value === 'sessioni' && Boolean\(conduzioneAttiva\.value\)/,
+  )
+  assert.match(
+    pagina,
+    /navigazioneConduzioneMini = computed\([\s\S]*?intestazioneInConduzione\.value && navigazioneCompatta\.value/,
   )
   assert.match(
     pagina,
@@ -48,6 +52,14 @@ test('La pillola è centrata, compatta e conserva la posizione sticky sotto la t
   assert.match(css, /min-height: 46px;/)
   assert.match(css, /top: calc\(var\(--dmc-topbar-height\) \+ 6px\);/)
   assert.match(css, /\.campagna-view\.campagna-in-conduzione \.navigazione-persistente[\s\S]*?:is\(\.navigazione-contesto, \.tabs\) \{\s*display: none;/)
+})
+
+test('La pillola mantiene le placche materiche coerenti con la navigazione originale', () => {
+  assert.match(css, /\.campagna-view \.mini-uscita-campagna \{[\s\S]*?border-image: var\(--dmc-art-ardesia\)/)
+  assert.match(css, /\.campagna-view \.mini-sezione-conduzione \{[\s\S]*?border-image: var\(--dmc-art-ambra\)/)
+  assert.match(css, /\.campagna-view \.mini-selettore-campagna \{[\s\S]*?color: var\(--dmc-ink\)/)
+  assert.match(css, /border-radius: 8px 12px 7px 10px;/)
+  assert.match(css, /box-shadow: 0 3px 0 var\(--dmc-outline\);/)
 })
 
 test('Il menu compatto mantiene tutte le sezioni e una uscita accessibile', () => {
