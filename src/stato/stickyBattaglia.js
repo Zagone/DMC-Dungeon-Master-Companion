@@ -50,8 +50,13 @@ export function installaStickyBattaglia(router) {
         getComputedStyle(document.documentElement).getPropertyValue('--dmc-topbar-height'),
       ) || 58
 
+      // La soglia deve coincidere con il nuovo offset sticky definito
+      // nel CSS: evita una barra che resta estesa mentre si fissa in alto.
+      const distanzaSticky = Number.parseFloat(
+        getComputedStyle(barra).getPropertyValue('--dmc-margine-sticky-battaglia-touch'),
+      ) || 16
       const posizioneBattaglia = battaglia.getBoundingClientRect().top
-      const compatta = posizioneBattaglia <= altezzaTopbar + MARGINE
+      const compatta = posizioneBattaglia <= altezzaTopbar + distanzaSticky + MARGINE
 
       pagina.classList.toggle('dmc-battaglia-compatta', compatta)
       return
