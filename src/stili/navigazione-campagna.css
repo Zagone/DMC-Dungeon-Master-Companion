@@ -89,6 +89,11 @@
     0 8px 20px rgb(0 0 0 / 18%);
 }
 
+/* La barra minimal della Conduzione compare solo su tablet e telefono. */
+.campagna-view .navigazione-conduzione-mobile {
+  display: none;
+}
+
 /* CONTESTO DELLA CAMPAGNA */
 
 .campagna-view .navigazione-contesto {
@@ -209,6 +214,100 @@
 }
 
 /* RESPONSIVE */
+
+/* Durante la Conduzione la navigazione sticky diventa una piccola
+   pillola centrale: non occupa l'intera larghezza su iPad e smartphone. */
+@media (max-width: 1024px) {
+  .campagna-view.campagna-in-conduzione .navigazione-persistente,
+  .campagna-view.campagna-in-conduzione .navigazione-persistente.compatta {
+    top: calc(var(--dmc-topbar-height) + 6px);
+    box-sizing: border-box;
+    width: max-content;
+    max-width: calc(100% - 16px);
+    min-height: 46px;
+    margin: 8px auto 12px;
+    padding: 2px 4px;
+    border: 1px solid rgb(229 166 92 / 54%);
+    border-radius: 999px;
+    background: var(--dmc-surface-soft);
+    box-shadow:
+      0 3px 0 rgb(6 10 16 / 55%),
+      0 6px 14px rgb(0 0 0 / 18%);
+  }
+
+  .campagna-view.campagna-in-conduzione .navigazione-persistente
+    :is(.navigazione-contesto, .tabs) {
+    display: none;
+  }
+
+  .campagna-view.campagna-in-conduzione .navigazione-conduzione-mobile {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    height: 42px;
+  }
+
+  .campagna-view .mini-uscita-campagna {
+    display: grid;
+    flex: 0 0 42px;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--dmc-amber-light);
+    font: 700 22px var(--dmc-font-body);
+    cursor: pointer;
+  }
+
+  .campagna-view .mini-sezione-conduzione {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-width: 0;
+  }
+
+  .campagna-view .mini-selettore-campagna {
+    box-sizing: border-box;
+    width: 146px;
+    max-width: calc(100vw - 90px);
+    height: 42px;
+    padding: 0 25px 0 12px;
+    appearance: none;
+    -webkit-appearance: none;
+    border: 0;
+    border-radius: 999px;
+    background: var(--dmc-ink);
+    color: var(--dmc-cream);
+    font: 750 13px var(--dmc-font-body);
+    text-overflow: ellipsis;
+    cursor: pointer;
+  }
+
+  .campagna-view .mini-chevron {
+    position: absolute;
+    right: 12px;
+    color: var(--dmc-amber-light);
+    font-size: 13px;
+    pointer-events: none;
+  }
+
+  .campagna-view .mini-selettore-campagna:focus-visible,
+  .campagna-view .mini-uscita-campagna:focus-visible {
+    outline: 3px solid var(--dmc-amber);
+    outline-offset: 2px;
+  }
+
+  @media (hover: hover) {
+    .campagna-view .mini-uscita-campagna:hover,
+    .campagna-view .mini-selettore-campagna:hover {
+      background-color: var(--dmc-surface-raised);
+    }
+  }
+}
 
 @media (max-width: 700px) {
   .campagna-view .navigazione-persistente {
