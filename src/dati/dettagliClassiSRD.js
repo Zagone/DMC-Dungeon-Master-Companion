@@ -219,7 +219,17 @@ function rimuoviRigheProgressione(testo) {
     }
     i = j
   }
-  return righe.filter((_, i) => !daEscludere.has(i)).join('\n').trim()
+  let risultato = righe.filter((_, i) => !daEscludere.has(i)).join('\n').trim()
+  // In tre pagine le righe della tabella dei 20 livelli sono alternate
+  // a titoli spezzati e dunque non formano una sequenza numerica continua.
+  // La ripresa testuale immediatamente dopo la tabella è identificata
+  // nell'SRD e preservata integralmente.
+  risultato = risultato
+    .replace(/^Privilegi del bardo\n[\s\S]*?(?=^bardica\. Una creatura)/m, '')
+    .replace(/^Privilegi del druido\n[\s\S]*?(?=^incantesimi del druido,)/m, '')
+    .replace(/^Privilegi del warlock\n[\s\S]*?(?=^richiede un warlock)/m, '')
+    .replace(/^Movimento\nArti Punti senza\n/m, '')
+  return risultato.trim()
 }
 
 /** La segmentazione delle capacità avviene per intestazione e conserva
