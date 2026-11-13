@@ -120,6 +120,11 @@ const sezione = computed(() => {
   return sezioni.some((s) => s.id === valore) ? valore : 'panoramica'
 })
 
+// Riduzione della barra sticky esclusivamente durante la Conduzione su tablet e telefono.
+const navigazioneConduzioneMini = computed(
+  () => sezione.value === 'sessioni' && Boolean(conduzioneAttiva.value),
+)
+
 const CHIAVE_RECENTI = 'dmc_campagne_recenti_v1'
 
 function registraApertura(id) {
@@ -231,6 +236,14 @@ function vaiSezione(id) {
   })
 }
 
+function selezionaSezioneMobile(evento) {
+  const destinazione = evento.target.value
+  // Il router è la fonte della sezione selezionata: un cambio rotta può
+  // essere annullato, per esempio quando il salvataggio non riesce.
+  evento.target.value = sezione.value
+  if (destinazione !== sezione.value) vaiSezione(destinazione)
+}
+
 function riprendiSessione() {
   if (conduzioneAttiva.value) {
     vaiSezione('sessioni')
@@ -313,6 +326,7 @@ function eliminaCampagnaAttiva() {
 <template>
   <div
     class="dmc dmc-pagina campagna-view"
+    :class="{ 'campagna-in-conduzione': navigazioneConduzioneMini }"
     :style="{
       '--dmc-altezza-navigazione-campagna': `${altezzaNavigazione}px`,
     }"
@@ -355,6 +369,39 @@ function eliminaCampagnaAttiva() {
               Esci dalla campagna
             </button>
           </div>
+
+          <!-- La vista compatta resta disponibile soltanto durante la Conduzione
+               e viene mostrata sotto i 1025px dal CSS responsive. -->
+          <nav
+            v-if="navigazioneConduzioneMini"
+            class="navigazione-conduzione-mobile"
+            aria-label="Navigazione compatta della campagna"
+          >
+            <button
+              type="button"
+              class="mini-uscita-campagna"
+              aria-label="Esci dalla campagna e torna alla dashboard"
+              title="Esci dalla campagna"
+              @click="tornaDashboard"
+            >
+              <span aria-hidden="true">←</span>
+            </button>
+
+            <label class="mini-sezione-conduzione">
+              <span class="sr-only">Sezione della campagna</span>
+              <select
+                class="mini-selettore-campagna"
+                :value="sezione"
+                aria-label="Sezione della campagna"
+                @change="selezionaSezioneMobile"
+              >
+                <option v-for="s in sezioni" :key="s.id" :value="s.id">
+                  {{ s.id === 'sessioni' ? 'Conduzione' : s.nome }}
+                </option>
+              </select>
+              <span class="mini-chevron" aria-hidden="true">▾</span>
+            </label>
+          </nav>
 
           <nav class="tabs" aria-label="Sezioni della campagna">
             <button

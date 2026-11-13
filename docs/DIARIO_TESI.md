@@ -224,3 +224,32 @@ Fonti di contesto:
 - https://docs.netlify.com/start/quickstarts/deploy-from-repository/
 
 **Stato metodologico:** deploy Netlify di produzione confermato dalla dashboard; accesso pubblico e prove di usabilità su iPad ancora da verificare.
+
+## 13 novembre 2026 — R4.10: navigazione sticky minimale durante la Conduzione su iPad e smartphone
+
+### Problema osservato
+
+Durante le prime verifiche pratiche dell'applicazione pubblicata su Netlify è emerso un problema di **ingombro verticale** della navigazione sticky della campagna su iPad e mobile. La barra manteneva tutte le schede e, dopo lo scorrimento, mostrava anche il nome della campagna e il pulsante di uscita. La combinazione dei due livelli di navigazione occupava una porzione rilevante dello schermo durante la lettura e conduzione delle scene.
+
+Il problema è stato segnalato dal progettista nell'uso dell'applicazione su dispositivi mobili/tablet; non costituisce un risultato di test comparativo con un campione di Dungeon Master.
+
+### Decisione progettuale e realizzazione
+
+La navigazione della campagna viene trasformata **soltanto durante una Conduzione attiva nella sezione Sessioni**, su viewport fino a 1024 px o, su dispositivi dotati di puntatore touch (ad esempio iPad in orizzontale), fino a 1440 px.
+
+La nuova barra è una **piccola pillola centrata sotto l'intestazione globale**, alta circa 46–48 px, con bordo e ombreggiatura leggeri coerenti con Crooked Realms. Contiene:
+
+- un comando compatto con etichetta accessibile per tornare alla dashboard;
+- un selettore nativo delle cinque sezioni di campagna, che mostra «Conduzione» quando la sezione attiva è Sessioni e permette di raggiungere Battaglia, Bestiario, Note e Panoramica.
+
+La barra continua a utilizzare la posizione CSS `sticky`; è centrata orizzontalmente e mantiene lo spazio sottostante libero. La navigazione completa resta presente e invariata su desktop e quando non è attiva una Conduzione. La proprietà `--dmc-altezza-navigazione-campagna` continua a misurare la barra realmente renderizzata per preservare la coerenza degli offset usati anche dalla Battaglia.
+
+La scelta di un `<select>` nativo favorisce l'interazione touch e l'accessibilità, mantenendo la navigazione fra le sezioni senza dover disegnare o gestire una lista personalizzata. Le destinazioni rimangono definite in `sezioniCampagna` e percorse dal router esistente; la funzione di scelta ripristina il valore precedente finché il router non ha effettivamente accettato il cambio di sezione, per evitare stati visivi ingannevoli in caso di mancato salvataggio.
+
+### Motivazione UX e limiti di verifica
+
+L'intervento applica il principio di **priorità del contenuto operativo**: durante la Conduzione il testo della scena e i suoi strumenti contestuali devono prevalere visivamente sulla navigazione generale. La riduzione d'ingombro è misurabile nella nuova altezza CSS, ma il miglioramento dell'usabilità richiede validazione empirica.
+
+Sono predisposti test di regressione statici per controllare la condizione di attivazione, il breakpoint per tablet in orientamento orizzontale, la presenza delle cinque sezioni e delle etichette accessibili. I test di codice e la build **non** costituiscono prova di corretta resa visiva su iPadOS: dopo il deploy occorre controllare iPad verticale/orizzontale, telefoni piccoli, focus tastiera, interazione touch e passaggio fra Conduzione e Battaglia.
+
+**Ambito del cambiamento:** `CampagnaView.vue`, `navigazione-campagna.css`, test dedicati. Nessuna modifica a salvataggi, sessioni, scene, bestiario o export/import.
