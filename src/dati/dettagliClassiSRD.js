@@ -193,6 +193,35 @@ function paragrafi(righe) {
     .trim()
 }
 
+/**
+ * L'estrazione lineare di alcune pagine del PDF interpone una tabella
+ * numerica (già disponibile separatamente nella progressione R4.7)
+ * in mezzo alla descrizione di un privilegio. Riconosciamo solo blocchi
+ * di almeno otto righe numeriche consecutive, evitando di eliminare
+ * elenchi brevi o singoli valori che fanno parte delle regole.
+ */
+function rimuoviRigheProgressione(testo) {
+  const righe = testo.split('\n')
+  const daEscludere = new Set()
+  const numerica = (riga) => {
+    const valori = riga.match(/(?:^|\s)[+−]?\d+(?:[,.]\d+)?(?:d\d+)?(?:\s|$)/g) || []
+    return valori.length >= 2 && !/[.!?;:]$/.test(riga)
+  }
+  for (let i = 0; i < righe.length;) {
+    if (!numerica(righe[i])) { i++; continue }
+    let j = i
+    while (j < righe.length && numerica(righe[j])) j++
+    if (j - i >= 8) {
+      let inizio = Math.max(0, i - 2)
+      if (inizio > 0 && /^(?:Privilegi del|—Slot incantesimo|Movimento$)/i.test(righe[inizio - 1]))
+        inizio--
+      for (let k = inizio; k < j; k++) daEscludere.add(k)
+    }
+    i = j
+  }
+  return righe.filter((_, i) => !daEscludere.has(i)).join('\n').trim()
+}
+
 /** La segmentazione delle capacità avviene per intestazione e conserva
  * l'intero testo fino alla capacità successiva, non solo la sintesi. */
 function separaPrivilegi(righe) {
@@ -226,6 +255,7 @@ function separaPrivilegi(righe) {
     }
   }
   return voci.filter((voce) => voce.testo.length >= 12)
+    .map((voce) => ({ ...voce, testo: rimuoviRigheProgressione(voce.testo) }))
 }
 
 function separaOpzioniClasse(righe, definizione) {
