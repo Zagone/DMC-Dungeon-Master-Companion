@@ -22,12 +22,34 @@ npm run preview
 
 I dati personali vengono conservati nel browser tramite `localStorage`; il clone del repository **non contiene** le campagne o i mostri salvati sul computer dell'utente. Per trasferirli usare gli strumenti di esportazione/importazione dell'Archivio. Cambiare origine/porta dell'app può comportare uno spazio `localStorage` distinto.
 
+## Pubblicazione su Cloudflare Pages
+
+**Stato:** configurazione predisposta, **non ancora pubblicata**. È necessario collegare il repository GitHub all'account Cloudflare e completare il primo deployment. La pubblicazione non viene avviata dal solo commit in GitHub.
+
+Configurazione da inserire nel pannello **Workers & Pages → Create application → Pages → GitHub**:
+
+| Parametro | Valore |
+| --- | --- |
+| Repository | `Zagone/DMC-Dungeon-Master-Companion` |
+| Production branch | `feature/r4-2-gestione-dati-integrazione` (non `main`) |
+| Framework | Vue / Vite |
+| Build command | `npm run build` |
+| Build output directory | `dist` |
+| Root directory | `/` |
+| Node.js | `24.12.0` (tramite `.node-version`) |
+
+Il router utilizza `createWebHashHistory()`, quindi non servono regole di riscrittura delle URL. Il dominio HTTPS `*.pages.dev` verrà assegnato **soltanto dopo il primo deploy riuscito**.
+
+**iPad:** DMC sarà raggiungibile da Safari all'URL Cloudflare anche a PC spento, ma non è ancora una PWA offline. Campagne e homebrew rimangono nel `localStorage` del singolo browser; trasferirli tramite esportazione/importazione JSON. Eseguire un backup **prima** di usare il nuovo dominio e non dare per scontata la sincronizzazione.
+
+Le istruzioni operative, il protocollo di collaudo e gli aspetti metodologici per la tesi sono in [docs/PUBBLICAZIONE_CLOUDFLARE_PAGES.md](docs/PUBBLICAZIONE_CLOUDFLARE_PAGES.md) e [docs/DIARIO_TESI.md](docs/DIARIO_TESI.md).
+
 ## Funzionalità principali
 
 - **Campagne e Sessioni:** preparazione in tre sezioni navigabili (impostazioni, scene, strumenti opzionali), conduzione delle scene, PNG narrativi e incontri con più tipologie di creature.
 - **Bestiario:** 330 creature SRD integrate e schede personali homebrew/PNG, editor in sei sezioni, collegamento dei PNG personali ai registri delle campagne.
 - **Battaglia:** gestione dei combattenti, iniziativa, PF e condizioni; sezioni tattiche compatte con azioni e capacità espandibili.
-- **Compendio SRD 5.2.1:** ricerca e consultazione per categorie, incantesimi, condizioni, regole, equipaggiamento e indici di altre categorie. **La copertura editoriale non è completa**: vedere `docs/COMPENDIO_SRD_STATO.md`.
+- **Compendio SRD 5.2.1:** ricerca e consultazione per categorie, incantesimi, condizioni, regole, equipaggiamento e schede di classi, tratti e sottoclassi, con progressioni per livello. **La copertura editoriale non è completa**: vedere `docs/COMPENDIO_SRD_STATO.md`.
 - **Creazione assistita con ChatGPT:** percorso guidato per comporre un prompt, aprire ChatGPT in una scheda esterna e importare un JSON compatibile. Non usa API OpenAI integrate.
 - **Archivio e backup:** esportazione e importazione dei dati del DM, gestione di riferimenti e collisioni tra identificativi.
 

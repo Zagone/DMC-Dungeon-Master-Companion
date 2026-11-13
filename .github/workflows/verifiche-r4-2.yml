@@ -16,10 +16,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Node.js 24
+      - name: Node.js (stessa versione del deploy Cloudflare)
         uses: actions/setup-node@v4
         with:
-          node-version: '24'
+          node-version-file: '.node-version'
           cache: npm
 
       - name: Installa dipendenze
