@@ -100,6 +100,23 @@ test('I tratti consultabili non richiedono la descrizione grezza del PDF', () =>
   assert.doesNotMatch(scheda, /<details\s+open\b/)
 })
 
+test('La sottoclasse SRD è un dropdown chiuso e contiene i privilegi per livello', () => {
+  const componente = readFileSync(new URL(
+    '../src/components/SchedaDettagliClasseSRD.vue', import.meta.url), 'utf8')
+  const inizio = componente.indexOf('<details class="scheda-classe-srd__sottoclasse">')
+  const fine = componente.indexOf('</details>', inizio)
+  assert.ok(inizio > 0, 'Pannello sottoclasse non presente')
+  assert.ok(fine > inizio, 'Pannello sottoclasse privo di chiusura')
+  const blocco = componente.slice(inizio, fine)
+  assert.match(blocco, /<summary>/)
+  assert.match(blocco, /scheda\.sottoclasse\.nome/)
+  assert.match(blocco, /scheda\.sottoclasse\.introduzione/)
+  assert.match(blocco, /scheda\.sottoclasse\.privilegi/)
+  assert.match(blocco, /Livello \{\{ gruppo\.livello \}\}/)
+  assert.doesNotMatch(blocco, /<details\s+open\b/)
+  assert.match(componente, /scheda-classe-srd__sottoclasse > summary:focus-visible/)
+})
+
 test('La progressione è chiusa per impostazione predefinita e filtrabile per livello', () => {
   const componente = readFileSync(new URL(
     '../src/components/TabellaProgressioneClasse.vue', import.meta.url), 'utf8')
