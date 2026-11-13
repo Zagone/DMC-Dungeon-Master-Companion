@@ -298,9 +298,15 @@
    Sul touch la barra Battaglia resta sotto la topbar globale e soltanto
    dopo lo scroll occupa una riga con round, turno e tre comandi accessibili. */
 @media (max-width: 1024px), (max-width: 1440px) and (any-pointer: coarse) {
+  .campagna-view {
+    /* Distanza libera sotto la barra DMC per evitare che Safari
+       sovrapponga parzialmente i controlli del combattimento. */
+    --dmc-margine-sticky-battaglia-touch: 16px;
+  }
+
   .campagna-view .battaglia-dmc .barra-comando {
-    top: calc(var(--dmc-topbar-height) + 4px);
-    scroll-margin-top: calc(var(--dmc-topbar-height) + 4px);
+    top: calc(var(--dmc-topbar-height) + var(--dmc-margine-sticky-battaglia-touch));
+    scroll-margin-top: calc(var(--dmc-topbar-height) + var(--dmc-margine-sticky-battaglia-touch));
     z-index: 140;
   }
 
