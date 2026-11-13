@@ -92,7 +92,7 @@ test('I tratti consultabili non richiedono la descrizione grezza del PDF', () =>
   assert.match(scheda, /Tratti iniziali/)
   assert.match(scheda, /Privilegi di classe/)
   assert.match(scheda, /Sottoclasse SRD/)
-  assert.match(scheda, /Opzioni/)
+  assert.match(scheda, /scheda\.opzioni/)
   assert.match(scheda, /gruppo\.privilegi/)
   assert.match(scheda, /TestoCompendioSRD/)
   assert.match(vista, /estraiDettagliClassiSRD/)
