@@ -425,3 +425,27 @@ I componenti `SchedaTatticaCreatura.vue` e `SchedaCreatura.vue` mostrano `notaCa
 Sono aggiunti test dedicati a visualizzazione contestuale, stile grafico, editabilità e conservazione delle annotazioni nella normalizzazione/creazione di istanze, verificando anche i 55 PF. La correttezza visiva richiede verifica in browser dopo il prossimo rilascio: le build automatiche Netlify sono attualmente sospese per contenere il consumo dei crediti. L'esportazione JSON creata in questa attività resta scaricabile indipendentemente dalla pubblicazione web.
 
 La ricostruzione mantiene le abilità documentate dalla vecchia plancia ma non inventa nuove statistiche mancanti (caratteristiche, tiri salvezza, GS e simili). Questo costituisce un limite dichiarato della scheda recuperata.
+
+## 14 novembre 2026 — R4.15: suggerimenti del copione non vincolanti in TUTTE le campagne
+
+### Problema ricorrente
+
+Durante il collaudo di *Il Sesto Rintocco* si è ripresentato un blocco della funzione **Carica in Battaglia** in una scena che aveva già dei nemici associati. Un testo narrativo come «Carica Aldren nell'incontro», conservato nel campo legacy `incontro.richiedeCreature`, veniva erroneamente interpretato come un prerequisito tecnico e confrontato con i nomi dei mostri mediante ricerca testuale. Quando le stringhe non coincidevano esattamente, il pulsante veniva disabilitato nonostante fosse presente una creatura collegata.
+
+L'utente ha esplicitamente richiesto che la correzione valga **globalmente per tutte le campagne**, esistenti, importate, homebrew e generate, e non solo per Aldren.
+
+### Decisione generale di architettura UX
+
+Il sistema distingue ora:
+- **Nemici effettivi** (`incontro.nemici`): unica fonte delle creature da istanziare per la Battaglia. Se non esiste alcun nemico l'avvio è disabilitato; gli elementi selezionati devono avere schede valide e quantità ammesse.
+- **Promemoria narrativi** (`incontro.richiedeCreature`): consigli o call to action facoltative. Restano consultabili nella Preparazione e nella Conduzione, ma **non possono mai bloccare il pulsante, l'apertura della conferma, il caricamento effettivo o la valutazione della difficoltà**.
+
+Sono state rimosse le verifiche bloccanti da `GestioneSessioni.vue`, `ConduzioneSessione.vue` e dalla funzione condivisa `valutaIncontro()`; il testo dei promemoria nei componenti di preparazione e conduzione è stato reso esplicitamente facoltativo. Il campo `richiedeCreature` è conservato per retrocompatibilità con le campagne già salvate: **nessuna migrazione distruttiva o modifica dei salvataggi esistenti**.
+
+La funzione pura `suggerimentiCreatureNonCollegate()` controlla esclusivamente quali suggerimenti mostrare, riconoscendo nomi, alias e call to action come «Carica Aldren». Le eventuali differenze di nome non cambiano l'elenco effettivo dei combattenti: il caricamento usa sempre gli ID e le istantanee delle creature collegate. Anche il prompt della Creazione assistita esplicita che `richiedeCreature` non rappresenta una precondizione.
+
+### Verifica e significato per la tesi
+
+I nuovi test di regressione valutano scenari generici con nomi e creature diversi, compresi suggerimenti mancanti e già soddisfatti. Un ulteriore test verifica che i tre punti storici di blocco (disabilitazione del pulsante, conferma e caricamento) non consultino `richiedeCreature`. Questo costituisce una verifica delle regole di interazione indipendente dalla singola campagna; non dimostra ancora il corretto comportamento visivo su Safari iPadOS.
+
+**Pubblicazione:** le build Netlify rimangono intenzionalmente sospese per controllare il consumo di crediti; il comportamento corretto sarà disponibile sul sito al successivo deployment cumulativo, dopo validazione.

@@ -291,9 +291,10 @@ function sposta(lista, indice, direzione) {
                       ></textarea>
                     </label>
 
-                    <p v-if="creatureDaCollegare(scena).length" class="attenzione">
-                      Da collegare:
-                      {{ creatureDaCollegare(scena).join(', ') }}
+                    <p v-if="creatureDaCollegare(scena).length" class="testo-secondario">
+                      Suggerimento del copione (facoltativo):
+                      {{ creatureDaCollegare(scena).join(', ') }}.
+                      Puoi caricare in Battaglia i nemici collegati anche senza seguire questo suggerimento.
                     </p>
 
                     <label>

@@ -23,10 +23,10 @@ test('soglie a quattro PG livello 2: bassa, moderata e oltre alta', () => {
   assert.match(calcola([{ pe: 200, quantita: 5 }]), /soglie: 400 \/ 600 \/ 800 PE/)
 })
 
-test('segnala collegamenti mancanti e PE non disponibili', () => {
-  assert.equal(
+test('i suggerimenti narrativi non impediscono la valutazione della difficoltà', () => {
+  assert.match(
     calcola([{ pe: 50, quantita: 1 }], { collegamentiMancanti: true }),
-    'Collega le creature mancanti prima di valutare lo scontro.',
+    /50 PE · Bassa/,
   )
   assert.equal(calcola([{ pe: null, quantita: 2 }]), 'PE non disponibili: valutazione manuale.')
 })
