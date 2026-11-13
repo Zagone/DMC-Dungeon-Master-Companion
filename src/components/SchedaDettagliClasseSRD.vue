@@ -72,46 +72,53 @@ const tratti = computed(() => [
     </section>
 
     <section class="scheda-classe-srd__sezione">
-      <h4>Sottoclasse SRD: {{ scheda.sottoclasse.nome }}</h4>
-      <p class="scheda-classe-srd__nota">
-        La SRD italiana presenta questa sottoclasse per il {{ scheda.nome }}.
-        Le altre sottoclassi non sono incluse in questo archivio SRD.
-      </p>
-      <div class="scheda-classe-srd__introduzione">
-        <TestoCompendioSRD
-          :testo="scheda.sottoclasse.introduzione"
-          :etichetta="'Introduzione della sottoclasse ' + scheda.sottoclasse.nome"
-        />
-      </div>
-      <h5 class="scheda-classe-srd__sottotitolo">Privilegi della sottoclasse</h5>
-      <div class="scheda-classe-srd__livelli">
-        <details
-          v-for="gruppo in scheda.sottoclasse.privilegi"
-          :key="'sottoclasse-' + gruppo.livello"
-          class="scheda-classe-srd__livello"
-        >
-          <summary>
-            <span>Livello {{ gruppo.livello }}</span>
-            <small>{{ gruppo.privilegi.map((privilegio) => privilegio.nome).join(' · ') }}</small>
-          </summary>
-          <div class="scheda-classe-srd__voci">
-            <section
-              v-for="(privilegio, indice) in gruppo.privilegi"
-              :key="indice"
-              class="scheda-classe-srd__voce"
-            >
-              <h5>{{ privilegio.nome }}</h5>
-              <small class="scheda-classe-srd__pagina">SRD · pagina {{ privilegio.pagina }}</small>
-              <TestoCompendioSRD
-                :testo="privilegio.testo"
-                :etichetta="'Privilegio della sottoclasse ' + privilegio.nome"
-              />
-            </section>
+      <h4>Sottoclasse SRD</h4>
+      <details class="scheda-classe-srd__sottoclasse">
+        <summary>
+          <span>{{ scheda.sottoclasse.nome }}</span>
+          <small>{{ scheda.sottoclasse.privilegi.length }} livelli con privilegi · Mostra dettagli</small>
+        </summary>
+        <div class="scheda-classe-srd__sottoclasse-contenuto">
+          <p class="scheda-classe-srd__nota">
+            La SRD italiana presenta questa sottoclasse per il {{ scheda.nome }}.
+            Le altre sottoclassi non sono incluse in questo archivio SRD.
+          </p>
+          <div class="scheda-classe-srd__introduzione">
+            <TestoCompendioSRD
+              :testo="scheda.sottoclasse.introduzione"
+              :etichetta="'Introduzione della sottoclasse ' + scheda.sottoclasse.nome"
+            />
           </div>
-        </details>
-      </div>
+          <h5 class="scheda-classe-srd__sottotitolo">Privilegi della sottoclasse</h5>
+          <div class="scheda-classe-srd__livelli">
+            <details
+              v-for="gruppo in scheda.sottoclasse.privilegi"
+              :key="'sottoclasse-' + gruppo.livello"
+              class="scheda-classe-srd__livello"
+            >
+              <summary>
+                <span>Livello {{ gruppo.livello }}</span>
+                <small>{{ gruppo.privilegi.map((privilegio) => privilegio.nome).join(' · ') }}</small>
+              </summary>
+              <div class="scheda-classe-srd__voci">
+                <section
+                  v-for="(privilegio, indice) in gruppo.privilegi"
+                  :key="indice"
+                  class="scheda-classe-srd__voce"
+                >
+                  <h5>{{ privilegio.nome }}</h5>
+                  <small class="scheda-classe-srd__pagina">SRD · pagina {{ privilegio.pagina }}</small>
+                  <TestoCompendioSRD
+                    :testo="privilegio.testo"
+                    :etichetta="'Privilegio della sottoclasse ' + privilegio.nome"
+                  />
+                </section>
+              </div>
+            </details>
+          </div>
+        </div>
+      </details>
     </section>
-
     <section v-if="scheda.opzioni" class="scheda-classe-srd__sezione">
       <h4>{{ scheda.opzioni.titolo }}</h4>
       <p class="scheda-classe-srd__nota">
@@ -254,6 +261,37 @@ const tratti = computed(() => [
   display: block;
   margin-bottom: 0.8rem;
   color: #bec8d1;
+}
+.scheda-classe-srd__sottoclasse {
+  min-width: 0;
+  border: 1px solid rgba(229, 166, 92, 0.4);
+  border-radius: 8px;
+  background: #242d38;
+  box-shadow: 2px 2px 0 rgba(5, 8, 15, 0.32);
+}
+.scheda-classe-srd__sottoclasse > summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.35rem 1rem;
+  cursor: pointer;
+  padding: 0.85rem 1rem;
+  color: #f4c589;
+  font-weight: 700;
+}
+.scheda-classe-srd__sottoclasse > summary small {
+  color: #c4ccd5;
+  font-weight: 400;
+  font-size: 0.8rem;
+}
+.scheda-classe-srd__sottoclasse > summary:focus-visible {
+  outline: 2px solid #e5a65c;
+  outline-offset: 2px;
+}
+.scheda-classe-srd__sottoclasse-contenuto {
+  min-width: 0;
+  padding: 0.85rem 1rem 1rem;
+  border-top: 1px solid rgba(229, 166, 92, 0.2);
 }
 .scheda-classe-srd__introduzione {
   margin: 0.65rem 0 1.2rem;
