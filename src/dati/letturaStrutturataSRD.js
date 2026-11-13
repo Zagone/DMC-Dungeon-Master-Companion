@@ -106,7 +106,17 @@ export function estraiGlossarioSRD(archivio) {
 
 export function estraiTestiSpecieSRD(archivio) {
   if (!Array.isArray(archivio?.pagine)) throw new TypeError('Archivio specie non valido')
-  return new Map(raccoltaSezioni(archivio, NOMI_SPECIE, 94, 97)
+  // Nella pagina 97 la tabella "Retaggi immondi" occupa entrambe le colonne
+  // ed è estratta dopo la scheda Umano. Il suo contenuto è già rappresentato
+  // nei dati strutturati delle opzioni tiefling: non appartiene all'Umano.
+  const pagine = archivio.pagine.map((pagina) => {
+    if (pagina.pagina !== 97) return pagina
+    return {
+      ...pagina,
+      testo: pagina.testo.replace(/\n\s*Retaggi immondi\s*\n[\s\S]*$/i, ''),
+    }
+  })
+  return new Map(raccoltaSezioni({ ...archivio, pagine }, NOMI_SPECIE, 94, 97)
     .map((v) => [v.nome, { testo: v.testo, pagina: v.pagina, pagine: v.pagine }]))
 }
 
