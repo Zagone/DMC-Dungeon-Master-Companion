@@ -336,3 +336,28 @@ Sono state aggiunte entrambe le proprietà come funzioni obbligatorie al contrat
 La correzione è soggetta a test Node, ESLint, Oxlint e build Vite della pipeline GitHub. Il collaudo definitivo rimane **riprodurre la scena specifica su Safari iPadOS dopo il deploy Netlify**, verificare che l'incontro sia leggibile e che l'avvio della Battaglia funzioni senza perdere i dati. Eseguire un backup JSON della campagna prima del nuovo test.
 
 **Valore per la tesi:** l'episodio mette in evidenza la necessità di coprire nei test anche i rami condizionali dell'interfaccia Vue e i contratti fra componenti, non solo l'integrità dei dati.
+
+## 13 novembre 2026 — R4.12: gerarchia della navigazione differenziata fra desktop e dispositivi touch
+
+### Problema emerso e ipotesi progettuale
+
+Durante la conduzione di campagne su tablet e smartphone, soprattutto in **Battaglia**, la sovrapposizione della top bar globale, della barra sticky con le sezioni della campagna e della barra sticky dei turni riduceva sensibilmente lo spazio destinato alle schede dei combattenti. L'ipotesi individuata è che la navigazione della campagna possa rimanere **statica su dispositivi piccoli/touch**, dato che lo scorrimento manuale risulta naturale, mentre i comandi necessari a ogni turno del combattimento devono restare immediatamente disponibili. La soluzione mantiene invece l'interazione precedente su desktop.
+
+### Scelta progettuale: navigazione statica + un solo strumento operativo persistente
+
+- **Tablet/smartphone:** la navigazione delle sezioni (Panoramica, Sessioni, Battaglia, Bestiario, Note) è nel normale flusso della pagina e scompare dall'area visibile durante lo scroll. È stato rimosso il precedente meccanismo della pillola sticky mobile. Il criterio CSS combina viewport fino a 1024 px e dispositivi touch fino a 1440 px, coprendo anche il tablet in orientamento orizzontale.
+- **Top bar globale DMC:** rimane persistente come riferimento navigazionale, senza essere modificata in questa revisione.
+- **Battaglia su touch:** la barra operativa è ancora sticky ma, superata la sua posizione iniziale, si riduce a una singola riga di circa 50–52 px; riporta l'indicazione compatta del round, il nome troncabile del combattente attivo e tre comandi touch (turno precedente, successivo, gestione delle iniziative). I pulsanti rimangono di almeno 42 px e conservano etichette accessibili; l'elenco delle iniziative si apre come pannello separato senza aumentare l'altezza permanente della barra.
+- **Desktop:** rimangono la navigazione sticky della campagna e il precedente comportamento di contrazione della barra Battaglia, perché lo spazio disponibile e il modello d'interazione sono differenti.
+
+### Implicazioni tecniche
+
+La condizione di contrazione della Battaglia, gestita in `src/stato/stickyBattaglia.js`, in precedenza assumeva che la navigazione della campagna fosse sticky e valutava la posizione del combattimento rispetto al bordo inferiore della navigazione. Dopo aver reso quest'ultima statica, quella soglia non è più utilizzabile su tablet: il codice sceglie una soglia alternativa basata sull'altezza reale della top bar globale. Sono stati introdotti controlli statici per verificare la condizione responsive, la disponibilità delle azioni e il comportamento desktop invariato; i test precedenti sulla pillola mobile sono stati sostituiti perché non descrivono più il requisito attuale.
+
+La nuova barra è ottenuta riutilizzando il componente esistente `GestioneBattaglia.vue`, senza creare un secondo set di pulsanti o duplicare la gestione dello stato dei turni. La presentazione testuale completa resta disponibile prima dello scroll; in modalità compatta sono usati simboli accompagnati da `aria-label` e `title`.
+
+### Validazione da effettuare
+
+La soluzione deve essere valutata sul sito Netlify con test pratici su iPad (verticale e orizzontale), smartphone e desktop. Verificare in particolare: visibilità completa delle schede in scroll, attivazione/ripristino della mini barra, cambiamento dell'iniziativa, menu accessibile, stato di round, assenza di elementi sovrapposti, focus tastiera e comportamento con nomi lunghi o molte iniziative. **Non sono ancora disponibili risultati empirici** che dimostrino un miglioramento misurato dell'usabilità; è una modifica sperimentale in risposta al feedback del progettista.
+
+**Ambito:** `CampagnaView.vue`, `navigazione-campagna.css`, `GestioneBattaglia.vue`, `sticky-battaglia.css`, `stickyBattaglia.js`, test di regressione e diario. Nessuna modifica alla persistenza o alla struttura delle campagne.

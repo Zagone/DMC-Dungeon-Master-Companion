@@ -128,11 +128,6 @@
     0 8px 20px rgb(0 0 0 / 18%);
 }
 
-/* La barra minimal della Conduzione compare solo su tablet e telefono. */
-.campagna-view .navigazione-conduzione-mobile {
-  display: none;
-}
-
 /* CONTESTO DELLA CAMPAGNA */
 
 .campagna-view .navigazione-contesto {
@@ -254,130 +249,22 @@
 
 /* RESPONSIVE */
 
-/* Durante la Conduzione e solo dopo lo scroll la navigazione sticky
-   diventa una pillola centrale. All'inizio la barra resta completa.
-   Copre iPad anche in orizzontale (touch fino a 1440px). */
+/* Nei dispositivi piccoli o touch la navigazione è parte del flusso,
+   non copre scene e schede durante lo scorrimento. L'intestazione
+   generale DMC rimane sticky; qui non tocchiamo la sua posizione. */
 @media (max-width: 1024px), (max-width: 1440px) and (any-pointer: coarse) {
-  .campagna-view.campagna-in-conduzione .navigazione-persistente,
-  .campagna-view.campagna-in-conduzione .navigazione-persistente.compatta {
-    top: calc(var(--dmc-topbar-height) + 6px);
-    box-sizing: border-box;
-    width: max-content;
-    max-width: calc(100% - 16px);
-    min-height: 46px;
-    margin: 8px auto 12px;
-    padding: 2px 4px;
-    border: 1px solid var(--dmc-border-soft);
-    border-radius: 8px 12px 7px 10px;
-    background: var(--dmc-surface-soft);
-    box-shadow: 0 3px 0 var(--dmc-outline);
+  .campagna-view .navigazione-persistente,
+  .campagna-view .navigazione-persistente.compatta {
+    position: static;
+    top: auto;
+    width: 100%;
+    max-width: none;
+    margin: var(--dmc-space-3) 0;
+    padding: var(--dmc-space-2) var(--dmc-space-3);
   }
 
-  .campagna-view.campagna-in-conduzione .navigazione-persistente
-    :is(.navigazione-contesto, .tabs) {
-    display: none;
-  }
-
-  .campagna-view.campagna-in-conduzione .navigazione-conduzione-mobile {
+  .campagna-view .navigazione-persistente .tabs {
     display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 3px;
-    height: 42px;
-  }
-
-  .campagna-view .mini-uscita-campagna {
-    display: grid;
-    flex: 0 0 64px;
-    place-items: center;
-    width: 64px;
-    height: 42px;
-    padding: 0 8px;
-    border: 1px solid transparent;
-    border-image: var(--dmc-art-ardesia) 32 130 36 130 fill / 7px 21px 8px 21px / 0 stretch;
-    border-radius: 5px;
-    background: var(--dmc-surface);
-    background-clip: content-box;
-    color: var(--dmc-cream);
-    font: 800 13px var(--dmc-font-body);
-    cursor: pointer;
-  }
-
-  .campagna-view .mini-sezione-conduzione {
-    position: relative;
-    display: flex;
-    align-items: center;
-    min-width: 0;
-    border: 1px solid transparent;
-    border-image: var(--dmc-art-ambra) 32 130 36 130 fill / 7px 21px 8px 21px / 0 stretch;
-    border-radius: 5px;
-    background: var(--dmc-amber);
-    background-clip: content-box;
-  }
-
-  .campagna-view .mini-selettore-campagna {
-    box-sizing: border-box;
-    width: 134px;
-    max-width: calc(100vw - 122px);
-    height: 42px;
-    padding: 0 25px 0 12px;
-    appearance: none;
-    -webkit-appearance: none;
-    border: 0;
-    border-radius: 5px;
-    background: transparent;
-    color: var(--dmc-ink);
-    font: 850 13px var(--dmc-font-body);
-    text-overflow: ellipsis;
-    cursor: pointer;
-  }
-
-  .campagna-view .mini-selettore-campagna option {
-    background: var(--dmc-surface);
-    color: var(--dmc-cream);
-  }
-
-  .campagna-view .mini-chevron {
-    position: absolute;
-    right: 12px;
-    color: var(--dmc-ink);
-    font-size: 13px;
-    pointer-events: none;
-  }
-
-  .campagna-view .mini-selettore-campagna:focus-visible,
-  .campagna-view .mini-uscita-campagna:focus-visible {
-    outline: 3px solid var(--dmc-amber);
-    outline-offset: 2px;
-  }
-
-  @media (hover: hover) {
-    .campagna-view .mini-uscita-campagna:hover {
-      filter: brightness(1.12);
-    }
-
-    .campagna-view .mini-sezione-conduzione:hover {
-      filter: brightness(1.08);
-    }
-  }
-}
-
-/* Più spazio ai controlli della mini sticky sui tablet.
-   I telefoni (<=700px) mantengono le dimensioni compatte; il desktop
-   conserva la propria navigazione completa. */
-@media (min-width: 701px) and (max-width: 1024px),
-       (min-width: 701px) and (max-width: 1440px) and (any-pointer: coarse) {
-  .campagna-view.campagna-in-conduzione .navigazione-conduzione-mobile {
-    gap: 5px;
-  }
-
-  .campagna-view.campagna-in-conduzione .mini-uscita-campagna {
-    flex-basis: 72px;
-    width: 72px;
-  }
-
-  .campagna-view.campagna-in-conduzione .mini-selettore-campagna {
-    width: 156px;
   }
 }
 

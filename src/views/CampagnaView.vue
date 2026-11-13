@@ -29,7 +29,8 @@ import {
 const route = useRoute()
 const router = useRouter()
 
-// Navigazione sticky: misura effettiva, senza offset fissi.
+// Navigazione sticky sul desktop e statica su tablet/telefono.
+// La misura resta disponibile per coordinare gli offset della Battaglia.
 
 const intestazionePagina = ref(null)
 const navigazione = ref(null)
@@ -54,7 +55,14 @@ function aggiornaAltezzaNavigazione() {
 
 function aggiornaNavigazione() {
   const elemento = intestazionePagina.value
-  if (!elemento) {
+
+  // La navigazione touch non si compatta né resta sticky:
+  // torna a essere una normale sezione della pagina.
+  const navigazioneTouch = window.matchMedia(
+    '(max-width: 1024px), (max-width: 1440px) and (any-pointer: coarse)',
+  ).matches
+
+  if (!elemento || navigazioneTouch) {
     navigazioneCompatta.value = false
     return
   }
@@ -121,12 +129,8 @@ const sezione = computed(() => {
 })
 
 // La testata mostra il contesto della sessione soltanto quando è in Conduzione.
-// La pillola resta un intervento responsive distinto, attivo solo dopo lo scroll.
 const intestazioneInConduzione = computed(
   () => sezione.value === 'sessioni' && Boolean(conduzioneAttiva.value),
-)
-const navigazioneConduzioneMini = computed(
-  () => intestazioneInConduzione.value && navigazioneCompatta.value,
 )
 
 // Il passaggio tra preparazione e conduzione cambia l'altezza della testata:
@@ -247,14 +251,6 @@ function vaiSezione(id) {
   })
 }
 
-function selezionaSezioneMobile(evento) {
-  const destinazione = evento.target.value
-  // Il router è la fonte della sezione selezionata: un cambio rotta può
-  // essere annullato, per esempio quando il salvataggio non riesce.
-  evento.target.value = sezione.value
-  if (destinazione !== sezione.value) vaiSezione(destinazione)
-}
-
 function riprendiSessione() {
   if (conduzioneAttiva.value) {
     vaiSezione('sessioni')
@@ -337,7 +333,6 @@ function eliminaCampagnaAttiva() {
 <template>
   <div
     class="dmc dmc-pagina campagna-view"
-    :class="{ 'campagna-in-conduzione': navigazioneConduzioneMini }"
     :style="{
       '--dmc-altezza-navigazione-campagna': `${altezzaNavigazione}px`,
     }"
@@ -399,38 +394,6 @@ function eliminaCampagnaAttiva() {
               Esci dalla campagna
             </button>
           </div>
-
-          <!-- Durante la Conduzione: barra completa all'inizio, pillola
-               soltanto dopo lo scroll e su schermi tablet/telefono. -->
-          <nav
-            v-if="navigazioneConduzioneMini"
-            class="navigazione-conduzione-mobile"
-            aria-label="Navigazione compatta della campagna"
-          >
-            <button
-              type="button"
-              class="mini-uscita-campagna"
-              aria-label="Home: torna alla dashboard"
-              title="Home"
-              @click="tornaDashboard"
-            >
-              Home
-            </button>
-
-            <label class="mini-sezione-conduzione">
-              <select
-                class="mini-selettore-campagna"
-                :value="sezione"
-                aria-label="Vai alla sezione"
-                @change="selezionaSezioneMobile"
-              >
-                <option v-for="s in sezioni" :key="s.id" :value="s.id">
-                  {{ s.id === 'sessioni' ? 'Conduzione' : s.nome }}
-                </option>
-              </select>
-              <span class="mini-chevron" aria-hidden="true">▾</span>
-            </label>
-          </nav>
 
           <nav class="tabs" aria-label="Sezioni della campagna">
             <button

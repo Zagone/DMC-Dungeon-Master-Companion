@@ -30,6 +30,12 @@
   );
 }
 
+/* Accessori disponibili solo quando la Battaglia si riduce su touch. */
+.campagna-view .battaglia-dmc .round-mini,
+.campagna-view .battaglia-dmc .icona-turno-breve {
+  display: none;
+}
+
 /* BARRA DEI COMANDI */
 
 .campagna-view .battaglia-dmc .barra-comando {
@@ -285,5 +291,143 @@
 
   .dmc .sezione .combattente .barra-pf > div {
     transition: none;
+  }
+}
+
+/* R4.12 — Navigazione campagna statica e UNICA barra operativa sticky.
+   Sul touch la barra Battaglia resta sotto la topbar globale e soltanto
+   dopo lo scroll occupa una riga con round, turno e tre comandi accessibili. */
+@media (max-width: 1024px), (max-width: 1440px) and (any-pointer: coarse) {
+  .campagna-view .battaglia-dmc .barra-comando {
+    top: calc(var(--dmc-topbar-height) + 4px);
+    scroll-margin-top: calc(var(--dmc-topbar-height) + 4px);
+    z-index: 140;
+  }
+
+  .campagna-view.dmc-battaglia-compatta .battaglia-dmc .barra-comando {
+    box-sizing: border-box;
+    padding: 4px 6px;
+    gap: 0;
+    border-radius: 8px 12px 7px 10px;
+    box-shadow: 0 3px 0 var(--dmc-outline);
+  }
+
+  .campagna-view.dmc-battaglia-compatta .battaglia-dmc .barra-navigazione {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 42px;
+    gap: 5px;
+    padding: 0;
+    border-top-color: transparent;
+  }
+
+  .campagna-view.dmc-battaglia-compatta .battaglia-dmc .gruppo-attivo {
+    display: flex;
+    flex: 1 1 85px;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 5px;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .campagna-view.dmc-battaglia-compatta .battaglia-dmc .gruppo-attivo .etichetta {
+    display: none;
+  }
+
+  .campagna-view.dmc-battaglia-compatta .battaglia-dmc .round-mini {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    height: 27px;
+    padding: 0 5px;
+    border: 1px solid var(--dmc-amber-dark);
+    border-radius: 5px;
+    background: var(--dmc-ink);
+    color: var(--dmc-amber-light);
+    font: 800 11px var(--dmc-font-body);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .campagna-view.dmc-battaglia-compatta .battaglia-dmc .gruppo-attivo strong {
+    display: block;
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-size: 12px;
+    line-height: 1.2;
+  }
+
+  .campagna-view.dmc-battaglia-compatta .battaglia-dmc .controlli-turno {
+    display: flex;
+    flex: 0 0 auto;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: flex-end;
+    width: auto;
+    min-width: 0;
+    gap: 3px;
+  }
+
+  .campagna-view.dmc-battaglia-compatta .battaglia-dmc .controlli-turno .pulsante {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    min-width: 42px;
+    width: 42px;
+    min-height: 42px;
+    height: 42px;
+    padding: 4px 5px;
+    white-space: nowrap;
+    font-size: 21px;
+    line-height: 1;
+  }
+
+  .campagna-view.dmc-battaglia-compatta .battaglia-dmc .controlli-turno .menu-iniziativa {
+    width: auto;
+    gap: 2px;
+    min-width: 42px;
+  }
+
+  .campagna-view.dmc-battaglia-compatta .battaglia-dmc .testo-turno-esteso {
+    display: none;
+  }
+
+  .campagna-view.dmc-battaglia-compatta .battaglia-dmc .icona-turno-breve {
+    display: inline;
+    font-size: 23px;
+    line-height: 1;
+  }
+
+  .campagna-view.dmc-battaglia-compatta .battaglia-dmc .contatore {
+    min-width: 15px;
+    height: 16px;
+    padding: 0 2px;
+    font-size: 10px;
+  }
+
+  /* L'elenco delle iniziative rimane consultabile su richiesta,
+     senza far aumentare l'altezza della barra persistente. */
+  .campagna-view.dmc-battaglia-compatta .battaglia-dmc .menu-aperto {
+    position: absolute;
+    z-index: 1;
+    top: calc(100% + 5px);
+    left: 0;
+    right: 0;
+    box-sizing: border-box;
+    max-height: min(58dvh, 460px);
+    margin: 0;
+    padding: 12px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    border: 1px solid var(--dmc-border);
+    border-radius: var(--dmc-radius-sm);
+    background: var(--dmc-surface);
+    box-shadow: 0 4px 0 var(--dmc-outline);
   }
 }
