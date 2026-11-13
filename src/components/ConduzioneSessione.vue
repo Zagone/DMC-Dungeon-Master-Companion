@@ -530,7 +530,8 @@ const messaggio = computed(() => props.messaggio)
           <section
             v-if="
               totaleNemici(scenaConsultata(sessioneInConduzione)) ||
-              scenaConsultata(sessioneInConduzione).incontro?.noteBilanciamento
+              scenaConsultata(sessioneInConduzione).incontro?.noteBilanciamento ||
+              creatureDaCollegare(scenaConsultata(sessioneInConduzione)).length
             "
             class="incontro-rapido dmc-pannello"
           >
@@ -554,10 +555,7 @@ const messaggio = computed(() => props.messaggio)
               <button
                 type="button"
                 class="dmc-btn"
-                :disabled="
-                  !totaleNemici(scenaConsultata(sessioneInConduzione)) ||
-                  creatureDaCollegare(scenaConsultata(sessioneInConduzione)).length > 0
-                "
+                :disabled="!totaleNemici(scenaConsultata(sessioneInConduzione))"
                 @click="richiediCaricamento(scenaConsultata(sessioneInConduzione))"
               >
                 Carica in Battaglia
@@ -566,10 +564,11 @@ const messaggio = computed(() => props.messaggio)
 
             <p
               v-if="creatureDaCollegare(scenaConsultata(sessioneInConduzione)).length"
-              class="attenzione"
+              class="promemoria-creature"
             >
-              Da collegare:
-              {{ creatureDaCollegare(scenaConsultata(sessioneInConduzione)).join(', ') }}
+              Suggerimento del copione (facoltativo):
+              {{ creatureDaCollegare(scenaConsultata(sessioneInConduzione)).join(', ') }}.
+              Non impedisce di caricare i nemici già collegati.
             </p>
 
             <details class="dettaglio-incontro">
@@ -758,6 +757,12 @@ const messaggio = computed(() => props.messaggio)
 
 .attenzione {
   color: var(--dmc-rust-text);
+}
+
+.promemoria-creature {
+  color: var(--dmc-muted-light);
+  font-size: 13px;
+  line-height: 1.5;
 }
 
 .conferma {
