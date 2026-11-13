@@ -182,7 +182,11 @@ function creaTabella(nome, voce) {
     const divisore = testo.indexOf('|')
     if (divisore < 0) throw new Error('Riga progressione malformata: ' + nome)
     const privilegi = testo.slice(0, divisore)
-    const altreCelle = testo.slice(divisore + 1).split(',')
+    // Mantieni la virgola decimale italiana nelle velocità del Monaco.
+    const altreCelle = testo.slice(divisore + 1)
+      .replace(/(\\+\\d+),(\\d+ m)/g, '$1§$2')
+      .split(',')
+      .map((cella) => cella.replace('§', ','))
     const livello = indice + 1
     const bonus = '+' + (2 + Math.floor(indice / 4))
     const riga = Object.freeze([
