@@ -151,7 +151,35 @@ const SOTTOCLASSI_SRD = Object.freeze({
 const INTESTAZIONE_LIVELLO = /^Livello\s+([1-9]|1[0-9]|20)\s*:\s*(.+)$/i
 const INTESTAZIONE_SOTTOCLASSE = /^Sottoclasse\s+(?:del|dello|della)\s+[^:]+:\s*(.*)$/i
 const INTESTAZIONE_PRIVILEGI = /^Privilegi di classe\s+(?:del|dello|della)\s+\S+/i
-const INTESTAZIONE_LISTA = /^(?:Lista degli incantesimi|Elenco degli incantesimi)\b/i
+const INTESTAZIONE_LISTA = /^Lista degli incantesimi (?:da|del|dello|della) [A-ZÀ-Úa-zà-ù]+$/
+// Il PDF contiene anche elenchi di opzioni specifiche delle classi,
+// che non devono essere attribuiti al privilegio dell'ultimo livello.
+const OPZIONI_CLASSE = Object.freeze({
+  Stregone: {
+    titolo: 'Opzioni di metamagia',
+    nomi: [
+      'Incantesimo celato', 'Incantesimo distante', 'Incantesimo esteso',
+      'Incantesimo intensificato', 'Incantesimo mirato', 'Incantesimo potenziato',
+      'Incantesimo preciso', 'Incantesimo raddoppiato', 'Incantesimo rapido',
+      'Incantesimo trasmutato',
+    ],
+  },
+  Warlock: {
+    titolo: 'Opzioni di suppliche occulte',
+    nomi: [
+      'Armatura delle ombre', 'Balzo ultraterreno', 'Conoscenze degli Antichi',
+      'Deflagrazione agonizzante', 'Deflagrazione respingente', 'Dono degli abissi',
+      'Dono del protettore', 'Investitura del Signore delle Catene', 'Lama assetata',
+      'Lama divoratrice', 'Lancia occulta', 'Maestro di mille forme',
+      'Maschera dei molti volti', 'Mente occulta', 'Passo ascendente',
+      'Patto della catena', 'Patto della lama', 'Patto del tomo',
+      'Punizione occulta', 'Sguardo delle due menti', 'Succhiavita',
+      'Sussurri dalla tomba', "Tutt'uno con le ombre", 'Vigore immondo',
+      'Visione dei Reami Lontani', 'Visioni velate', 'Vista del diavolo',
+      'Vista stregata',
+    ],
+  },
+})
 const RIGA_RUMORE = /^(?:System Reference Document 5\.2\.1|\d+\s+S\s+t\s+R\s+f\s+D|\d+)$/i
 
 function pulisci(riga) {
@@ -199,6 +227,26 @@ function separaPrivilegi(righe) {
   return voci.filter((voce) => voce.testo.length >= 12)
 }
 
+function separaOpzioniClasse(righe, definizione) {
+  if (!definizione) return null
+  const nomi = new Map(definizione.nomi.map((nome) => [nome.toLocaleLowerCase('it-IT'), nome]))
+  const voci = []
+  let corrente = null
+  for (const { testo, pagina } of righe) {
+    const riga = pulisci(testo)
+    const titolo = nomi.get(riga.toLocaleLowerCase('it-IT'))
+    if (titolo) {
+      corrente = { nome: titolo, pagina, testo: '' }
+      voci.push(corrente)
+    } else if (corrente && riga && !RIGA_RUMORE.test(riga)) {
+      corrente.testo += (corrente.testo ? '\n' : '') + riga
+    }
+  }
+  if (voci.length !== definizione.nomi.length)
+    throw new Error('Opzioni non riconosciute integralmente: ' + definizione.titolo)
+  return { titolo: definizione.titolo, voci }
+}
+
 function raggruppaLivelli(privilegi) {
   const gruppi = new Map()
   for (const privilegio of privilegi) {
@@ -221,7 +269,21 @@ function estraiScheda(classe) {
 
   const bloccoBase = righe.slice(indiceInizioPrivilegi + 1, indiceSottoclasse)
   const bloccoSottoclasse = righe.slice(indiceSottoclasse)
-  const privilegi = separaPrivilegi(bloccoBase)
+  const indiceLista = bloccoBase.findIndex(({ testo }) =>
+    INTESTAZIONE_LISTA.test(pulisci(testo)))
+  const indiceFine = indiceLista < 0 ? bloccoBase.length : indiceLista
+  const definizioneOpzioni = OPZIONI_CLASSE[classe.nome]
+  const indiceOpzioni = definizioneOpzioni
+    ? bloccoBase.findIndex(({ testo }) => pulisci(testo) === definizioneOpzioni.titolo)
+    : -1
+  if (definizioneOpzioni && (indiceOpzioni < 0 || indiceOpzioni >= indiceFine))
+    throw new Error('Sezione opzioni non trovata: ' + classe.nome)
+  const indiceFinePrivilegi = indiceOpzioni >= 0 ? indiceOpzioni : indiceFine
+  const privilegi = separaPrivilegi(bloccoBase.slice(0, indiceFinePrivilegi))
+  const opzioni = separaOpzioniClasse(
+    indiceOpzioni >= 0 ? bloccoBase.slice(indiceOpzioni + 1, indiceFine) : [],
+    definizioneOpzioni,
+  )
   const primoLivello = bloccoSottoclasse.findIndex(({ testo }) =>
     INTESTAZIONE_LIVELLO.test(pulisci(testo)))
   if (primoLivello < 0)
@@ -239,6 +301,7 @@ function estraiScheda(classe) {
     pagine: classe.pagine,
     tratti,
     privilegi: raggruppaLivelli(privilegi),
+    opzioni,
     sottoclasse: {
       nome: nomeSottoclasse,
       pagina: bloccoSottoclasse[0].pagina,
