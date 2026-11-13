@@ -2,7 +2,7 @@
 
 **Corso di laurea:** Interfacce e Tecnologie della Comunicazione  
 **Progetto:** Dungeon Master Companion (DMC), applicazione web per la progettazione e la gestione di campagne di Dungeons & Dragons  
-**Versione di lavoro:** Crooked Realms R4.2  
+**Versione di lavoro:** Crooked Realms R4.8 (interfaccia e Compendio); predisposizione distribuzione R4.9 sul ramo R4.2  
 **Periodo documentato in questa voce:** novembre 2026  
 **Branch di sviluppo:** `feature/r4-2-gestione-dati-integrazione`
 
