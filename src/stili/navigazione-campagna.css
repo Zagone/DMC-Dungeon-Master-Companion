@@ -215,9 +215,9 @@
 
 /* RESPONSIVE */
 
-/* Durante la Conduzione la navigazione sticky diventa una piccola
-   pillola centrale. Oltre ai telefoni copre iPad anche in orizzontale
-   (fino a 1440px su dispositivi dotati di puntatore touch). */
+/* Durante la Conduzione e solo dopo lo scroll la navigazione sticky
+   diventa una pillola centrale. All'inizio la barra resta completa.
+   Copre iPad anche in orizzontale (touch fino a 1440px). */
 @media (max-width: 1024px), (max-width: 1440px) and (any-pointer: coarse) {
   .campagna-view.campagna-in-conduzione .navigazione-persistente,
   .campagna-view.campagna-in-conduzione .navigazione-persistente.compatta {
@@ -251,16 +251,16 @@
 
   .campagna-view .mini-uscita-campagna {
     display: grid;
-    flex: 0 0 42px;
+    flex: 0 0 60px;
     place-items: center;
-    width: 42px;
+    width: 60px;
     height: 42px;
-    padding: 0;
+    padding: 0 8px;
     border: 0;
-    border-radius: 50%;
+    border-radius: 999px;
     background: transparent;
     color: var(--dmc-amber-light);
-    font: 700 22px var(--dmc-font-body);
+    font: 800 13px var(--dmc-font-body);
     cursor: pointer;
   }
 
@@ -273,8 +273,8 @@
 
   .campagna-view .mini-selettore-campagna {
     box-sizing: border-box;
-    width: 146px;
-    max-width: calc(100vw - 90px);
+    width: 134px;
+    max-width: calc(100vw - 118px);
     height: 42px;
     padding: 0 25px 0 12px;
     appearance: none;
