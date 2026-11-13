@@ -657,7 +657,12 @@ watch(
                     testoFonte = ''
                     erroreFonte = ''
                     voceFonte = null
-                    if (!regola.dettagliCompleti) void consultaFonte(regola)
+                    if (
+                      !regola.dettagliCompleti &&
+                      !regola.descrizioneClasse &&
+                      !regola.descrizioneOrigine &&
+                      regola.categoria !== 'Specie'
+                    ) void consultaFonte(regola)
                   } else if (aperta === regola.id) {
                     aperta = null
                     testoFonte = ''
@@ -803,6 +808,14 @@ watch(
                     </tbody>
                   </table>
                 </div>
+                <section v-if="regola.descrizioneClasse" class="compendio-capitolo">
+                  <h4>Progressione e privilegi della classe</h4>
+                  <p class="compendio-nota">
+                    Trascrizione dell'intera sezione della classe nell'SRD. Le tabelle complesse
+                    richiedono ancora una rappresentazione strutturata e un controllo editoriale.
+                  </p>
+                  <TestoCompendioSRD :testo="regola.descrizioneClasse" :etichetta="'Classe ' + regola.nome" />
+                </section>
                 <div v-if="regola.schedaTalento" class="compendio-estratto-specie">
                   <small
                     >{{ regola.schedaTalento.categoriaTalento }} · Pagina SRD
@@ -839,6 +852,10 @@ watch(
                     {{ regola.schedaBackground.equipaggiamentoB }}
                   </p>
                 </div>
+                <div v-if="regola.descrizioneOrigine" class="compendio-estratto-specie">
+                  <h4>Testo della descrizione SRD</h4>
+                  <TestoCompendioSRD :testo="regola.descrizioneOrigine" :etichetta="'Origine ' + regola.nome" />
+                </div>
                 <div v-if="regola.schedaSpecie" class="compendio-estratto-specie">
                   <small
                     >Metadati verificati sul PDF SRD 5.2.1 · descrizioni dei tratti ancora da
@@ -863,7 +880,16 @@ watch(
                     </div>
                   </dl>
                   <strong>Tratti della specie</strong>
-                  <ul>
+                  <p class="compendio-nota">
+                    Sono inclusi gli effetti descritti nell'SRD, oltre all'indice dei tratti.
+                    Le trascrizioni automatiche richiedono ancora la revisione editoriale.
+                  </p>
+                  <TestoCompendioSRD
+                    v-if="regola.descrizioneSpecie"
+                    :testo="regola.descrizioneSpecie"
+                    :etichetta="'Tratti della specie ' + regola.nome"
+                  />
+                  <ul v-else>
                     <li v-for="tratto in regola.schedaSpecie.tratti" :key="tratto">{{ tratto }}</li>
                   </ul>
                   <div v-if="regola.schedaSpecie.opzioni.length" class="compendio-opzioni-specie">
@@ -910,8 +936,10 @@ watch(
                 </p>
                 <small>SRD 5.2.1 italiano · riferimento PDF: pagina {{ regola.pagina }}</small>
                 <div
-                  v-if="['Classi', 'Specie', 'Origini', 'Regole', 'Condizioni'].includes(regola.categoria)
-                    && !regola.dettagliCompleti"
+                  v-if="['Classi', 'Origini', 'Regole', 'Condizioni'].includes(regola.categoria)
+                    && !regola.dettagliCompleti
+                    && !regola.descrizioneClasse
+                    && !regola.descrizioneOrigine"
                   class="compendio-fonte"
                   aria-live="polite"
                 >
@@ -963,6 +991,12 @@ watch(
   padding-top: 38px;
   padding-bottom: 65px;
 }
+.compendio-capitolo {
+  margin-block: 1.15rem;
+  border-top: 1px solid rgba(229, 166, 92, 0.25);
+  padding-top: 1rem;
+}
+.compendio-capitolo h4 { color: #e5a65c; margin: 0 0 0.65rem; }
 .compendio-eroe {
   max-width: 900px;
   margin: 0 auto 34px;
