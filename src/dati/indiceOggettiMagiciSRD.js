@@ -61,8 +61,13 @@ export function estraiIndiceOggettiMagici(archivio) {
       if (!meta) continue
       let titolo = righe[i - 1]
       // I titoli lunghi possono essere spezzati su due righe.
-      if (/^(?:e|di|del|della|dei|delle)\b/i.test(titolo) && i >= 2)
+      if (
+        i >= 2 &&
+        (/^(?:e|di|del|della|dei|delle|dello|dell['’])/i.test(titolo) ||
+          /\b(?:del|della|dello|degli|delle|di|dei|e)$/i.test(righe[i - 2]))
+      ) {
         titolo = righe[i - 2] + ' ' + titolo
+      }
       if (!titoloValido(titolo)) continue
       const chiave = titolo.toLocaleLowerCase('it-IT')
       if (!risultati.has(chiave))
