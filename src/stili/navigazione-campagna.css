@@ -216,8 +216,9 @@
 /* RESPONSIVE */
 
 /* Durante la Conduzione la navigazione sticky diventa una piccola
-   pillola centrale: non occupa l'intera larghezza su iPad e smartphone. */
-@media (max-width: 1024px) {
+   pillola centrale. Oltre ai telefoni copre iPad anche in orizzontale
+   (fino a 1440px su dispositivi dotati di puntatore touch). */
+@media (max-width: 1024px), (max-width: 1440px) and (any-pointer: coarse) {
   .campagna-view.campagna-in-conduzione .navigazione-persistente,
   .campagna-view.campagna-in-conduzione .navigazione-persistente.compatta {
     top: calc(var(--dmc-topbar-height) + 6px);
