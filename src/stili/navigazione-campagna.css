@@ -67,6 +67,45 @@
   background: var(--dmc-moss);
 }
 
+/* Una sola gerarchia informativa quando si conduce una sessione:
+   campagna come contesto, sessione come titolo operativo. */
+.campagna-view .testata-campagna--conduzione {
+  padding-top: var(--dmc-space-4);
+  padding-bottom: var(--dmc-space-4);
+}
+
+.campagna-view .testata-campagna--conduzione > div {
+  min-width: 0;
+}
+
+.campagna-view .testata-campagna--conduzione h1 {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 2px 10px;
+  max-width: none;
+  font-size: clamp(22px, 2.4vw, 31px);
+  line-height: 1.28;
+}
+
+.campagna-view .titolo-campagna-conduzione {
+  color: var(--dmc-muted-light);
+  font-size: 0.85em;
+}
+
+.campagna-view .separatore-titoli-conduzione {
+  color: var(--dmc-amber-dark);
+}
+
+.campagna-view .titolo-sessione-conduzione {
+  color: var(--dmc-amber-light);
+}
+
+.campagna-view .testata-campagna--conduzione h1:focus-visible {
+  outline: 2px solid var(--dmc-amber);
+  outline-offset: 5px;
+}
+
 /* NAVIGAZIONE STICKY */
 
 .campagna-view .navigazione-persistente {
@@ -228,12 +267,10 @@
     min-height: 46px;
     margin: 8px auto 12px;
     padding: 2px 4px;
-    border: 1px solid rgb(229 166 92 / 54%);
-    border-radius: 999px;
+    border: 1px solid var(--dmc-border-soft);
+    border-radius: 8px 12px 7px 10px;
     background: var(--dmc-surface-soft);
-    box-shadow:
-      0 3px 0 rgb(6 10 16 / 55%),
-      0 6px 14px rgb(0 0 0 / 18%);
+    box-shadow: 0 3px 0 var(--dmc-outline);
   }
 
   .campagna-view.campagna-in-conduzione .navigazione-persistente
@@ -251,15 +288,17 @@
 
   .campagna-view .mini-uscita-campagna {
     display: grid;
-    flex: 0 0 60px;
+    flex: 0 0 64px;
     place-items: center;
-    width: 60px;
+    width: 64px;
     height: 42px;
     padding: 0 8px;
-    border: 0;
-    border-radius: 999px;
-    background: transparent;
-    color: var(--dmc-amber-light);
+    border: 1px solid transparent;
+    border-image: var(--dmc-art-ardesia) 32 130 36 130 fill / 7px 21px 8px 21px / 0 stretch;
+    border-radius: 5px;
+    background: var(--dmc-surface);
+    background-clip: content-box;
+    color: var(--dmc-cream);
     font: 800 13px var(--dmc-font-body);
     cursor: pointer;
   }
@@ -269,29 +308,39 @@
     display: flex;
     align-items: center;
     min-width: 0;
+    border: 1px solid transparent;
+    border-image: var(--dmc-art-ambra) 32 130 36 130 fill / 7px 21px 8px 21px / 0 stretch;
+    border-radius: 5px;
+    background: var(--dmc-amber);
+    background-clip: content-box;
   }
 
   .campagna-view .mini-selettore-campagna {
     box-sizing: border-box;
     width: 134px;
-    max-width: calc(100vw - 118px);
+    max-width: calc(100vw - 122px);
     height: 42px;
     padding: 0 25px 0 12px;
     appearance: none;
     -webkit-appearance: none;
     border: 0;
-    border-radius: 999px;
-    background: var(--dmc-ink);
-    color: var(--dmc-cream);
-    font: 750 13px var(--dmc-font-body);
+    border-radius: 5px;
+    background: transparent;
+    color: var(--dmc-ink);
+    font: 850 13px var(--dmc-font-body);
     text-overflow: ellipsis;
     cursor: pointer;
+  }
+
+  .campagna-view .mini-selettore-campagna option {
+    background: var(--dmc-surface);
+    color: var(--dmc-cream);
   }
 
   .campagna-view .mini-chevron {
     position: absolute;
     right: 12px;
-    color: var(--dmc-amber-light);
+    color: var(--dmc-ink);
     font-size: 13px;
     pointer-events: none;
   }
@@ -303,9 +352,12 @@
   }
 
   @media (hover: hover) {
-    .campagna-view .mini-uscita-campagna:hover,
-    .campagna-view .mini-selettore-campagna:hover {
-      background-color: var(--dmc-surface-raised);
+    .campagna-view .mini-uscita-campagna:hover {
+      filter: brightness(1.12);
+    }
+
+    .campagna-view .mini-sezione-conduzione:hover {
+      filter: brightness(1.08);
     }
   }
 }
