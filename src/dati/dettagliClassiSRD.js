@@ -315,7 +315,7 @@ function estraiScheda(classe) {
   }
 }
 
-export function estraiDettagliClassiSRD(archivio) {
-  return new Map([...estraiClassiSRD(archivio)]
+export function estraiDettagliClassiSRD(archivio, classi = estraiClassiSRD(archivio)) {
+  return new Map([...classi]
     .map(([nome, classe]) => [nome, estraiScheda(classe)]))
 }
