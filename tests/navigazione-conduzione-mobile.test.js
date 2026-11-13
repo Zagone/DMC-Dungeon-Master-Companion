@@ -14,7 +14,7 @@ const css = readFileSync(
 test('La pillola mobile è visibile esclusivamente durante la Conduzione', () => {
   assert.match(
     pagina,
-    /navigazioneConduzioneMini = computed\([\s\S]*?sezione\.value === 'sessioni' && Boolean\(conduzioneAttiva\.value\)/,
+    /navigazioneConduzioneMini = computed\([\s\S]*?sezione\.value === 'sessioni' && Boolean\(conduzioneAttiva\.value\) && navigazioneCompatta\.value/,
   )
   assert.match(
     pagina,
@@ -25,6 +25,20 @@ test('La pillola mobile è visibile esclusivamente durante la Conduzione', () =>
   assert.match(css, /\.campagna-view\.campagna-in-conduzione \.navigazione-persistente/)
   assert.match(css, /\.campagna-view \.navigazione-conduzione-mobile \{\s*display: none;/)
   assert.doesNotMatch(css.split('@media (max-width: 1024px),')[0], /\.tabs \{\s*display: none;/)
+})
+
+test('La versione completa resta visibile in alto e la mini compare dopo lo scroll', () => {
+  assert.match(pagina, /window\.addEventListener\('scroll', aggiornaNavigazione/)
+  assert.match(pagina, /elemento\.getBoundingClientRect\(\)\.bottom <= altezzaBarra/)
+  assert.match(pagina, /navigazioneCompatta\.value/)
+  assert.match(pagina, /class="navigazione-persistente"/)
+  assert.match(pagina, /<nav class="tabs" aria-label="Sezioni della campagna">/)
+  assert.match(pagina, /v-if="navigazioneConduzioneMini"/)
+  // Il cambio dimensione è vincolato alla classe attivata dal computed.
+  assert.doesNotMatch(
+    css.slice(0, css.indexOf('@media (max-width: 1024px),')),
+    /\.campagna-view\.campagna-in-conduzione \.navigazione-persistente \{/,
+  )
 })
 
 test('La pillola è centrata, compatta e conserva la posizione sticky sotto la topbar', () => {
@@ -38,8 +52,10 @@ test('La pillola è centrata, compatta e conserva la posizione sticky sotto la t
 
 test('Il menu compatto mantiene tutte le sezioni e una uscita accessibile', () => {
   assert.match(pagina, /aria-label="Navigazione compatta della campagna"/)
-  assert.match(pagina, /aria-label="Esci dalla campagna e torna alla dashboard"/)
-  assert.match(pagina, /aria-label="Sezione della campagna"/)
+  assert.match(pagina, /aria-label="Home: torna alla dashboard"/)
+  assert.match(pagina, />\s*Home\s*<\/button>/)
+  assert.match(pagina, /aria-label="Vai alla sezione"/)
+  assert.doesNotMatch(pagina, />Sezione della campagna<\/span>/)
   assert.match(pagina, /v-for="s in sezioni"/)
   assert.match(pagina, /s\.id === 'sessioni' \? 'Conduzione' : s\.nome/)
   assert.match(pagina, /@change="selezionaSezioneMobile"/)
