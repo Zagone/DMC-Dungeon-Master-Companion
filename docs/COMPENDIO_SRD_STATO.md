@@ -161,3 +161,26 @@ GitHub Actions, run [43333381996](https://github.com/Zagone/DMC-Dungeon-Master-C
 
 **Criterio per dichiarare il Compendio completo:** tutte le voci verificate individualmente contro il PDF SRD 5.2.1, prive di contaminazione, con effetti e tabelle pertinenti leggibili senza riferimenti esterni. Questo criterio non è ancora soddisfatto.
 
+## R4.5 — Correzioni della qualità di consultazione (13 novembre 2026)
+
+### Problemi risolti
+
+1. **Separazione dei contenuti di specie.** La pagina SRD 97 intrecciava il testo dell'Umano con la tabella dei retaggi immondi del Tiefling. L'estrattore rimuove entrambi i frammenti tabellari dal corpo dell'Umano, conserva le descrizioni pertinenti a ciascuna specie e mantiene la tabella dei retaggi tramite i dati strutturati delle opzioni specie.
+2. **Classi e origini.** Le sezioni complete vengono caricate per categoria e mostrate direttamente all'interno della scheda, senza la necessità di aprire una trascrizione per pagina. La formattazione delle tabelle di progressione di tutte le classi rimane tuttavia da verificare.
+3. **Ricerca.** Oltre ai nomi e alle sintesi, l'indice testuale considera le descrizioni già disponibili, i testi delle specie, delle origini, delle classi e dei talenti. L'indice è computato a partire dal catalogo caricato, così da evitare la normalizzazione ripetuta di ogni voce durante la digitazione.
+4. **Richieste concorrenti.** Cambiare scheda, filtro o categoria invalida la richiesta di contenuto SRD precedente per impedire che una risposta tardiva venga associata alla nuova selezione.
+5. **Oggetti magici.** L'indice e il testo di ciascuna voce derivano ora da un unico riconoscitore delle intestazioni, capace di gestire titoli su due righe e descrittori tipologici su più righe. Il controllo sull'archivio attuale individua **250 voci con descrizioni associate**, rispetto alle 228 proposte dal precedente indicizzatore. Sono stati recuperati, tra gli altri, *Amuleto anti-individuazione e localizzazione*, *Anello della caduta morbida*, *Lama della fortuna*, *Lama del sole* e *Lanterna della rivelazione*. Il parser evita alcuni falsi titoli prodotti dalle tabelle e dal testo su colonne.
+
+### Verifiche
+
+- Test regressione aggiuntivi: contaminazione tra Tiefling e Umano, inclusione dei contenuti di classi e origini, ricerca, intestazioni degli oggetti magici su più righe e separazione delle relative descrizioni.
+- GitHub Actions sul ramo di sviluppo, [esecuzione 43413842626](https://github.com/Zagone/DMC-Dungeon-Master-Companion/actions/runs/43413842626): **107 test superati, ESLint e Oxlint superati, build Vite di produzione riuscita**.
+- Non sono state modificate le strutture persistenti di campagne, sessioni e bestiario o le procedure di import/export.
+
+### Limiti e prossime verifiche editoriali
+
+- La segmentazione automatica delle descrizioni degli oggetti magici **non è una revisione editoriale** e non certifica l'esaustività delle voci rispetto a tutte le intestazioni presenti nel PDF.
+- Le trascrizioni PDF possono contenere sillabe spezzate, parole con separazioni improprie e tabelle non strutturate. I controlli automatici non escludono tutti questi difetti.
+- Le progressioni delle dodici classi richiedono ancora la ricostruzione e la validazione delle tabelle in formato dati.
+- La revisione voce per voce della corrispondenza fra contenuto mostrato e SRD ufficiale italiana 5.2.1 resta indispensabile prima di qualificare il Compendio come completo.
+- Il benchmark UX comparativo con RollCamp e Make a Master è un'attività distinta, già registrata nel progetto, e non viene considerato eseguito da questa integrazione.
