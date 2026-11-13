@@ -40,6 +40,14 @@ test('Le nove specie sono segmentate per intestazione senza incorporare la succe
   assert.doesNotMatch(voci.get('Dragonide').testo, /^Elfo$/m)
   assert.doesNotMatch(voci.get('Elfo').testo, /^Gnomo$/m)
   assert.ok(voci.get('Tiefling').pagine.includes(97))
+  const tiefling = voci.get('Tiefling').testo
+  const umano = voci.get('Umano').testo
+  assert.match(tiefling, /Retaggio immondo/i)
+  assert.match(tiefling, /Scurovisione/i)
+  assert.match(umano, /Intraprendente/i)
+  assert.match(umano, /Versatile/i)
+  assert.doesNotMatch(umano, /Retaggi immondi|Raggio di infermità|Blocca persone|Oscurità/i)
+  assert.doesNotMatch(tiefling, /Intraprendente|Pluriabilità|Versatile/i)
 })
 
 test('I background SRD non vengono sostituiti dall’intera pagina', () => {
@@ -60,6 +68,15 @@ test('Gli oggetti magici delimitano le descrizioni anche con tipi specificati', 
   assert.match(ali.descrizione, /velocità di volo di 18 metri/i)
   assert.doesNotMatch(ali.descrizione, /Ammazzadraghi|Ammazzagiganti/i)
   assert.equal(ali.dettagliCompleti, false, 'La trascrizione automatica non è revisione editoriale')
+})
+
+test('La vista espone le descrizioni di specie, classi e origini senza dipendere da pagine grezze', () => {
+  const vista = readFileSync(new URL('../src/views/CompendioView.vue', import.meta.url), 'utf8')
+  assert.match(vista, /descrizioneSpecie/)
+  assert.match(vista, /descrizioneClasse/)
+  assert.match(vista, /descrizioneOrigine/)
+  assert.match(vista, /indiceRicerca/)
+  assert.match(vista, /annullaConsultazione/)
 })
 
 test('Le descrizioni dell’equipaggiamento sono delimitate per singolo oggetto', () => {
