@@ -7,6 +7,7 @@ import { estraiSchedeSpecieSRD } from '../dati/estrazioneSpecieSRD.js'
 import { BACKGROUND_SRD } from '../dati/backgroundSRD.js'
 import { estraiTalentiSRD } from '../dati/estrazioneTalentiSRD.js'
 import { estraiClassiSRD } from '../dati/estrazioneClassiSRD.js'
+import { estraiDettagliClassiSRD } from '../dati/dettagliClassiSRD.js'
 import { PROGRESSIONI_CLASSI_SRD } from '../dati/progressioniClassiSRD.js'
 import { MONETE_SRD } from '../dati/moneteSRD.js'
 import { ARMI_SEMPLICI_SRD } from '../dati/armiSempliciSRD.js'
@@ -26,7 +27,7 @@ import {
   estraiTestiOriginiSRD,
 } from '../dati/letturaStrutturataSRD.js'
 import TestoCompendioSRD from '../components/TestoCompendioSRD.vue'
-import TabellaProgressioneClasse from '../components/TabellaProgressioneClasse.vue'
+import SchedaDettagliClasseSRD from '../components/SchedaDettagliClasseSRD.vue'
 
 const ricerca = ref('')
 const archivioCompleto = ref(null)
@@ -34,6 +35,7 @@ const schedeSpecie = ref(new Map())
 const testiSpecie = ref(new Map())
 const testiOrigini = ref(new Map())
 const testiClassi = ref(new Map())
+const schedeClassi = ref(new Map())
 const schedeBackground = new Map(BACKGROUND_SRD.map((v) => [v.nome, v]))
 const schedeTalenti = ref([])
 const schedeOggettiMagici = ref([])
@@ -71,7 +73,11 @@ async function caricaCategoria(categoriaRichiesta) {
             testiSpecie.value = estraiTestiSpecieSRD(archivio)
           }
           if (sezione === 'Origini') testiOrigini.value = estraiTestiOriginiSRD(archivio)
-          if (sezione === 'Classi') testiClassi.value = estraiClassiSRD(archivio)
+          if (sezione === 'Classi') {
+            const estratte = estraiClassiSRD(archivio)
+            testiClassi.value = estratte
+            schedeClassi.value = estraiDettagliClassiSRD(archivio, estratte)
+          }
           if (nome === 'Talenti') schedeTalenti.value = estraiTalentiSRD(archivio)
           if (nome === 'Oggetti magici')
             schedeOggettiMagici.value = estraiTestiOggettiMagiciSRD(
@@ -269,8 +275,10 @@ const vociCompendio = computed(() => {
       }
       if (v.categoria === 'Classi') {
         const corpo = testiClassi.value.get(v.nome)
+        const scheda = schedeClassi.value.get(v.nome)
         return corpo
           ? { ...v, descrizioneClasse: corpo.testo, privilegiClasse: corpo.privilegi,
+              schedaClasse: scheda,
               tabellaProgressione: PROGRESSIONI_CLASSI_SRD[v.nome],
               pagineClasse: corpo.pagine }
           : v
@@ -831,23 +839,11 @@ watch(
                     </tbody>
                   </table>
                 </div>
-                <section v-if="regola.descrizioneClasse" class="compendio-capitolo">
-                  <h4>Progressione della classe</h4>
-                  <TabellaProgressioneClasse
-                    v-if="regola.tabellaProgressione"
-                    :tabella="regola.tabellaProgressione"
-                  />
-                  <p class="compendio-nota">
-                    I valori delle tabelle sono ricostruiti dall'SRD 5.2.1.
-                    Le descrizioni dei privilegi e delle sottoclassi sono consultabili
-                    di seguito. Il testo delle sezioni narrative estratto dal PDF
-                    è ancora soggetto a revisione editoriale.
-                  </p>
-                  <details class="compendio-descrizione-classe">
-                    <summary>Descrizioni dei privilegi e delle sottoclassi</summary>
-                    <TestoCompendioSRD :testo="regola.descrizioneClasse" :etichetta="'Classe ' + regola.nome" />
-                  </details>
-                </section>
+                <SchedaDettagliClasseSRD
+                  v-if="regola.schedaClasse && regola.tabellaProgressione"
+                  :scheda="regola.schedaClasse"
+                  :progressione="regola.tabellaProgressione"
+                />
                 <div v-if="regola.schedaTalento" class="compendio-estratto-specie">
                   <small
                     >{{ regola.schedaTalento.categoriaTalento }} · Pagina SRD
@@ -1023,30 +1019,6 @@ watch(
   padding-top: 38px;
   padding-bottom: 65px;
 }
-.compendio-descrizione-classe {
-  margin-top: 1.15rem;
-  border-top: 1px solid rgba(229, 166, 92, 0.28);
-  padding-top: 0.85rem;
-}
-.compendio-descrizione-classe summary {
-  cursor: pointer;
-  padding: 0.65rem 0;
-  color: #e5a65c;
-  font-weight: 700;
-}
-.compendio-descrizione-classe summary:focus-visible {
-  outline: 2px solid #e5a65c;
-  outline-offset: 3px;
-}
-.compendio-descrizione-classe > article {
-  margin-block: 0.65rem;
-}
-.compendio-capitolo {
-  margin-block: 1.15rem;
-  border-top: 1px solid rgba(229, 166, 92, 0.25);
-  padding-top: 1rem;
-}
-.compendio-capitolo h4 { color: #e5a65c; margin: 0 0 0.65rem; }
 .compendio-eroe {
   max-width: 900px;
   margin: 0 auto 34px;
