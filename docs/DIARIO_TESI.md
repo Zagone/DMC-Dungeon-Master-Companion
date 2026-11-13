@@ -396,3 +396,32 @@ La modifica interessa solo il livello di presentazione: **non altera i dati del 
 ### Collaudo residuo
 
 Da verificare su iPadOS e telefono: scheda senza dati extra, scheda con immunità o resistenze, scheda con sole abilità o lingue, disponibilità del menu completo su desktop, assenza di duplicazioni indesiderate e corretta accessibilità tramite tastiera e lettori di schermo. I test automatici coprono la logica dei dati e la presenza delle regole CSS, ma non sostituiscono la verifica visiva su browser reali.
+
+## 14 novembre 2026 — R4.14: ricostruzione homebrew di Aldren e note contestuali dei capitelli
+
+### Contesto
+
+Durante la verifica del personaggio homebrew **Aldren**, antagonista finale de *Il Sesto Rintocco*, è emerso che la vecchia voce `custom-aldren` conservata in `modelliLegacy.js` conteneva solo l'attacco base e un segnaposto generico per i poteri. Non rappresentava più la configurazione narrativa della plancia storica.
+
+Sono stati recuperati i testi dei tre poteri speciali dai materiali originali della campagna: Campana dell'Oblio (TS Costituzione CD 12, 1d6 tuono entro 6 m), Catene del Rimorso (TS Forza CD 12, velocità 0 entro 9 m), Voce del Giudizio (TS Saggezza CD 12, Spaventato entro 9 m), e le interazioni di **Memoria**, **Compassione**, **Coraggio**, **Verità** e **Sacrificio**.
+
+### Decisione e realizzazione
+
+Su richiesta del progettista, l'homebrew completo esportato come `DMC_Creatura_Aldren.json` utilizza **55 PF massimi direttamente nella scheda**, con CA 13 e attacco normale +4, danni 1d8+2. Questo valore è una scelta applicativa attuale e non una correzione del vecchio prototipo, che riportava 40 PF.
+
+Per separare la descrizione del potere dal relativo contesto della campagna, le regole conservano la proprietà `descrizione` e acquistano la proprietà opzionale `notaCapitello`. Le note non sono aggiunte indiscriminatamente alla fine della scheda: vengono associate agli elementi corrispondenti:
+
+- attacco normale: Coraggio e Compassione;
+- Campana dell'Oblio: Memoria;
+- Voce del Giudizio: Verità;
+- capacità narrativa di redenzione: Sacrificio.
+
+Catene del Rimorso rimane senza una nota di contrasto diretto. Le note si applicano **solo dopo il ripristino del capitello corrispondente**; costituiscono promemoria per il DM, non automazioni garantite dal motore Battaglia.
+
+I componenti `SchedaTatticaCreatura.vue` e `SchedaCreatura.vue` mostrano `notaCapitello` **immediatamente sotto la regola interessata**, in testo di dimensioni inferiori (0,74 rem), corsivo e colore secondario. Il campo è modificabile nell'editor homebrew, sia per tratti sia per azioni. La formattazione con `white-space: pre-line` conserva la separazione tra più capitelli nella stessa nota. Il modello dati e gli archivi JSON già preservano i campi aggiuntivi, senza richiedere migrazioni.
+
+### Verifiche e limiti
+
+Sono aggiunti test dedicati a visualizzazione contestuale, stile grafico, editabilità e conservazione delle annotazioni nella normalizzazione/creazione di istanze, verificando anche i 55 PF. La correttezza visiva richiede verifica in browser dopo il prossimo rilascio: le build automatiche Netlify sono attualmente sospese per contenere il consumo dei crediti. L'esportazione JSON creata in questa attività resta scaricabile indipendentemente dalla pubblicazione web.
+
+La ricostruzione mantiene le abilità documentate dalla vecchia plancia ma non inventa nuove statistiche mancanti (caratteristiche, tiri salvezza, GS e simili). Questo costituisce un limite dichiarato della scheda recuperata.
