@@ -355,12 +355,32 @@ const categorie = [
   { id: 'Equipaggiamento', titolo: 'Equipaggiamento', descrizione: 'Armi, armature e strumenti.' },
   { id: 'Oggetti magici', titolo: 'Oggetti magici', descrizione: 'Oggetti e artefatti.' },
 ]
-const risultati = computed(() => {
-  const q = ricerca.value
+// L'indice viene ricalcolato solo quando il catalogo cambia, non a ogni battuta.
+const normalizzaRicerca = (testo) =>
+  String(testo || '')
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
     .toLocaleLowerCase('it-IT')
-    .trim()
+
+const indiceRicerca = computed(
+  () =>
+    new Map(
+      vociCompendio.value.map((voce) => [
+        voce.id,
+        normalizzaRicerca(
+          [
+            voce.nome, voce.sintesi, voce.scuola, voce.descrizione,
+            voce.descrizioneSpecie, voce.descrizioneOrigine, voce.descrizioneClasse,
+            voce.schedaTalento?.descrizione, voce.schedaSpecie?.tratti?.join(' '),
+            voce.tipo, voce.rarita,
+          ].filter(Boolean).join(' '),
+        ),
+      ]),
+    ),
+)
+
+const risultati = computed(() => {
+  const q = normalizzaRicerca(ricerca.value).trim()
   const voci = vociCompendio.value.filter(
     (v) =>
       (!categoria.value || v.categoria === categoria.value) &&
@@ -376,14 +396,7 @@ const risultati = computed(() => {
       (!tempo.value || (v.tempoLancio || '').toLocaleLowerCase('it-IT').includes(tempo.value)) &&
       (!componente.value ||
         new RegExp('(^|[, ])' + componente.value + '(?=[, (]|$)').test(v.componenti || '')) &&
-      (!q ||
-        [v.nome, v.sintesi || '', v.scuola || ''].some((t) =>
-          t
-            .normalize('NFD')
-            .replace(/[\u0300-\u036f]/g, '')
-            .toLocaleLowerCase('it-IT')
-            .includes(q),
-        )),
+      (!q || indiceRicerca.value.get(v.id)?.includes(q)),
   )
   return voci
     .filter(
@@ -507,7 +520,7 @@ watch(
       </p>
       <label class="compendio-ricerca">
         <span class="sr-only">Cerca nel compendio</span>
-        <input v-model="ricerca" type="search" placeholder="Cerca nel compendio..." />
+        <input v-model="ricerca" type="search" placeholder="Cerca regole, effetti, incantesimi..." />
       </label>
     </header>
 
