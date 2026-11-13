@@ -369,3 +369,30 @@ La prima prova della R4.12 su tablet ha evidenziato una **parziale sovrapposizio
 In `sticky-battaglia.css`, il nuovo valore viene definito dalla proprietà custom `--dmc-margine-sticky-battaglia-touch` e riutilizzato per `top` e `scroll-margin-top`. In `stickyBattaglia.js`, la soglia di attivazione della modalità compatta legge lo stesso valore CSS, evitando disallineamenti tra la posizione effettiva della sticky e la logica di interazione. Il test responsive verifica entrambi.
 
 **Verifica residua:** ripetere la prova su Safari iPadOS, anche ruotando il tablet e facendo comparire o scomparire la barra del browser. L'assenza di sovrapposizioni richiede conferma sul dispositivo reale.
+
+## 14 novembre 2026 — R4.13: eliminazione dei pannelli informativamente vuoti nelle schede nemici su touch
+
+### Osservazione d'uso
+
+Durante il collaudo tablet della Battaglia è stata segnalata la presenza di pannelli espandibili poco informativi, in particolare «Difese, immunità e informazioni aggiuntive», che in alcuni nemici (caso di riferimento: **Uccello Stigeo**) proponevano un'apertura priva di dati utili, ad esempio il valore «Nessuna». È stata inoltre richiesta la rimozione su mobile/tablet del menu «Consulta la scheda originale completa», che ripropone le informazioni presenti nei pannelli tattici.
+
+### Decisione di progettazione
+
+L'obiettivo è migliorare la **densità informativa** delle schede di combattimento, riducendo gli elementi interattivi privi di contenuto e la duplicazione della stessa informazione. La modifica è limitata ai viewport piccoli o touch: fino a 1024 px, e sui dispositivi touch fino a 1440 px (ad esempio iPad in orizzontale). L'interfaccia desktop resta invariata.
+
+La sezione «Difese, immunità e informazioni aggiuntive» viene nascosta solo se non è presente **alcuna informazione effettiva** nei campi resistenze, vulnerabilità, immunità ai danni, immunità alle condizioni, abilità, linguaggi ed equipaggiamento. Stringhe segnaposto come «Nessuna», «—» o «Non indicato» non costituiscono dati utili. Se almeno un campo ha un valore significativo, il menu rimane visibile; eventuali singole righe con dati assenti vengono occultate solo nella versione touch.
+
+Il menu «Consulta la scheda originale completa» viene nascosto in **tutte le schede dei nemici nella Battaglia su touch**. Il componente completo rimane disponibile nella versione desktop; le azioni, i tratti, le caratteristiche, i tiri salvezza e le altre informazioni operative presenti in `SchedaTatticaCreatura` restano accessibili anche su tablet.
+
+### Implementazione e controlli
+
+- `src/dati/visibilitaTattica.js`: regole pure e riutilizzabili per distinguere campi vuoti, segnaposto e dati reali.
+- `SchedaTatticaCreatura.vue`: applicazione reattiva del criterio al pannello delle informazioni aggiuntive, con media query coerente con la navigazione touch.
+- `GestioneBattaglia.vue`: menu della scheda originale mantenuto su desktop ma non visualizzato nei viewport touch.
+- `tests/visibilita-tattica-touch.test.js`: casi senza dati, dati parziali e dati presenti, comprese le informazioni di un nemico esemplificativo denominato «Uccello Stigeo» (fixture di verifica, non estrazione della scheda SRD), e controlli sui breakpoint e sulla disponibilità delle schede operative.
+
+La modifica interessa solo il livello di presentazione: **non altera i dati del Bestiario, le statistiche dei nemici, le azioni, la persistenza o gli export JSON**. La scelta non va interpretata come affermazione che il nemico non possieda difese: vengono occultati soltanto i campi effettivamente privi di informazioni nell'istanza caricata.
+
+### Collaudo residuo
+
+Da verificare su iPadOS e telefono: scheda senza dati extra, scheda con immunità o resistenze, scheda con sole abilità o lingue, disponibilità del menu completo su desktop, assenza di duplicazioni indesiderate e corretta accessibilità tramite tastiera e lettori di schermo. I test automatici coprono la logica dei dati e la presenza delle regole CSS, ma non sostituiscono la verifica visiva su browser reali.
