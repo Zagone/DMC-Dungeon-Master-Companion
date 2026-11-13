@@ -6,6 +6,7 @@ import { caricaSezioneSRD, estrattoVoceSRD } from '../dati/caricamentoSezioniSRD
 import { estraiSchedeSpecieSRD } from '../dati/estrazioneSpecieSRD.js'
 import { BACKGROUND_SRD } from '../dati/backgroundSRD.js'
 import { estraiTalentiSRD } from '../dati/estrazioneTalentiSRD.js'
+import { estraiClassiSRD } from '../dati/estrazioneClassiSRD.js'
 import { MONETE_SRD } from '../dati/moneteSRD.js'
 import { ARMI_SEMPLICI_SRD } from '../dati/armiSempliciSRD.js'
 import { ARMI_DA_GUERRA_SRD, ARMATURE_SRD } from '../dati/armiArmatureSRD.js'
@@ -68,13 +69,7 @@ async function caricaCategoria(categoriaRichiesta) {
             testiSpecie.value = estraiTestiSpecieSRD(archivio)
           }
           if (sezione === 'Origini') testiOrigini.value = estraiTestiOriginiSRD(archivio)
-          if (sezione === 'Classi') {
-            testiClassi.value = new Map(
-              REGOLE_SRD.filter((v) => v.categoria === 'Classi').map((v) => [
-                v.nome, estrattoVoceSRD(archivio, v).testo,
-              ]),
-            )
-          }
+          if (sezione === 'Classi') testiClassi.value = estraiClassiSRD(archivio)
           if (nome === 'Talenti') schedeTalenti.value = estraiTalentiSRD(archivio)
           if (nome === 'Oggetti magici')
             schedeOggettiMagici.value = estraiTestiOggettiMagiciSRD(
@@ -272,7 +267,10 @@ const vociCompendio = computed(() => {
       }
       if (v.categoria === 'Classi') {
         const corpo = testiClassi.value.get(v.nome)
-        return corpo ? { ...v, descrizioneClasse: corpo } : v
+        return corpo
+          ? { ...v, descrizioneClasse: corpo.testo, privilegiClasse: corpo.privilegi,
+              pagineClasse: corpo.pagine }
+          : v
       }
       return v
     }),
@@ -831,11 +829,32 @@ watch(
                   </table>
                 </div>
                 <section v-if="regola.descrizioneClasse" class="compendio-capitolo">
-                  <h4>Progressione e privilegi della classe</h4>
+                  <h4>Privilegi della classe</h4>
                   <p class="compendio-nota">
-                    Trascrizione dell'intera sezione della classe nell'SRD. Le tabelle complesse
-                    richiedono ancora una rappresentazione strutturata e un controllo editoriale.
+                    Il testo è delimitato all'inizio e alla fine della classe nell'SRD.
+                    L'indice dei privilegi riporta i livelli esplicitamente identificati
+                    nel testo; non sostituisce le tabelle di progressione da verificare.
                   </p>
+                  <details v-if="regola.privilegiClasse?.length" class="compendio-indice-privilegi">
+                    <summary>
+                      Privilegi per livello ({{ regola.privilegiClasse.length }} voci)
+                    </summary>
+                    <div class="compendio-indice-scroll">
+                      <table>
+                        <thead>
+                          <tr><th scope="col">Livello</th><th scope="col">Privilegio</th><th scope="col">Pagina</th></tr>
+                        </thead>
+                        <tbody>
+                          <tr v-for="(privilegio, i) in regola.privilegiClasse" :key="i">
+                            <td>{{ privilegio.livello }}</td>
+                            <td>{{ privilegio.nome }}</td>
+                            <td>{{ privilegio.pagina }}</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </details>
+                  <h4>Descrizione integrale della classe</h4>
                   <TestoCompendioSRD :testo="regola.descrizioneClasse" :etichetta="'Classe ' + regola.nome" />
                 </section>
                 <div v-if="regola.schedaTalento" class="compendio-estratto-specie">
@@ -1013,6 +1032,27 @@ watch(
   padding-top: 38px;
   padding-bottom: 65px;
 }
+.compendio-indice-privilegi {
+  margin-block: 1rem 1.5rem;
+  border: 1px solid rgba(229, 166, 92, 0.36);
+  border-radius: 10px;
+  background: rgba(36, 45, 56, 0.55);
+}
+.compendio-indice-privilegi > summary {
+  cursor: pointer;
+  padding: 0.8rem 1rem;
+  color: #e5a65c;
+  font-weight: 650;
+}
+.compendio-indice-privilegi > summary:focus-visible {
+  outline: 2px solid #e5a65c;
+  outline-offset: 3px;
+}
+.compendio-indice-scroll { overflow-x: auto; }
+.compendio-indice-scroll table { width: 100%; border-collapse: collapse; }
+.compendio-indice-scroll th,
+.compendio-indice-scroll td { padding: 0.5rem 0.75rem; text-align: left; border-top: 1px solid rgba(229, 166, 92, 0.16); }
+.compendio-indice-scroll td:first-child { font-variant-numeric: tabular-nums; white-space: nowrap; }
 .compendio-capitolo {
   margin-block: 1.15rem;
   border-top: 1px solid rgba(229, 166, 92, 0.25);
