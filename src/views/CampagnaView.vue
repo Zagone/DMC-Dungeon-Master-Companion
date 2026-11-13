@@ -120,9 +120,10 @@ const sezione = computed(() => {
   return sezioni.some((s) => s.id === valore) ? valore : 'panoramica'
 })
 
-// Riduzione della barra sticky esclusivamente durante la Conduzione su tablet e telefono.
+// Mostra la pillola solo dopo lo scroll: all'apertura resta la barra completa.
+// Il breakpoint per tablet/telefono è gestito dal foglio responsive.
 const navigazioneConduzioneMini = computed(
-  () => sezione.value === 'sessioni' && Boolean(conduzioneAttiva.value),
+  () => sezione.value === 'sessioni' && Boolean(conduzioneAttiva.value) && navigazioneCompatta.value,
 )
 
 const CHIAVE_RECENTI = 'dmc_campagne_recenti_v1'
@@ -370,8 +371,8 @@ function eliminaCampagnaAttiva() {
             </button>
           </div>
 
-          <!-- La vista compatta resta disponibile soltanto durante la Conduzione
-               e viene mostrata sotto i 1025px dal CSS responsive. -->
+          <!-- Durante la Conduzione: barra completa all'inizio, pillola
+               soltanto dopo lo scroll e su schermi tablet/telefono. -->
           <nav
             v-if="navigazioneConduzioneMini"
             class="navigazione-conduzione-mobile"
@@ -380,19 +381,18 @@ function eliminaCampagnaAttiva() {
             <button
               type="button"
               class="mini-uscita-campagna"
-              aria-label="Esci dalla campagna e torna alla dashboard"
-              title="Esci dalla campagna"
+              aria-label="Home: torna alla dashboard"
+              title="Home"
               @click="tornaDashboard"
             >
-              <span aria-hidden="true">←</span>
+              Home
             </button>
 
             <label class="mini-sezione-conduzione">
-              <span class="sr-only">Sezione della campagna</span>
               <select
                 class="mini-selettore-campagna"
                 :value="sezione"
-                aria-label="Sezione della campagna"
+                aria-label="Vai alla sezione"
                 @change="selezionaSezioneMobile"
               >
                 <option v-for="s in sezioni" :key="s.id" :value="s.id">
