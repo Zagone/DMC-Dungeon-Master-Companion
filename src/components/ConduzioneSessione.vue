@@ -66,24 +66,12 @@ const messaggio = computed(() => props.messaggio)
 
 <template>
   <div class="sessioni-dmc conduzione-dmc">
-<header class="testata-conduzione dmc-pannello">
-        <div>
-          <small class="sopratitolo"> CONDUZIONE ATTIVA </small>
-
-          <h2 data-conduzione-titolo tabindex="-1">
-            {{ sessioneInConduzione.titolo }}
-          </h2>
-        </div>
-
-        <button type="button" class="dmc-btn dmc-btn--secondary" @click="esciDaConduzione">
-          Torna alla preparazione
-        </button>
-      </header>
-
-      <div class="stato-sessione">
+    <!-- Il nome della sessione è già nell'unica testata della campagna.
+         Qui rimangono solo i controlli operativi, senza un secondo titolo. -->
+    <div class="stato-sessione" aria-label="Stato della conduzione">
+      <div class="stato-sessione__dati">
         <span>
-          Scena corrente dei giocatori:
-
+          Scena corrente:
           <strong>
             {{ titoloScenaId(sessioneInConduzione, sessioneInConduzione.scenaAttivaId) }}
           </strong>
@@ -91,11 +79,18 @@ const messaggio = computed(() => props.messaggio)
 
         <small>
           {{ numeroSceneVisitate(sessioneInConduzione) }}
-          /
-          {{ sessioneInConduzione.scene.length }}
-          visitate
+          / {{ sessioneInConduzione.scene.length }} visitate
         </small>
       </div>
+
+      <button
+        type="button"
+        class="dmc-btn dmc-btn--secondary stato-sessione__uscita"
+        @click="esciDaConduzione"
+      >
+        Torna alla preparazione
+      </button>
+    </div>
 
       <div class="layout-conduzione">
         <!-- NAVIGAZIONE LATERALE -->
@@ -784,36 +779,48 @@ const messaggio = computed(() => props.messaggio)
    CONDUZIONE
 ========================================== */
 
-.testata-conduzione {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  flex-wrap: wrap;
-  gap: 12px;
-  padding: 15px 18px;
-}
-
-.testata-conduzione h2 {
-  font-size: clamp(22px, 2.8vw, 29px);
-}
-
-.sopratitolo {
-  font-size: 11px;
-  letter-spacing: 0.08em;
-}
-
+/* Contesto della sessione nell'intestazione CampagnaView.
+   Qui mostriamo solo scena corrente, avanzamento e azione di ritorno. */
 .stato-sessione {
   display: flex;
+  align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 8px;
-  padding: 8px 11px;
+  gap: 8px 14px;
+  padding: 5px 8px 9px;
   border-bottom: 1px solid var(--dmc-border-soft);
   font-size: 13px;
 }
 
+.stato-sessione__dati {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  min-width: 0;
+}
+
+.stato-sessione__dati span {
+  overflow-wrap: anywhere;
+}
+
 .stato-sessione strong {
   color: var(--dmc-amber);
+}
+
+.stato-sessione__uscita {
+  min-height: 38px;
+  padding: 7px 11px;
+  font-size: 12px;
+}
+
+@media (max-width: 650px) {
+  .stato-sessione {
+    align-items: flex-start;
+  }
+  .stato-sessione__uscita {
+    min-height: 40px;
+  }
 }
 
 .layout-conduzione {
