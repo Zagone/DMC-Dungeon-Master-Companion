@@ -138,27 +138,34 @@ export function estraiTestiOggettiMagiciSRD(archivio, schede) {
   const risultati = new Map()
   const titoli = []
   let corrente = null
+  const rigaTipo = (riga) =>
+    /^(oggetto meraviglioso|anello|armatura|arma|bacchetta|bastone|pergamena|pozione|verga)(?:\\s*\\([^)]*\\))?\\s*,/i.test(riga)
+  const possibileTitolo = (riga) =>
+    /^[A-ZÀ-Ú]/.test(riga) &&
+    riga.length >= 4 &&
+    riga.length <= 100 &&
+    !/[.:;!?]$/.test(riga) &&
+    !/^(?:Il|La|Le|Lo|Un|Una|Uno|Se|Quando|Finché|Ogni|Ciascun|Per|Con|Inoltre|Questo|Questa|Questi|Queste|Tabella)\\b/i.test(riga)
+
   for (const pagina of archivio?.pagine || []) {
     if (pagina.pagina < 237) continue
     const righe = righePulite(pagina.testo)
     for (let i = 0; i < righe.length; i++) {
-      const chiave = chiaveSRD(righe[i])
-      const scheda = schedePerChiave.get(chiave)
-      const rigaTipologica = righe[i + 1] || ''
-      const intestazione = /^(oggetto meraviglioso|anello|armatura|arma|bacchetta|bastone|pergamena|pozione|verga)(?:\s*\([^)]*\))?\s*,/i.test(rigaTipologica)
-        && /^[A-ZÀ-Ú]/.test(righe[i]) && righe[i].length <= 100
-        && !/[.:;!?]$/.test(righe[i])
-      // Interrompi anche se il titolo successivo non è tra le schede indicizzate:
-      // in caso contrario il testo dell'oggetto precedente verrebbe contaminato.
+      const singola = schedePerChiave.get(chiaveSRD(righe[i]))
+      const doppia = schedePerChiave.get(chiaveSRD(righe[i] + ' ' + (righe[i + 1] || '')))
+      const titoloDueRighe = Boolean(doppia && rigaTipo(righe[i + 2] || ''))
+      const titoloUnaRiga = Boolean(rigaTipo(righe[i + 1] || ''))
+      const intestazione =
+        (titoloDueRighe && possibileTitolo(righe[i])) ||
+        (titoloUnaRiga && possibileTitolo(righe[i]))
+      // Non trattare come titolo la prima frase di un effetto che termina
+      // con una parola come "anello": la riga successiva potrebbe iniziare
+      // casualmente con "Anello," e simulare una riga tipologica.
       if (intestazione) {
-        if (!scheda) {
-          corrente = null
-          i++
-          continue
-        }
-        corrente = { scheda, pagina: pagina.pagina, righe: [], pagine: [pagina.pagina] }
-        titoli.push(corrente)
-        i++
+        const scheda = titoloDueRighe ? doppia : singola
+        corrente = scheda ? { scheda, pagina: pagina.pagina, righe: [], pagine: [pagina.pagina] } : null
+        if (corrente) titoli.push(corrente)
+        i += titoloDueRighe ? 2 : 1
         continue
       }
       if (corrente) {
