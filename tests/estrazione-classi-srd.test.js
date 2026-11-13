@@ -44,7 +44,9 @@ test('L’indice privilegi conserva titolo, livello e pagina originale', () => {
   const vista = readFileSync(new URL('../src/views/CompendioView.vue', import.meta.url), 'utf8')
   assert.match(vista, /estraiClassiSRD/)
   assert.match(vista, /privilegiClasse/)
-  assert.match(vista, /TabellaProgressioneClasse/)
+  assert.match(vista, /SchedaDettagliClasseSRD/)
+  const scheda = readFileSync(new URL('../src/components/SchedaDettagliClasseSRD.vue', import.meta.url), 'utf8')
+  assert.match(scheda, /TabellaProgressioneClasse/)
   assert.match(vista, /tabellaProgressione/)
 })
 

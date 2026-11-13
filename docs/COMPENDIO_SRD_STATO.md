@@ -218,3 +218,20 @@ La vista utilizza `src/components/TabellaProgressioneClasse.vue`: tabella con in
 I test `tests/progressioni-classi-srd.test.js` controllano 12 × 20 righe, schema e lunghezza di ogni record, progressione del bonus competenza, matrici degli slot e valori specifici di almeno sei classi. Anche il collegamento con la vista Vue e la struttura semantica della tabella sono oggetto di verifiche statiche.
 
 **Limiti:** la trascrizione delle celle deriva dal layout del PDF, ma non è stata effettuata una revisione editoriale riga per riga da parte di un esperto delle regole. Le descrizioni narrative e i testi delle sottoclassi presenti nell'archivio per pagine possono ancora conservare spezzature o tabelle secondarie non riorganizzate. Il collaudo visivo/manuale con browser e tecnologie assistive rimane da completare. Nessuna modifica a salvataggi, campagne, import/export o bestiario.
+
+## R4.8 — Consultazione delle classi: tratti, privilegi e sottoclassi (13 novembre 2026)
+
+**Motivazione UX.** La R4.7 mostrava le progressioni numeriche, ma non consentiva una consultazione efficiente degli effetti dei privilegi, dei tratti iniziali o delle sottoclassi. La tabella era inoltre aperta e visivamente ingombrante anche quando non richiesta.
+
+**Intervento.**
+- **Progressione:** il componente `TabellaProgressioneClasse.vue` ora parte richiuso. All'apertura permette di visualizzare uno specifico livello (1–20), con opzione per mostrare tutti i livelli e confrontarli.
+- **Tratti iniziali:** il nuovo catalogo `TRATTI_CLASSI_SRD` presenta, per tutte le dodici classi, caratteristica primaria, Dado Vita, tiri salvezza, competenze in abilità, armi, armature, strumenti ed equipaggiamento iniziale, controllati sulle rispettive tabelle del PDF ufficiale italiano.
+- **Privilegi:** `dettagliClassiSRD.js` segmenta ogni classe per intestazione «Livello N: privilegio» e conserva la **descrizione**, il livello e la pagina originale. I livelli sono raggruppati in pannelli richiudibili.
+- **Sottoclassi:** è isolata la sottoclasse effettivamente presente nell'SRD per ciascuna delle dodici classi, con introduzione narrativa e privilegi meccanici suddivisi per livello. Non sono presentate sottoclassi non contenute nell'SRD.
+- **Opzioni speciali:** la Metamagia dello Stregone (10 opzioni) e le Suppliche occulte del Warlock (28 opzioni) sono consultabili individualmente e non vengono impropriamente associate al privilegio di 20° livello.
+- **Pulizia:** eliminati alcuni blocchi di avanzamento numerico che l'estrazione in colonne aveva inserito all'interno delle descrizioni dei privilegi; restano consultabili nella tabella strutturata della R4.7.
+- **Interfaccia:** `SchedaDettagliClasseSRD.vue` è un componente dedicato con gerarchia semantica, focus visibile, bordi materici e contrasti coerenti con Crooked Realms. Il riferimento integrale è disponibile in un pannello secondario chiuso.
+
+**Fonte e limiti.** Tutti i dati derivano dall'SRD italiana 5.2.1, rilasciata CC BY 4.0. I tratti riassunti sono stati confrontati con le tabelle originali. Le descrizioni automatiche di privilegi e sottoclassi, benché segmentate, **non sono certificate come revisionate editorialmente**: possono contenere parole spezzate, interruzioni dovute alle colonne o paragrafi che richiedono controllo manuale. La validazione UX con Dungeon Master e il collaudo su diversi browser e lettori di schermo restano da svolgere.
+
+**Regressioni previste.** I nuovi test verificano l'esistenza di dodici schede strutturate e dodici sottoclassi, la presenza delle descrizioni, la corretta suddivisione dei livelli, le 38 opzioni speciali, l'assenza del vecchio pannello aperto e la selezione del livello. Nessuna modifica alle strutture persistenti o al bestiario.

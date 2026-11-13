@@ -77,6 +77,8 @@ export function estraiClassiSRD(archivio) {
     risultato.set(inizio.nome, {
       nome: inizio.nome, pagina: inizio.pagina, pagine,
       testo, privilegi,
+      // Conserva le pagine per associarle alle singole descrizioni dei privilegi.
+      righe: sezione.map(({ pagina, testo: testoRiga }) => ({ pagina, testo: testoRiga })),
     })
   }
   return risultato

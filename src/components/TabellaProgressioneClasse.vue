@@ -1,19 +1,39 @@
 <script setup>
-defineProps({
+import { computed, ref } from 'vue'
+
+const props = defineProps({
   tabella: {
     type: Object,
     required: true,
   },
 })
+
+// Default compatto: la tabella è chiusa e, quando aperta, mostra un livello.
+// L'opzione "Tutti i livelli" permette di confrontare le progressioni.
+const livelloSelezionato = ref('1')
+const righeVisibili = computed(() => livelloSelezionato.value === 'tutti'
+  ? props.tabella.righe
+  : props.tabella.righe.filter((riga) => riga[0] === livelloSelezionato.value))
+const selettoreId = computed(() => 'progressione-livello-' + props.tabella.nome.toLowerCase())
 </script>
 
 <template>
   <section class="progressione-classe" :aria-label="'Progressione della classe ' + tabella.nome">
-    <details open>
+    <details>
       <summary>
-        <span>Progressione dal livello 1 al livello 20</span>
+        <span>Progressione per livello · apri tabella</span>
         <small>{{ tabella.righe.length }} livelli · Pagina SRD {{ tabella.paginaSRD }}</small>
       </summary>
+
+      <div class="progressione-classe__filtro">
+        <label :for="selettoreId">Visualizza il livello</label>
+        <select :id="selettoreId" v-model="livelloSelezionato">
+          <option value="tutti">Tutti i livelli (1–20)</option>
+          <option v-for="livello in 20" :key="livello" :value="String(livello)">
+            Livello {{ livello }}
+          </option>
+        </select>
+      </div>
 
       <div
         class="progressione-classe__scroll"
@@ -32,7 +52,7 @@ defineProps({
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(riga, indiceRiga) in tabella.righe" :key="indiceRiga">
+            <tr v-for="(riga, indiceRiga) in righeVisibili" :key="indiceRiga">
               <th scope="row" class="progressione-classe__livello">{{ riga[0] }}</th>
               <td v-for="(cella, indiceColonna) in riga.slice(1)"
                 :key="indiceColonna"
@@ -79,6 +99,27 @@ defineProps({
 }
 .progressione-classe summary:focus-visible,
 .progressione-classe__scroll:focus-visible {
+  outline: 2px solid #e5a65c;
+  outline-offset: 2px;
+}
+.progressione-classe__filtro {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  align-items: center;
+  padding: 0.7rem 1rem;
+  color: #f2eadc;
+  font-size: 0.9rem;
+}
+.progressione-classe__filtro select {
+  padding: 0.45rem 0.75rem;
+  border: 1px solid rgba(229, 166, 92, 0.55);
+  border-radius: 7px;
+  background: #151d27;
+  color: #f2eadc;
+  font: inherit;
+}
+.progressione-classe__filtro select:focus-visible {
   outline: 2px solid #e5a65c;
   outline-offset: 2px;
 }
