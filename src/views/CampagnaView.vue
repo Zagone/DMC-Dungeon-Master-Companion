@@ -120,11 +120,21 @@ const sezione = computed(() => {
   return sezioni.some((s) => s.id === valore) ? valore : 'panoramica'
 })
 
-// Mostra la pillola solo dopo lo scroll: all'apertura resta la barra completa.
-// Il breakpoint per tablet/telefono è gestito dal foglio responsive.
-const navigazioneConduzioneMini = computed(
-  () => sezione.value === 'sessioni' && Boolean(conduzioneAttiva.value) && navigazioneCompatta.value,
+// La testata mostra il contesto della sessione soltanto quando è in Conduzione.
+// La pillola resta un intervento responsive distinto, attivo solo dopo lo scroll.
+const intestazioneInConduzione = computed(
+  () => sezione.value === 'sessioni' && Boolean(conduzioneAttiva.value),
 )
+const navigazioneConduzioneMini = computed(
+  () => intestazioneInConduzione.value && navigazioneCompatta.value,
+)
+
+// Il passaggio tra preparazione e conduzione cambia l'altezza della testata:
+// riallineiamo la soglia di attivazione della barra sticky dopo il rendering.
+watch(intestazioneInConduzione, async () => {
+  await nextTick()
+  aggiornaMisure()
+})
 
 const CHIAVE_RECENTI = 'dmc_campagne_recenti_v1'
 
@@ -334,16 +344,35 @@ function eliminaCampagnaAttiva() {
   >
     <main :key="campagnaId" class="contenuto-campagna dmc-contenitore">
       <template v-if="campagna && dati">
-        <section ref="intestazionePagina" class="intestazione-riga testata-campagna">
+        <section
+          ref="intestazionePagina"
+          class="intestazione-riga testata-campagna"
+          :class="{ 'testata-campagna--conduzione': intestazioneInConduzione }"
+        >
           <div>
-            <small class="sopratitolo"> CAMPAGNA </small>
+            <small class="sopratitolo">
+              {{ intestazioneInConduzione ? 'CONDUZIONE ATTIVA' : 'CAMPAGNA' }}
+            </small>
 
-            <h1>{{ campagna.nome }}</h1>
+            <h1
+              :data-conduzione-titolo="intestazioneInConduzione ? '' : undefined"
+              :tabindex="intestazioneInConduzione ? -1 : undefined"
+            >
+              <template v-if="intestazioneInConduzione">
+                <span class="titolo-campagna-conduzione">{{ campagna.nome }}</span>
+                <span class="separatore-titoli-conduzione">—</span>
+                <span class="titolo-sessione-conduzione">
+                  {{ conduzioneAttiva.sessione.titolo?.trim() || 'Sessione senza titolo' }}
+                </span>
+              </template>
+              <template v-else>{{ campagna.nome }}</template>
+            </h1>
 
-            <p>{{ statoTesto(campagna.stato) }}</p>
+            <p v-if="!intestazioneInConduzione">{{ statoTesto(campagna.stato) }}</p>
           </div>
 
           <button
+            v-if="!intestazioneInConduzione"
             type="button"
             class="bottone neutro dmc-btn dmc-btn--secondary"
             @click="apriImpostazioni"

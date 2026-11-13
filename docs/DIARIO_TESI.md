@@ -276,3 +276,28 @@ La pillola viene visualizzata solo sotto i breakpoint mobile/tablet, compresi gl
 La modifica distingue **navigazione di orientamento** e **navigazione persistente di servizio**: la prima mostra le scelte quando l'utente entra nella campagna; la seconda minimizza l'ingombro durante la lettura di una scena dopo lo scroll. L'aggiornamento riduce il carico visivo senza nascondere permanentemente le opzioni.
 
 I nuovi test di regressione verificano il vincolo allo scroll, il ritorno all'interfaccia estesa e l'etichetta Home. Restano da validare visivamente sul sito Netlify: transizione in salita/discesa, iPad verticale/orizzontale, leggibilità del selettore e interazione con la barra Battaglia. Nessuna modifica ai salvataggi o ai dati delle campagne.
+
+## 13 novembre 2026 — R4.11: gerarchia informativa e immersione nella Conduzione
+
+### Problema rilevato nella versione pubblicata
+
+La versione precedente di Dungeon Master Companion presentava, quando si entrava in **Conduzione**, una sequenza visiva ridondante: grande intestazione della campagna con il pulsante «Impostazioni», navigazione sticky della campagna e un secondo pannello che riportava il nome della sessione con il comando «Torna alla preparazione». Nel caso esemplificativo **Il Sesto Rintocco**, la ripetizione di titoli in sezioni diverse della stessa schermata era percepita come poco immersiva, e occupava spazio prima dell'accesso alla scena.
+
+Il feedback ha inoltre richiesto che la mini navigazione su iPad e smartphone **non perda la coerenza visiva** rispetto alle placche materiche e ai pulsanti Crooked Realms.
+
+### Decisione e interventi
+
+- **Un'unica testata contestuale su tutti i dispositivi.** Durante una Conduzione attiva nella sezione Sessioni, l'intestazione della campagna assume la forma «**Nome della campagna — Nome della sessione**». Il nome della campagna resta un riferimento contestuale, mentre quello della sessione viene evidenziato in ambra. Il sopratitolo diventa «CONDUZIONE ATTIVA».
+- **Riduzione delle ridondanze.** Il precedente riquadro `testata-conduzione`, con l'intestazione della sessione ripetuta, è eliminato. La riga sottostante riporta soltanto lo stato della scena (nome e scene visitate) e il comando «Torna alla preparazione», mantenendo l'accesso alla funzione originale. «Impostazioni» e lo stato amministrativo della campagna non occupano più la testata durante la Conduzione; ritornano nelle altre sezioni.
+- **Accessibilità e flusso di focus.** Il focus programmatico previsto all'avvio della Conduzione, precedentemente applicato al titolo nel riquadro interno, viene indirizzato al nuovo `h1` contestuale. La logica di calcolo del punto in cui la sticky diventa compatta viene aggiornata quando cambia l'altezza del titolo.
+- **Fedeltà all'identità visiva.** La mini barra introdotta nelle revisioni precedenti conserva la dimensione ridotta e la comparsa solo dopo lo scroll, ma riutilizza la placca ardesia per «Home» e la placca ambra per la sezione «Conduzione», anziché pulsanti genericamente arrotondati. I bordi restano materici con ombra netta e testi leggibili.
+
+### Motivazione UX
+
+La modifica afferma una gerarchia di informazione chiara: **campagna** come contesto generale, **sessione** come unità operativa e **scena** come contenuto corrente. La navigazione rimane disponibile, ma non replica l'identità della sessione in più riquadri. L'obiettivo è incrementare la leggibilità e favorire la continuità narrativa durante la conduzione, particolarmente importante sui dispositivi di ridotte dimensioni.
+
+### Verifiche e limiti
+
+Sono aggiunti test statici che controllano la condizione di attivazione, la presenza del titolo con entrambe le identità, l'assenza della seconda testata, la permanenza del ritorno alla preparazione e il corretto spostamento del focus. Le verifiche di codice, lint e build non sostituiscono un collaudo visivo su Safari iPadOS e browser desktop.
+
+**Ambito:** `CampagnaView.vue`, `ConduzioneSessione.vue`, `navigazione-campagna.css`, test e diario. Nessuna modifica a campagne, JSON, salvataggi o bestiario.
