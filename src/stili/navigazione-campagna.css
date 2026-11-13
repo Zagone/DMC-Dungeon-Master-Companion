@@ -362,6 +362,25 @@
   }
 }
 
+/* Più spazio ai controlli della mini sticky sui tablet.
+   I telefoni (<=700px) mantengono le dimensioni compatte; il desktop
+   conserva la propria navigazione completa. */
+@media (min-width: 701px) and (max-width: 1024px),
+       (min-width: 701px) and (max-width: 1440px) and (any-pointer: coarse) {
+  .campagna-view.campagna-in-conduzione .navigazione-conduzione-mobile {
+    gap: 5px;
+  }
+
+  .campagna-view.campagna-in-conduzione .mini-uscita-campagna {
+    flex-basis: 72px;
+    width: 72px;
+  }
+
+  .campagna-view.campagna-in-conduzione .mini-selettore-campagna {
+    width: 156px;
+  }
+}
+
 @media (max-width: 700px) {
   .campagna-view .navigazione-persistente {
     padding: var(--dmc-space-1) var(--dmc-space-2);

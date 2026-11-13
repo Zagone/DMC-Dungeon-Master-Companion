@@ -301,3 +301,11 @@ La modifica afferma una gerarchia di informazione chiara: **campagna** come cont
 Sono aggiunti test statici che controllano la condizione di attivazione, la presenza del titolo con entrambe le identità, l'assenza della seconda testata, la permanenza del ritorno alla preparazione e il corretto spostamento del focus. Le verifiche di codice, lint e build non sostituiscono un collaudo visivo su Safari iPadOS e browser desktop.
 
 **Ambito:** `CampagnaView.vue`, `ConduzioneSessione.vue`, `navigazione-campagna.css`, test e diario. Nessuna modifica a campagne, JSON, salvataggi o bestiario.
+
+### R4.11b — Regolazione delle dimensioni della mini sticky su tablet (13 novembre 2026)
+
+Dopo il consolidamento della testata immersiva è stato richiesto un incremento contenuto della larghezza della barra sticky compatta sui tablet. La modifica riguarda **soltanto la fase di scroll durante la Conduzione**, senza alterare i breakpoint e la versione completa della navigazione.
+
+Per viewport tablet (701–1024 px e dispositivi touch fino a 1440 px), il comando **Home** passa da 64 a 72 px, il selettore delle sezioni da 134 a 156 px e lo spazio fra i controlli da 3 a 5 px. La larghezza complessiva cresce così da circa 210 a circa 240 px. L'altezza resta invariata. Su smartphone fino a 700 px e su desktop rimangono le dimensioni precedenti.
+
+**Motivazione UX:** incrementare leggermente l'area disponibile per i comandi su tablet, conservando la centralità e la gerarchia visiva della navigazione. Sono stati aggiunti controlli statici sui breakpoint; la verifica visiva su iPad rimane necessaria.
