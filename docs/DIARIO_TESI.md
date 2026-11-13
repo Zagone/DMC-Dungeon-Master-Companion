@@ -176,3 +176,51 @@ Nel pannello il progetto compare con **No production deployment yet** e due tent
 **Azione successiva.** Poiché la dashboard non mette a disposizione dell'utente le operazioni di ripetizione o eliminazione dei due tentativi, un aggiornamento documentale versionato sul ramo di produzione viene utilizzato per richiedere una **nuova esecuzione automatica del deployment** attraverso l'integrazione GitHub–Cloudflare. Non sono modificati i file applicativi, i salvataggi o la configurazione di build. L'effettivo avvio, l'esito della nuova esecuzione e l'accessibilità dell'URL vanno verificati nel pannello Cloudflare e, in caso di successo, da Safari su iPad.
 
 **Stato alla redazione della presente annotazione:** hosting non ancora validato, nessuna produzione funzionante dichiarata. In caso di persistenza dello stesso errore è opportuno raccogliere il nuovo log e rivolgersi al supporto Cloudflare, evitando di trattare la compilazione riuscita come prova di distribuzione completata.
+
+## 13 novembre 2026 — Distribuzione riuscita su Netlify: dalla build alla disponibilità del sito
+
+### Evento e decisione
+
+I primi due deploy Cloudflare Pages avevano compilato l'applicazione Vite, caricato gli asset ed erano poi falliti nella fase conclusiva con il messaggio `Failed to publish your Function — Unknown internal error occurred`. Un ulteriore deployment è rimasto fermo per oltre dodici minuti dopo la preparazione delle risorse ed è stato interrotto. Non è stata individuata una causa certa. La ripetizione delle difficoltà nell'ambiente di hosting, in presenza di test e build GitHub riusciti, ha motivato la valutazione di un fornitore alternativo.
+
+**Decisione:** impiegare **Netlify**, mantenendo la stessa architettura di hosting statico, il repository GitHub, il ramo di integrazione e il processo di build Vite. Il cambiamento riguarda la modalità di distribuzione, **non** il codice funzionale o il modello dei dati.
+
+### Configurazione e risultato osservato
+
+Dalla schermata «Project overview» di Netlify, condivisa il 13 novembre 2026, si rilevano:
+- repository collegato: `Zagone/DMC-Dungeon-Master-Companion`;
+- ramo di produzione: `feature/r4-2-gestione-dati-integrazione`;
+- ultimo commit pubblicato: `eb1d77e`, relativo alla documentazione del tentativo Cloudflare;
+- comando di compilazione: `npm run build`;
+- directory di pubblicazione: `dist`;
+- URL assegnato: **https://dmc-dungeon-master-companion.netlify.app**;
+- stato della produzione Netlify: **Published**.
+
+Questi elementi dimostrano che il servizio ha accettato e pubblicato con successo il deploy di produzione del front-end. **Non costituiscono ancora una validazione end-to-end** dei flussi applicativi, dell'accessibilità o dell'esperienza d'uso su iPad.
+
+### Visibilità e disponibilità effettiva
+
+Nella stessa schermata, il progetto appare contrassegnato come **Private** e presenta il comando **Make public**. Secondo la documentazione Netlify sulla *Project visibility*, le nuove pubblicazioni possono richiedere esplicitamente la modifica della visibilità affinché l'URL sia raggiungibile senza autenticazione Netlify. Pertanto, alla data della schermata, si distingue tra:
+- **deployment riuscito**: osservato e documentato;
+- **visibilità pubblica**: **non ancora confermata**, fino all'azione «Make public» e alla prova con browser non autenticato;
+- **utilizzo su iPad**: **non ancora collaudato**.
+
+Il sito pubblico renderà accessibili il software e il materiale SRD distribuito nell'app, non l'archivio personale di campagne salvato nel `localStorage` di ogni browser. L'attuale modello di salvataggio resta individuale per origine e dispositivo, senza sincronizzazione.
+
+### Implicazioni per la progettazione della tesi
+
+L'episodio evidenzia tre aspetti di ingegneria del software e progettazione dell'interazione:
+
+1. **Separazione fra artefatto e infrastruttura:** una build che supera test e compilazione non garantisce automaticamente la riuscita della distribuzione sul provider.
+2. **Portabilità:** l'adozione di Vue 3, Vite, file SRD JSON e navigazione hash ha permesso di cambiare servizio mantenendo invariato l'artefatto applicativo.
+3. **Verifica contestuale:** la presenza di un URL o dello stato «Published» non dimostra che l'interfaccia sia raggiungibile senza login né che le funzioni siano usabili su Safari iPadOS.
+
+### Prove successive
+
+Dopo «Make public» si dovranno registrare: accesso anonimo via HTTPS, caricamento del Compendio e del Bestiario, apertura delle classi e delle sezioni richiudibili, comportamento responsive in orientamento verticale/orizzontale, creazione e persistenza delle campagne, import/export JSON, conducibilità delle sessioni e battaglie. Si dovrà inoltre verificare un successivo deployment automatico a partire da un commit GitHub, evitando di assumere che il solo collegamento Git garantisca la pubblicazione senza errori.
+
+Fonti di contesto:
+- https://docs.netlify.com/manage/security/secure-access-to-sites/project-visibility/
+- https://docs.netlify.com/start/quickstarts/deploy-from-repository/
+
+**Stato metodologico:** deploy Netlify di produzione confermato dalla dashboard; accesso pubblico e prove di usabilità su iPad ancora da verificare.
