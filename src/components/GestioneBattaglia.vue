@@ -478,26 +478,37 @@ function nuovoIncontro() {
       <div class="barra-navigazione">
         <div class="gruppo-attivo">
           <span class="etichetta">TURNO ATTIVO</span>
-          <strong>{{ attivo?.nome || 'Nessuna iniziativa' }}</strong>
+          <span class="round-mini" :aria-label="`Round ${dati?.iniziativa.round || 1}`">
+            R{{ dati?.iniziativa.round || 1 }}
+          </span>
+          <strong :title="attivo?.nome || 'Nessuna iniziativa'">
+            {{ attivo?.nome || 'Nessuna iniziativa' }}
+          </strong>
         </div>
 
         <div class="controlli-turno">
           <button
             type="button"
             class="pulsante secondario dmc-btn dmc-btn--secondary"
+            aria-label="Turno precedente"
+            title="Turno precedente"
             :disabled="!ordine.length"
             @click="prossimoTurno(-1)"
           >
-            ← Precedente
+            <span class="testo-turno-esteso">← Precedente</span>
+            <span class="icona-turno-breve" aria-hidden="true">‹</span>
           </button>
 
           <button
             type="button"
             class="pulsante principale dmc-btn"
+            aria-label="Turno successivo"
+            title="Turno successivo"
             :disabled="!ordine.length"
             @click="prossimoTurno(1)"
           >
-            Successivo →
+            <span class="testo-turno-esteso">Successivo →</span>
+            <span class="icona-turno-breve" aria-hidden="true">›</span>
           </button>
 
           <button
@@ -505,14 +516,18 @@ function nuovoIncontro() {
             class="pulsante menu-iniziativa dmc-btn dmc-btn--secondary"
             :class="{ aperto: iniziativaAperta }"
             :aria-expanded="iniziativaAperta"
+            :aria-label="iniziativaAperta ? 'Chiudi gestione iniziative' : 'Apri gestione iniziative'"
             aria-controls="dmc-elenco-iniziativa"
             @click="iniziativaAperta = !iniziativaAperta"
           >
-            Iniziativa
+            <span class="testo-turno-esteso">Iniziativa</span>
+            <span class="icona-turno-breve" aria-hidden="true">☷</span>
             <span v-if="iniziativeMancanti" class="contatore">
               {{ iniziativeMancanti }}
             </span>
-            {{ iniziativaAperta ? '▴' : '▾' }}
+            <span class="testo-turno-esteso" aria-hidden="true">
+              {{ iniziativaAperta ? '▴' : '▾' }}
+            </span>
           </button>
         </div>
       </div>
