@@ -318,6 +318,8 @@ export function eliminaDatiCampagna(id) {
   }
 }
 
+// Raggruppa le mutazioni reattive dello stesso ciclo di aggiornamento
+// in un'unica scrittura, senza introdurre ritardi temporizzati.
 watch(
   datiCampagna,
   () => {
@@ -325,6 +327,17 @@ watch(
   },
   {
     deep: true,
-    flush: 'sync'
+    flush: 'post'
   }
 )
+
+// I salvataggi espliciti in uscita dalle rotte restano attivi.
+// In caso di chiusura/ricaricamento della scheda, tenta un ultimo
+// salvataggio sincrono mentre la pagina è ancora disponibile.
+if (typeof window !== 'undefined') {
+  window.addEventListener('pagehide', () => {
+    if (!letturaCampagnaFallita.value && campagnaDatiId.value) {
+      salvaDatiCampagna()
+    }
+  })
+}

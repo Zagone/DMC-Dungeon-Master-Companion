@@ -31,7 +31,7 @@ import {
 import {
   trovaCampagna,
   aggiornaCampagna,
-  eliminaCampagna,
+  eliminaCampagnaConDati,
 } from '../stato/statoCampagne.js'
 
 import {
@@ -39,7 +39,6 @@ import {
   datiCampagna,
   apriDatiCampagna,
   chiudiDatiCampagna,
-  eliminaDatiCampagna,
   salvaDatiCampagna,
   erroreDatiCampagna,
   letturaCampagnaFallita,
@@ -361,18 +360,21 @@ function eliminaCampagnaAttiva() {
   }
 
   const id = campagna.value.id
-  const eliminati = eliminaDatiCampagna(id)
 
-  if (!eliminati) {
+  // Prima salva e chiude la campagna; poi elimina metadati e dati
+  // in una transazione con rollback in caso di errore.
+  if (!chiudiDatiCampagna()) {
+    errore.value = 'Impossibile salvare la campagna prima dell’eliminazione.'
+    return
+  }
+
+  if (!eliminaCampagnaConDati(id)) {
     apriDatiCampagna(id)
-    errore.value =
-      'Non è stato possibile eliminare i dati.'
+    errore.value = 'Eliminazione non riuscita. La campagna è stata conservata.'
     return
   }
 
   idCampagnaAperta = null
-  eliminaCampagna(id)
-
   chiudiImpostazioni()
   router.replace({ name: 'libreria' })
 }
