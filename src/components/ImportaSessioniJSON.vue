@@ -159,6 +159,7 @@ function importa() {
         Incolla JSON completo da ChatGPT
         <textarea
           v-model="jsonIncollato"
+          @input="azzera"
           class="dmc-campo"
           rows="5"
           spellcheck="false"
