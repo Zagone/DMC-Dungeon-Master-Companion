@@ -463,7 +463,7 @@ async function importaCampagna() {
           DMC lo verifica prima di importare: non serve ottenere un allegato da ChatGPT.
         </p>
         <label class="incolla-json">
-          Incolla JSON (anche dentro un blocco ` ` `json)
+          Incolla JSON da ChatGPT
           <textarea
             v-model="jsonIncollato"
             class="dmc-campo"
@@ -485,6 +485,7 @@ async function importaCampagna() {
         >
           Verifica JSON incollato
         </button>
+        <p v-if="errore" role="alert" class="errore importazione-errore">{{ errore }}</p>
         <label class="incolla-json">
           Oppure seleziona il file JSON
           <input
@@ -549,7 +550,7 @@ async function importaCampagna() {
       </button>
     </div>
     <p v-if="stato" role="status">{{ stato }}</p>
-    <p v-if="errore" role="alert" class="errore">{{ errore }}</p>
+    <p v-if="errore && fase !== 'generazione'" role="alert" class="errore">{{ errore }}</p>
     <small
       >La bozza viene conservata nel browser. ChatGPT si apre in una nuova scheda: non è richiesta
       alcuna chiave API.</small
@@ -665,6 +666,7 @@ async function importaCampagna() {
 .feedback-copia--errore { border-color: #f5b2a9; }
 .istruzioni-json { color: var(--dmc-muted-light); font-size: 0.78rem; }
 .incolla-json { width: 100%; min-width: 0; }
+.importazione-errore { font-size: 0.85rem; }
 .creazione-chatgpt :is(button, input, textarea, select, a):focus-visible {
   outline: 3px solid var(--dmc-amber, #e5a65c);
   outline-offset: 3px;
