@@ -319,6 +319,12 @@ Bestiario → Crea con ChatGPT → Importa JSON.
 INIZIA CON LA PROPOSTA LEGGIBILE DELLA CREATURA.`
 })
 
+watch(prompt, () => {
+  copiaConfermata.value = false
+  feedbackCopia.value = ''
+  erroreCopia.value = ''
+})
+
 async function copiaPrompt() {
   if (copiaInCorso.value) return
   feedbackCopia.value = ''
