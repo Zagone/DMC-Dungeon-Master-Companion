@@ -1,5 +1,6 @@
 <script setup>
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { copiaNegliAppunti } from '../dati/copiaNegliAppunti.js'
 
 import {
   leggiArchivioCreature,
@@ -32,6 +33,11 @@ const indicazioni = ref('')
 
 const messaggio = ref('')
 const errore = ref('')
+const feedbackCopia = ref('')
+const erroreCopia = ref('')
+const copiaInCorso = ref(false)
+const copiaConfermata = ref(false)
+const anteprimaPrompt = ref(null)
 
 const dialogo = ref(null)
 const primoCampo = ref(null)
@@ -313,15 +319,31 @@ Bestiario → Crea con ChatGPT → Importa JSON.
 INIZIA CON LA PROPOSTA LEGGIBILE DELLA CREATURA.`
 })
 
-async function copiaPrompt() {
-  messaggio.value = ''
-  errore.value = ''
+watch(prompt, () => {
+  copiaConfermata.value = false
+  feedbackCopia.value = ''
+  erroreCopia.value = ''
+})
 
+async function copiaPrompt() {
+  if (copiaInCorso.value) return
+  feedbackCopia.value = ''
+  erroreCopia.value = ''
+  copiaInCorso.value = true
+  copiaConfermata.value = false
   try {
-    await navigator.clipboard.writeText(prompt.value)
-    messaggio.value = 'Prompt copiato negli appunti.'
-  } catch {
-    errore.value = 'Copia automatica non riuscita. Seleziona e copia il prompt dall’anteprima.'
+    const riuscita = await copiaNegliAppunti(prompt.value)
+    if (riuscita) {
+      copiaConfermata.value = true
+      feedbackCopia.value = 'Prompt copiato negli appunti. Puoi incollarlo in ChatGPT.'
+    } else {
+      erroreCopia.value =
+        'Copia automatica non riuscita. Il prompt è selezionato: usa Copia dal menu di sistema.'
+      anteprimaPrompt.value?.focus()
+      anteprimaPrompt.value?.select()
+    }
+  } finally {
+    copiaInCorso.value = false
   }
 }
 
@@ -612,7 +634,7 @@ onBeforeUnmount(() => {
 
         <label>
           Anteprima del prompt
-          <textarea class="anteprima dmc-campo" :value="prompt" rows="5" readonly></textarea>
+          <textarea ref="anteprimaPrompt" class="anteprima dmc-campo" :value="prompt" rows="5" readonly></textarea>
         </label>
 
         <div class="azioni">
@@ -620,12 +642,20 @@ onBeforeUnmount(() => {
             Indietro
           </button>
 
-          <button type="button" class="primario dmc-btn" @click="copiaPrompt">Copia prompt</button>
+          <button type="button" class="primario dmc-btn" :disabled="copiaInCorso" @click="copiaPrompt">
+            {{ copiaInCorso ? 'Copia in corso…' : copiaConfermata ? '✓ Prompt copiato' : 'Copia prompt' }}
+          </button>
 
           <a href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer">
             Apri ChatGPT
           </a>
         </div>
+        <p v-if="feedbackCopia" class="feedback feedback-copia" role="status" aria-live="polite">
+          {{ feedbackCopia }}
+        </p>
+        <p v-if="erroreCopia" class="feedback feedback-copia errore" role="alert">
+          {{ erroreCopia }}
+        </p>
 
         <div class="passaggio-importazione">
           <div>
@@ -947,6 +977,7 @@ button:disabled {
   border: 1px solid var(--dmc-border);
   border-radius: var(--dmc-radius-xs);
 }
+.feedback-copia { font-size: 0.85rem; line-height: 1.5; }
 
 .feedback.errore {
   color: var(--dmc-rust-text);
