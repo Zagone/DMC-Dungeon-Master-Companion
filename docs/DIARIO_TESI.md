@@ -449,3 +449,33 @@ La funzione pura `suggerimentiCreatureNonCollegate()` controlla esclusivamente q
 I nuovi test di regressione valutano scenari generici con nomi e creature diversi, compresi suggerimenti mancanti e già soddisfatti. Un ulteriore test verifica che i tre punti storici di blocco (disabilitazione del pulsante, conferma e caricamento) non consultino `richiedeCreature`. Questo costituisce una verifica delle regole di interazione indipendente dalla singola campagna; non dimostra ancora il corretto comportamento visivo su Safari iPadOS.
 
 **Pubblicazione:** le build Netlify rimangono intenzionalmente sospese per controllare il consumo di crediti; il comportamento corretto sarà disponibile sul sito al successivo deployment cumulativo, dopo validazione.
+
+## 16 novembre 2026 — R4.16: protocollo di progettazione assistita e accessibilità del feedback di copia
+
+### Problema individuato nell'uso reale
+
+Un collaudo da smartphone ha evidenziato la mancanza di un feedback **immediatamente visibile** dopo il comando «Copia prompt». Nel componente `CreazioneAssistitaCampagna.vue` la conferma veniva mostrata alla fine della pagina; nel componente di creazione creature la notifica compariva in fondo alla finestra modale. Entrambi utilizzavano soltanto `navigator.clipboard.writeText`, che può essere rifiutato da alcuni contesti browser.
+
+Un secondo collaudo della generazione di campagne, effettuato tramite un differente account ChatGPT, ha individuato due difetti del protocollo di scambio:
+1. Le risposte dell'assistente erano troppo lunghe e ridondanti, con ricapitolazioni dell'intero progetto a ogni modifica.
+2. L'esportazione veniva subordinata alla stringa **esattamente maiuscola** `ESPORTA DMC`. Inoltre, su alcuni account non era possibile ottenere un vero file scaricabile da ChatGPT.
+
+Queste criticità riguardano la **continuità del workflow** tra DMC e un sistema esterno, non la qualità narrativa della campagna in sé.
+
+### Soluzioni implementate
+
+**Feedback della copia:** `src/dati/copiaNegliAppunti.js` incapsula la Clipboard API con fallback basato su `document.execCommand('copy')`, controllando realmente l'esito. In assenza di permessi, il testo dell'anteprima viene selezionato per la copia manuale, senza mostrare un successo non verificato. In `CreazioneAssistitaCampagna.vue` e `SceltaCreazioneCreatura.vue`, un messaggio `role="status"` con `aria-live="polite"` compare accanto al pulsante, che cambia visivamente in «Prompt copiato». Gli errori sono annunciati con `role="alert"`. È prevista la disabilitazione del pulsante durante la copia.
+
+**Protocollo conversazionale standardizzato:** il prompt è stato estratto in `src/dati/protocolloCreazioneDMC.js`, applicato alla generazione di campagne e sessioni. Ogni risposta ordinaria deve contenere quattro parti sintetiche — «In esame», «Proposta», «Da decidere», «Prossimo passo» — con un limite suggerito di 180 parole, una sola decisione per volta e nessun riepilogo cumulativo. La prima proposta presenta una scaletta tabellare e un numero limitato di domande; le sessioni vengono sviluppate in modo incrementale. Questi vincoli descrivono il comportamento atteso **a prescindere dalle preferenze stilistiche dell'account esterno**, ma non costituiscono una garanzia tecnica di obbedienza del modello.
+
+**Esportazione senza formule rigide:** il nuovo protocollo riconosce richieste di esportazione equivalenti, indipendentemente dalle maiuscole, come `esporta`, `esporta dmc`, `genera il JSON`. Il documento di scambio richiede un singolo JSON valido, in formato `dmc-archivio-campagne` versione 2 o `dmc-sessioni` versione 1; l'esportazione è distinta dalle fasi di progettazione. Il prompt non impone a ChatGPT di dichiarare inesistenti allegati scaricabili: se un file non può essere prodotto, richiede un blocco JSON copiabile.
+
+**Indipendenza dai file allegati:** `src/dati/jsonDaChatGPT.js` accetta un oggetto JSON completo con o senza delimitatori Markdown `\`\`\`json`, senza estrarre arbitrariamente frammenti da risposte discorsive. I componenti `CreazioneAssistitaCampagna.vue` e `ImportaSessioniJSON.vue` permettono di **incollare il JSON direttamente in DMC**, sottoporlo alle stesse verifiche già usate per l'importazione da file, visualizzare l'anteprima e confermare l'importazione. Il browser può anche scaricare localmente il JSON verificato, senza richiedere la generazione di un allegato sul profilo ChatGPT. Il formato dei dati e i salvataggi non sono stati modificati.
+
+### Implicazioni metodologiche e verifica
+
+Questa modifica separa la **standardizzazione dell'interazione** (prompt e UI DMC) dal comportamento del servizio ChatGPT esterno: le preferenze di altri account possono influenzare il risultato, ma il flusso non impone più una singola frase in maiuscolo o la disponibilità di una funzione di esportazione file.
+
+I test automatici coprono la generazione del prompt, gli esempi di comandi in minuscolo e maiuscolo, il fallback di copia, la verifica del suo esito, i contenuti JSON grezzi o recintati e l'uso degli stessi validatori di importazione. Restano da collaudare su browser reali: Chrome Android, Safari iPhone e iPadOS, browser desktop, contenuti di lunghezza elevata e compatibilità con almeno due account ChatGPT di preferenze diverse. **Non confondere i test automatici con verifiche empiriche effettuate sui dispositivi.**
+
+Le build Netlify restano intenzionalmente sospese per controllare i crediti. La modifica sarà visibile sul sito soltanto dopo il successivo rilascio cumulativo.
