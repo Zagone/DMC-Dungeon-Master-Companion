@@ -40,7 +40,7 @@ Configurazione attiva:
 
 Il router usa `createWebHashHistory()`; non richiede redirect di navigazione per le rotte hash. Il sito non è una PWA offline e conserva campagne e homebrew nel `localStorage` di ciascun browser. Per trasferire i dati fra PC e iPad utilizzare export/import JSON.
 
-Le istruzioni di visibilità, la checklist di collaudo e la decisione di migrare da Cloudflare Pages sono in [docs/PUBBLICAZIONE_NETLIFY.md](docs/PUBBLICAZIONE_NETLIFY.md) e nel [diario della tesi](docs/DIARIO_TESI.md). La vecchia guida [Cloudflare Pages](docs/PUBBLICAZIONE_CLOUDFLARE_PAGES.md) è conservata come documento storico del tentativo non riuscito.
+La configurazione di produzione e la checklist di collaudo sono in [docs/PUBBLICAZIONE_NETLIFY.md](docs/PUBBLICAZIONE_NETLIFY.md). Le decisioni e le alternative valutate durante lo sviluppo sono documentate nel [diario della tesi](docs/DIARIO_TESI.md).
 
 ## Funzionalità principali
 

@@ -479,3 +479,26 @@ Questa modifica separa la **standardizzazione dell'interazione** (prompt e UI DM
 I test automatici coprono la generazione del prompt, gli esempi di comandi in minuscolo e maiuscolo, il fallback di copia, la verifica del suo esito, i contenuti JSON grezzi o recintati e l'uso degli stessi validatori di importazione. Restano da collaudare su browser reali: Chrome Android, Safari iPhone e iPadOS, browser desktop, contenuti di lunghezza elevata e compatibilità con almeno due account ChatGPT di preferenze diverse. **Non confondere i test automatici con verifiche empiriche effettuate sui dispositivi.**
 
 Le build Netlify restano intenzionalmente sospese per controllare i crediti. La modifica sarà visibile sul sito soltanto dopo il successivo rilascio cumulativo.
+
+## 16 novembre 2026 — R4.17: rimozione della configurazione editoriale Cloudflare dismessa
+
+### Audit e decisione
+
+Dopo la migrazione a Netlify è stata richiesta l'eliminazione dei residui della precedente soluzione di pubblicazione. La verifica del repository `feature/r4-2-gestione-dati-integrazione` non ha individuato dipendenze Cloudflare/Workers/Wrangler in `package.json` o `package-lock.json`, né componenti Cloudflare necessari a Vite o alla web app Vue. Non è dunque necessaria alcuna modifica al package manager, al bundle, ai dati o agli script di build.
+
+Sono invece stati individuati residui **documentali e di configurazione CI**:
+- `.github/workflows/verifiche-r4-2.yml` conteneva il nome del provider precedente nell'etichetta dello step Node.js; il file `.node-version` continua a definire la versione Node senza vincoli sul fornitore di hosting.
+- `README.md` collegava la guida di pubblicazione non più attiva.
+- La guida `docs/PUBBLICAZIONE_CLOUDFLARE_PAGES.md` rimaneva nel progetto, ma riportava istruzioni operative superate.
+
+Questi elementi sono stati aggiornati e la vecchia guida eliminata. È stato aggiunto il test `tests/hosting-netlify-senza-provider-legacy.test.js` per verificare l'assenza di riferimenti Cloudflare o Wrangler negli **sorgenti**, nei **workflow GitHub**, nel **README**, nelle **dipendenze** e nei file di configurazione principali. La documentazione storica del tentativo Cloudflare resta conservata **in questo diario della tesi**, per assicurare la tracciabilità delle decisioni e dei problemi incontrati.
+
+### Integrazione esterna da disattivare nel servizio
+
+La verifica della GitHub API sul commit `010226aa` ha rivelato un check denominato **Cloudflare Pages** gestito dall'app GitHub `cloudflare-workers-and-pages`, concluso con esito positivo. Questo check non dipende da package, plugin Vite o GitHub Actions presenti nel repository: deriva da un collegamento GitHub–Cloudflare ancora attivo.
+
+Per completare la dismissione, il proprietario degli account deve rimuovere il progetto Pages da Cloudflare e revocare o restringere l'accesso della GitHub App al solo repository DMC. **Queste azioni non sono state eseguite dal codice**. Evitare la disinstallazione generale della GitHub App se viene utilizzata da altri repository. La sola revoca GitHub non elimina i deployment già ospitati: per eliminarli occorre intervenire sul progetto Pages.
+
+### Verifiche e pubblicazione
+
+Il deployment Netlify resta sospeso per risparmiare crediti, come scelta operativa attuale. Nessuna modifica di questa iterazione richiede la pubblicazione della web app; la revisione riguarda manutenzione tecnica, documentazione e verifica automatizzata. Dati e interfaccia DMC restano invariati.
