@@ -11,6 +11,9 @@ const campagna = readFileSync(
 const creatura = readFileSync(
   new URL('../src/components/SceltaCreazioneCreatura.vue', import.meta.url), 'utf8',
 )
+const importazioneSessioni = readFileSync(
+  new URL('../src/components/ImportaSessioniJSON.vue', import.meta.url), 'utf8',
+)
 
 test('Prompt campagna: protocollo breve, incrementale e indipendente dall’account', () => {
   const testo = creaPromptCreazioneDMC({
@@ -132,4 +135,13 @@ test('Campagna: stessa validazione per file e testo e download JSON locale', () 
   assert.match(campagna, /URL.createObjectURL\(blob\)/)
   assert.match(campagna, /type="file"/)
   assert.match(campagna, /Confermo l.importazione nella/)
+})
+
+test('Anche le sessioni possono essere importate incollando il JSON', () => {
+  assert.match(importazioneSessioni, /const contenuto = leggiJsonDaChatGPT\(jsonIncollato.value, MAX_FILE\)/)
+  assert.equal((importazioneSessioni.match(/verificaArchivioSessioniChatGPT\(contenuto\)/g) || []).length, 2)
+  assert.match(importazioneSessioni, /v-model="jsonIncollato"/)
+  assert.match(importazioneSessioni, /Scarica JSON sul dispositivo/)
+  assert.match(importazioneSessioni, /URL.createObjectURL\(blob\)/)
+  assert.match(importazioneSessioni, /type="file"/)
 })
