@@ -23,19 +23,17 @@ export async function copiaNegliAppunti(testo, { navigatore = globalThis.navigat
   campo.style.left = '-9999px'
   campo.style.opacity = '0'
   documento.body.appendChild(campo)
-  let riuscita = false
   try {
     campo.focus()
     campo.select()
     campo.setSelectionRange(0, campo.value.length)
-    riuscita = documento.execCommand('copy') === true
+    return documento.execCommand('copy') === true
   } catch {
-    riuscita = false
+    return false
   } finally {
     campo.remove()
     if (precedente?.isConnected && typeof precedente.focus === 'function') {
       precedente.focus({ preventScroll: true })
     }
   }
-  return riuscita
 }
