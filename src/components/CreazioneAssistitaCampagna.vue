@@ -426,11 +426,12 @@ async function importaCampagna() {
     </div>
     <div v-else class="generazione">
       <p>
-        Il prompt prevede una progettazione collaborativa, revisioni e solo alla fine la produzione
-        di un JSON compatibile con DMC.
+        ChatGPT lavorerà per decisioni brevi, una sezione alla volta. Per esportare, puoi scrivere
+        «esporta», «esporta dmc» o «genera il JSON», senza maiuscole obbligatorie.
       </p>
       <label
         >Anteprima del prompt<textarea
+          ref="anteprimaPrompt"
           class="dmc-campo anteprima"
           :value="prompt"
           rows="12"
@@ -438,7 +439,9 @@ async function importaCampagna() {
         ></textarea>
       </label>
       <div class="azioni">
-        <button type="button" class="dmc-btn" @click="copiaPrompt">Copia prompt</button>
+        <button type="button" class="dmc-btn" :disabled="copiaInCorso" @click="copiaPrompt">
+          {{ copiaInCorso ? 'Copia in corso…' : copiaConfermata ? '✓ Prompt copiato' : 'Copia prompt' }}
+        </button>
         <a
           class="dmc-btn dmc-btn--secondary"
           href="https://chatgpt.com/"
@@ -447,21 +450,61 @@ async function importaCampagna() {
           >Apri ChatGPT</a
         >
       </div>
+      <p v-if="feedbackCopia" role="status" aria-live="polite" class="feedback-copia">
+        {{ feedbackCopia }}
+      </p>
+      <p v-if="erroreCopia" role="alert" class="feedback-copia feedback-copia--errore">
+        {{ erroreCopia }}
+      </p>
       <div v-if="modalita === 'campagna'" class="importazione">
         <h3>Importa la campagna generata</h3>
         <p>
-          Carica il JSON conclusivo dopo averlo revisionato con ChatGPT. L'importazione crea una
-          nuova campagna e non sovrascrive quelle presenti.
+          Importa il file di ChatGPT oppure incolla direttamente il JSON copiato dalla conversazione.
+          DMC lo verifica prima di importare: non serve ottenere un allegato da ChatGPT.
         </p>
-        <input
+        <label class="incolla-json">
+          Incolla JSON (anche dentro un blocco ` ` `json)
+          <textarea
+            v-model="jsonIncollato"
+            class="dmc-campo"
+            rows="7"
+            placeholder="Incolla qui il JSON completo restituito da ChatGPT..."
+            spellcheck="false"
+            aria-describedby="istruzioni-json-campagna"
+          ></textarea>
+        </label>
+        <p id="istruzioni-json-campagna" class="istruzioni-json">
+          Puoi incollare anche il blocco con tre accenti gravi (formato JSON).
+          Il testo deve contenere un unico JSON completo, non un riassunto.
+        </p>
+        <button
+          type="button"
+          class="dmc-btn dmc-btn--secondary"
+          :disabled="!jsonIncollato.trim() || caricando"
+          @click="leggiCampagnaDaTesto"
+        >
+          Verifica JSON incollato
+        </button>
+        <label class="incolla-json">
+          Oppure seleziona il file JSON
+          <input
           ref="file"
           type="file"
           accept=".json,application/json"
           :disabled="caricando"
           @change="leggiCampagna"
-        />
+          />
+        </label>
         <div v-if="anteprima" class="elenco">
-          <strong>Anteprima: {{ anteprima.campagne.length }} campagne</strong>
+          <strong>Anteprima verificata: {{ anteprima.campagne.length }} campagne</strong>
+          <button
+            v-if="anteprimaDaTesto"
+            class="dmc-btn dmc-btn--secondary"
+            type="button"
+            @click="scaricaJsonCampagna"
+          >
+            Scarica JSON sul dispositivo
+          </button>
           <p v-for="(c, i) in anteprima.campagne" :key="i">
             {{ c.nome }} · {{ c.dati.sessioni.length }} sessioni
           </p>
@@ -611,6 +654,17 @@ async function importaCampagna() {
 .errore {
   color: #f5b2a9;
 }
+.feedback-copia {
+  padding: 9px 12px;
+  border: 1px solid var(--dmc-amber, #e5a65c);
+  border-radius: 8px;
+  background: rgba(229, 166, 92, 0.08);
+  color: var(--dmc-cream, #f4e7d2);
+  font-size: 0.85rem;
+}
+.feedback-copia--errore { border-color: #f5b2a9; }
+.istruzioni-json { color: var(--dmc-muted-light); font-size: 0.78rem; }
+.incolla-json { width: 100%; min-width: 0; }
 .creazione-chatgpt :is(button, input, textarea, select, a):focus-visible {
   outline: 3px solid var(--dmc-amber, #e5a65c);
   outline-offset: 3px;
