@@ -466,6 +466,7 @@ async function importaCampagna() {
           Incolla JSON da ChatGPT
           <textarea
             v-model="jsonIncollato"
+            @input="annullaImport"
             class="dmc-campo"
             rows="7"
             placeholder="Incolla qui il JSON completo restituito da ChatGPT..."
