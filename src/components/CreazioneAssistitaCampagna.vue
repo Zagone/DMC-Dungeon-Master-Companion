@@ -1,6 +1,9 @@
 <script setup>
 import { computed, ref, watch } from 'vue'
 import ImportaSessioniJSON from './ImportaSessioniJSON.vue'
+import { creaPromptCreazioneDMC } from '../dati/protocolloCreazioneDMC.js'
+import { copiaNegliAppunti } from '../dati/copiaNegliAppunti.js'
+import { leggiJsonDaChatGPT } from '../dati/jsonDaChatGPT.js'
 
 const props = defineProps({
   modalita: {
@@ -68,6 +71,13 @@ const file = ref(null)
 const anteprima = ref(null)
 const conferma = ref(false)
 const caricando = ref(false)
+const anteprimaPrompt = ref(null)
+const copiaInCorso = ref(false)
+const copiaConfermata = ref(false)
+const feedbackCopia = ref('')
+const erroreCopia = ref('')
+const jsonIncollato = ref('')
+const anteprimaDaTesto = ref(false)
 watch(
   dati,
   (v) => {
@@ -102,60 +112,70 @@ const introduzione = computed(() =>
     ? 'Definisci un’avventura articolata in sessioni, scene e contenuti giocabili.'
     : 'Prepara le prossime sessioni tenendo conto della continuità della campagna aperta.',
 )
-const prompt = computed(() => {
-  const d = dati.value
-  const campagna = props.modalita === 'campagna'
-  return `Sei un esperto Dungeon Master e progettista narrativo di Dungeons & Dragons 5e (regole 2024). Collaboriamo alla progettazione di ${campagna ? 'una CAMPAGNA completa' : 'una sequenza di SESSIONI per una campagna esistente'} da usare in Dungeon Master Companion (DMC).
-
-REQUISITI DEL DUNGEON MASTER
-Titolo: ${d.titolo || 'Da proporre'}
-Premessa: ${d.premessa || 'Da sviluppare insieme'}
-Ambientazione: ${d.ambientazione || 'Da concordare'}
-Genere: ${d.genere}; atmosfera: ${d.atmosfera}
-Giocatori: ${d.pg}; livello indicativo: ${d.livello}
-Numero di sessioni: ${d.sessioni}; durata indicativa per sessione: ${d.durata}
-Esperienza del gruppo: ${d.esperienza}
-Conflitto centrale: ${d.conflitto || 'Da proporre'}
-Antagonista: ${d.antagonista || 'Da proporre'}
-Fazioni e relazioni: ${d.fazioni || 'Da sviluppare'}
-Luoghi: ${d.luoghi || 'Da sviluppare'}
-PNG e loro motivazioni: ${d.png || 'Da sviluppare'}
-Obiettivi e possibili scelte: ${d.obiettivi || 'Da sviluppare'}
-Svolte e conseguenze: ${d.svolte || 'Da sviluppare'}
-Indizi, misteri, rivelazioni: ${d.indizi || 'Da sviluppare'}
-Esplorazione e sfide non belliche: ${d.esplorazione || 'Da sviluppare'}
-Combattimenti: ${d.combattimenti}; difficoltà: ${d.difficolta}
-Ricompense: ${d.ricompense || 'Adeguate al livello'}
-Temi narrativi: ${d.temi || 'Da proporre'}
-Contenuti da evitare e limiti: ${d.limiti || 'Chiedere prima di sviluppare temi sensibili'}
-Finale ed epiloghi alternativi: ${d.finale || 'Dipendenti dalle scelte dei giocatori'}
-Continuità con sessioni precedenti: ${d.collegamenti || 'Non indicata'}
-Ulteriori vincoli: ${d.istruzioni || 'Nessuno'}
-
-FASE 1 — PROGETTAZIONE COLLABORATIVA
-Prima di generare alcun file, proponi una struttura narrativa chiara: premessa, posta in gioco, agganci, archi, svolte e possibili finali. Esplicita ipotesi e chiedimi di correggerle. Le scelte dei giocatori devono avere conseguenze reali, con alternative ragionevoli se ignorano un indizio o evitano un incontro. Non imporre una sequenza rigida. Per ogni sessione prevedi scene distinte con descrizioni giocabili, obiettivi, informazioni scopribili, PNG e possibili esiti. Mantieni continuità, ritmo e coerenza. Progetta incontri bilanciati senza inventare ID SRD; non spacciare homebrew per materiale ufficiale.
-
-FASE 2 — REVISIONE
-Ricevi le mie modifiche e aggiorna la struttura. Non passare all'esportazione finché non scrivo esattamente: ESPORTA DMC.
-
-FASE 3 — ESPORTAZIONE DMC
-${
-  campagna
-    ? 'Alla conferma, restituisci SOLO un JSON valido nel formato del backup nativo: {"formato":"dmc-archivio-campagne","versione":2,"applicazione":"Dungeon Master Companion","creaturePersonali":[],"campagne":[{"nome":"...","descrizione":"...","stato":"preparazione","dati":{...}}]}. Nei dati usa versione:1, personaggi:[], nemici:[], iniziativa:{round:1,turnoAttivo:null}, sessioni, pngNarrativi:[], conduzione:null, note:"", bottino:[]. Ogni sessione richiede id univoco, titolo, data:"", stato:"preparazione", obiettivi, resoconto:"", pgPrevisti, livelloPrevisto, scenaAttivaId:null, sceneVisitateIds:[], risorseNarrative:[], rituale:{descrizione:"",partecipanti:[]}, scene. Ogni scena richiede id univoco, titolo, orario:"", descrizione, note:"", alternativa:"", personaggi:"", guida:[], indizi:[], pngIds:[], mostraRituale:false, incontro:{nemici:[],opzionale:false,richiedeCreature:[],suggerimentiPF:[],noteBilanciamento:""}. Non inserire ID di creature inventati. Il campo incontro.richiedeCreature contiene soltanto suggerimenti narrativi facoltativi per il DM: NON è un requisito per caricare la Battaglia. I nemici realmente collegati sono soltanto le voci dell\'array incontro.nemici.'
-    : 'Alla conferma, restituisci SOLO un JSON valido: {"formato":"dmc-sessioni","versione":1,"sessioni":[...]}. Ogni sessione deve avere titolo (max 150 caratteri), obiettivi (stringa), pgPrevisti e livelloPrevisto (interi 1–20) e scene (array). Ogni scena deve avere titolo (max 150 caratteri) e descrizione (stringa); facoltativi orario, note, alternativa e personaggi. Per ora NON includere incontri con creature, ID SRD o PNG strutturati: saranno associati nell’editor DMC.'
-}
-Il JSON deve contenere solo i dati approvati e nessun Markdown, commento o testo aggiuntivo. `
+// Contratto unico per le conversazioni ChatGPT su account diversi.
+const prompt = computed(() => creaPromptCreazioneDMC(dati.value, props.modalita))
+watch(prompt, () => {
+  copiaConfermata.value = false
+  feedbackCopia.value = ''
+  erroreCopia.value = ''
 })
 async function copiaPrompt() {
+  if (copiaInCorso.value) return
+  erroreCopia.value = ''
+  feedbackCopia.value = ''
+  copiaInCorso.value = true
+  copiaConfermata.value = false
+  try {
+    const riuscita = await copiaNegliAppunti(prompt.value)
+    if (riuscita) {
+      copiaConfermata.value = true
+      feedbackCopia.value = 'Prompt copiato negli appunti. Puoi incollarlo in ChatGPT.'
+    } else {
+      erroreCopia.value =
+        'Il browser non permette la copia automatica. Il prompt è selezionato: usa Copia dal menu di sistema.'
+      anteprimaPrompt.value?.focus()
+      anteprimaPrompt.value?.select()
+    }
+  } finally {
+    copiaInCorso.value = false
+  }
+}
+function verificaAnteprima(archivio, daTesto) {
+  // Stessa verifica per file e testo: nessuna importazione parziale.
+  if (!archivio || typeof archivio !== 'object') {
+    throw new Error('Il contenuto non è un archivio DMC valido.')
+  }
+  anteprima.value = archivio
+  anteprimaDaTesto.value = daTesto
+}
+async function leggiCampagnaDaTesto() {
+  annullaImport()
   errore.value = ''
   stato.value = ''
+  caricando.value = true
   try {
-    await navigator.clipboard.writeText(prompt.value)
-    stato.value =
-      'Prompt copiato. Incollalo in ChatGPT e sviluppa la storia prima di richiedere il JSON.'
-  } catch {
-    errore.value = 'Copia automatica non riuscita: seleziona e copia il testo nell’anteprima.'
+    const archivio = leggiJsonDaChatGPT(jsonIncollato.value)
+    const { verificaArchivio } = await import('../stato/archivioDMC.js')
+    verificaArchivio(archivio)
+    verificaAnteprima(archivio, true)
+  } catch (e) {
+    errore.value = e.message || 'Impossibile leggere il JSON incollato.'
+  } finally {
+    caricando.value = false
   }
+}
+function scaricaJsonCampagna() {
+  if (!anteprimaDaTesto.value || !anteprima.value) return
+  const blob = new Blob([JSON.stringify(anteprima.value, null, 2)], { type: 'application/json' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = 'DMC_Campagna_Generata.json'
+  document.body.appendChild(a)
+  a.click()
+  a.remove()
+  setTimeout(() => URL.revokeObjectURL(url), 1000)
+  stato.value = 'JSON salvato sul dispositivo. Puoi anche importarlo direttamente qui.'
 }
 function azzeraBozza() {
   dati.value = { ...campi }
@@ -168,6 +188,7 @@ function azzeraBozza() {
 }
 function annullaImport() {
   anteprima.value = null
+  anteprimaDaTesto.value = false
   conferma.value = false
   if (file.value) file.value.value = ''
 }
@@ -186,7 +207,7 @@ async function leggiCampagna(evento) {
     const archivio = JSON.parse(await f.text())
     const { verificaArchivio } = await import('../stato/archivioDMC.js')
     verificaArchivio(archivio)
-    anteprima.value = archivio
+    verificaAnteprima(archivio, false)
   } catch (e) {
     errore.value = e instanceof SyntaxError ? 'Il file non contiene un JSON valido.' : e.message
   } finally {
@@ -205,6 +226,7 @@ async function importaCampagna() {
       anteprima.value.campagne.map((_, i) => i),
     )
     annullaImport()
+    jsonIncollato.value = ''
     stato.value =
       numero +
       (numero === 1 ? ' campagna importata nella libreria.' : ' campagne importate nella libreria.')
