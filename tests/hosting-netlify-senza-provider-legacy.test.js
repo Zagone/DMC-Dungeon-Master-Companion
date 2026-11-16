@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url'
 import path from 'node:path'
 
 const root = fileURLToPath(new URL('../', import.meta.url))
-const patternProviderDismesso = /cloudflare|wrangler|pages\\.dev|workers\\.dev/i
+const patternProviderDismesso = /cloudflare|wrangler|pages\.dev|workers\.dev/i
 
 function controlloFile(file) {
   assert.doesNotMatch(
@@ -21,7 +21,7 @@ function controllaDirectory(directory) {
     const relativo = path.join(directory, entry.name)
     if (entry.isDirectory()) {
       controllaDirectory(relativo)
-    } else if (/\\.(?:js|vue|css|html|json|ya?ml|md)$/i.test(entry.name)) {
+    } else if (/\.(?:js|vue|css|html|json|ya?ml|md)$/i.test(entry.name)) {
       controlloFile(relativo)
     }
   }
@@ -39,5 +39,5 @@ test('Istruzioni operative soltanto per Netlify: niente guida di distribuzione o
   assert.equal(existsSync(path.join(root, 'docs/PUBBLICAZIONE_CLOUDFLARE_PAGES.md')), false)
   const readme = readFileSync(path.join(root, 'README.md'), 'utf8')
   assert.match(readme, /Distribuzione online — Netlify/)
-  assert.match(readme, /dmc-dungeon-master-companion\\.netlify\\.app/)
+  assert.match(readme, /dmc-dungeon-master-companion\.netlify\.app/)
 })
