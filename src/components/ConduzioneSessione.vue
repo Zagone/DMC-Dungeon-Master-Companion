@@ -555,7 +555,6 @@ const messaggio = computed(() => props.messaggio)
               <button
                 type="button"
                 class="dmc-btn"
-                :disabled="!totaleNemici(scenaConsultata(sessioneInConduzione))"
                 @click="richiediCaricamento(scenaConsultata(sessioneInConduzione))"
               >
                 Carica in Battaglia
