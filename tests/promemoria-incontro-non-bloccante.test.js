@@ -74,16 +74,17 @@ test('Il controllo delle note opera con nomi e campagne qualsiasi', () => {
 test('I tre punti del caricamento non usano mai richiedeCreature come blocco', () => {
   const richiesta = gestione.slice(gestione.indexOf('function richiediCaricamento(scena) {'), gestione.indexOf('function caricaIncontro(scena) {'))
   const caricamento = gestione.slice(gestione.indexOf('function caricaIncontro(scena) {'), gestione.indexOf('</script>', gestione.indexOf('function caricaIncontro(scena) {')))
-  assert.match(richiesta, /if \(!totaleNemici\(scena\)\)/)
+  assert.doesNotMatch(richiesta, /if \(!totaleNemici\(scena\)\)/)
   assert.doesNotMatch(richiesta, /creatureDaCollegare\(scena\)/)
+  assert.match(caricamento, /vociNonDisponibili\+\+/)
   assert.doesNotMatch(caricamento, /if\s*\(creatureDaCollegare/)
   assert.doesNotMatch(gestione, /collegamentiMancanti:/)
 })
 
-test('Il pulsante è abilitato quando esiste almeno un nemico, anche con suggerimenti mancanti', () => {
+test('Il pulsante non blocca gli incontri privi di nemici collegati', () => {
   const incontr = conduzione.slice(conduzione.indexOf('<!-- INCONTRO -->'), conduzione.indexOf('<!-- REGISTRO DELLA SESSIONE -->'))
   const bottone = incontr.slice(incontr.indexOf('<button'), incontr.indexOf('</button>'))
-  assert.match(bottone, /:disabled="!totaleNemici\(scenaConsultata\(sessioneInConduzione\)\)"/)
+  assert.doesNotMatch(bottone, /:disabled=/)
   assert.doesNotMatch(bottone, /creatureDaCollegare/)
   assert.match(incontr, /Suggerimento del copione \(facoltativo\):/)
   assert.match(editor, /Suggerimento del copione \(facoltativo\):/)
