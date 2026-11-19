@@ -128,27 +128,6 @@
     0 8px 20px rgb(0 0 0 / 18%);
 }
 
-/* CONTESTO DELLA CAMPAGNA */
-
-.campagna-view .navigazione-contesto {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--dmc-space-3);
-  min-width: 0;
-  padding: var(--dmc-space-1) 0;
-}
-
-.campagna-view .nome-campagna-compatto {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  color: var(--dmc-amber-light);
-  font-size: 13px;
-  font-weight: 800;
-}
-
 /* SCHEDE DELLA CAMPAGNA */
 
 .campagna-view .navigazione-persistente .tabs {
@@ -295,10 +274,6 @@
 
   .campagna-view .testata-campagna h1 {
     font-size: 25px;
-  }
-
-  .campagna-view .nome-campagna-compatto {
-    font-size: 12px;
   }
 
   .campagna-view .uscita-campagna {
