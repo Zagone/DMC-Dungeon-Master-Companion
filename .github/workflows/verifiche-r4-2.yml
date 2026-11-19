@@ -26,7 +26,7 @@ jobs:
         run: npm ci
 
       - name: Test automatici
-        run: node --test tests/*.test.js
+        run: npm test
 
       - name: ESLint senza modificare i file
         run: npx eslint .
