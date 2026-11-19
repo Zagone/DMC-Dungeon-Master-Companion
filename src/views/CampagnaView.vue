@@ -110,7 +110,7 @@ watch(navigazioneCompatta, async () => {
   aggiornaAltezzaNavigazione()
 })
 
-// Campagna e sezioni.
+// Campagna e sezioni. La panoramica è un livello separato dalla navigazione operativa.
 
 const campagnaId = computed(() => (typeof route.params.id === 'string' ? route.params.id : null))
 
@@ -367,7 +367,15 @@ function eliminaCampagnaAttiva() {
           </div>
 
           <button
-            v-if="!intestazioneInConduzione"
+            v-if="sezione !== 'panoramica'"
+            type="button"
+            class="bottone neutro dmc-btn dmc-btn--secondary"
+            @click="vaiSezione('panoramica')"
+          >
+            ← Panoramica campagna
+          </button>
+          <button
+            v-else
             type="button"
             class="bottone neutro dmc-btn dmc-btn--secondary"
             @click="apriImpostazioni"
@@ -377,6 +385,7 @@ function eliminaCampagnaAttiva() {
         </section>
 
         <div
+          v-show="sezione !== 'panoramica'"
           ref="navigazione"
           class="navigazione-persistente"
           :class="{ compatta: navigazioneCompatta }"
@@ -395,9 +404,9 @@ function eliminaCampagnaAttiva() {
             </button>
           </div>
 
-          <nav class="tabs" aria-label="Sezioni della campagna">
+          <nav class="tabs" aria-label="Strumenti della campagna">
             <button
-              v-for="s in sezioni"
+              v-for="s in sezioni.filter((voce) => voce.id !== 'panoramica')"
               :key="s.id"
               type="button"
               class="tab-dmc"
