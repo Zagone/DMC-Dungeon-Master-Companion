@@ -17,3 +17,10 @@ test('La libreria mantiene accessibile il backup tramite caricamento differito',
   assert.doesNotMatch(libreria, /import GestioneArchivioDMC from/)
   assert.match(libreria, /<GestioneArchivioDMC\s*\/>/)
 })
+
+test('La creazione assistita non è inclusa nel caricamento iniziale della Home', () => {
+  assert.match(dashboard, /defineAsyncComponent\(\(\) => import\('\.\.\/components\/CreazioneAssistitaCampagna\.vue'\)\)/)
+  assert.doesNotMatch(dashboard, /import CreazioneAssistitaCampagna from/)
+  assert.match(dashboard, /<CreazioneAssistitaCampagna modalita="campagna"/)
+  assert.match(dashboard, /v-if="assistitaAperta"/)
+})
