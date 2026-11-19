@@ -5,7 +5,7 @@ import { useRouter } from 'vue-router'
 import { usaModale } from '../stato/usaModale.js'
 
 const GestioneArchivioDMC = defineAsyncComponent(() => import('../components/GestioneArchivioDMC.vue'))
-import CreazioneAssistitaCampagna from '../components/CreazioneAssistitaCampagna.vue'
+const CreazioneAssistitaCampagna = defineAsyncComponent(() => import('../components/CreazioneAssistitaCampagna.vue'))
 import CardAvventura from '../components/ui/CardAvventura.vue'
 import IconaDirezione from '../components/ui/IconaDirezione.vue'
 
