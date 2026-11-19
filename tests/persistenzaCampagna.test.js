@@ -83,3 +83,116 @@ test('dati corrotti: apertura rifiutata senza sovrascrivere il contenuto origina
   assert.equal(chiudiDatiCampagna(), true)
   assert.equal(valori.get(chiave('corrotta')), originale)
 })
+
+test('incontro con istantanea: apertura e salvataggio conservano la versione della creatura', () => {
+  const istantanea = {
+    id: 'homebrew-versione-originale',
+    nome: 'Custode della campagna',
+    ca: 16,
+    pfMax: 55,
+    azioni: [{ nome: 'Rintocco', descrizione: 'Azione personalizzata della sessione.' }],
+  }
+  const originale = {
+    versione: 1,
+    sessioni: [{
+      id: 's-istantanea',
+      scene: [{
+        id: 'scena-istantanea',
+        incontro: {
+          nemici: [{ creaturaId: 'creatura-non-piu-presente', quantita: 1, istantanea }],
+        },
+      }],
+    }],
+  }
+  valori.set(chiave('regressione-istantanea'), JSON.stringify(originale))
+  assert.equal(apriDatiCampagna('regressione-istantanea'), true)
+  const voce = datiCampagna.value.sessioni[0].scene[0].incontro.nemici[0]
+  assert.deepEqual(voce.istantanea, istantanea)
+  assert.equal(chiudiDatiCampagna(), true)
+  const riletta = JSON.parse(valori.get(chiave('regressione-istantanea')))
+  assert.deepEqual(riletta.sessioni[0].scene[0].incontro.nemici[0].istantanea, istantanea)
+})
+
+test('riferimento storico senza istantanea: il catalogo SRD viene risolto senza perdere il vecchio ID', async () => {
+  const { trovaCreatura } = await import('../src/stato/statoBestiario.js')
+  const attesa = trovaCreatura('dnd-goblin-warrior')
+  assert.ok(attesa, 'Alias SRD storico presente nel catalogo')
+  const originale = {
+    versione: 1,
+    sessioni: [{
+      id: 's-legacy',
+      scene: [{
+        id: 'scena-legacy',
+        incontro: {
+          nemici: [{ creaturaId: 'dnd-goblin-warrior', quantita: 2 }],
+        },
+      }],
+    }],
+  }
+  valori.set(chiave('regressione-legacy'), JSON.stringify(originale))
+  assert.equal(apriDatiCampagna('regressione-legacy'), true)
+  const voce = datiCampagna.value.sessioni[0].scene[0].incontro.nemici[0]
+  assert.equal(voce.creaturaId, 'dnd-goblin-warrior')
+  assert.equal(voce.istantanea.id, attesa.id)
+  assert.equal(voce.istantanea.nome, attesa.nome)
+  assert.notStrictEqual(voce.istantanea, attesa)
+  assert.equal(chiudiDatiCampagna(), true)
+  const riletta = JSON.parse(valori.get(chiave('regressione-legacy')))
+  assert.equal(riletta.sessioni[0].scene[0].incontro.nemici[0].istantanea.id, attesa.id)
+})
+
+test('riferimento assente senza istantanea: l’apertura non elimina i dati narrativi della scena', () => {
+  const voceOriginale = { creaturaId: 'creatura-non-trovata', nome: 'Mostro del copione', quantita: 3 }
+  const originale = {
+    versione: 1,
+    sessioni: [{
+      id: 's-non-trovata',
+      scene: [{
+        id: 'scena-non-trovata',
+        titolo: 'La soglia',
+        incontro: { nemici: [voceOriginale], richiedeCreature: ['Mostro del copione'] },
+      }],
+    }],
+  }
+  valori.set(chiave('regressione-non-trovata'), JSON.stringify(originale))
+  assert.equal(apriDatiCampagna('regressione-non-trovata'), true)
+  const scena = datiCampagna.value.sessioni[0].scene[0]
+  assert.equal(scena.titolo, 'La soglia')
+  assert.deepEqual(scena.incontro.nemici[0], voceOriginale)
+  assert.deepEqual(scena.incontro.richiedeCreature, ['Mostro del copione'])
+  assert.equal(chiudiDatiCampagna(), true)
+})
+
+test('creatura homebrew: una scena senza istantanea conserva il collegamento alla scheda personale', async () => {
+  const { salvaCreatura, eliminaCreatura } = await import('../src/stato/statoBestiario.js')
+  const id = 'regressione-homebrew-istantanee'
+  assert.equal(salvaCreatura({
+    id,
+    nome: 'Guardiano homebrew',
+    categoria: 'homebrew',
+    origine: 'custom',
+    ca: 14,
+    pfMax: 25,
+  }), true)
+  try {
+    const originale = {
+      versione: 1,
+      sessioni: [{
+        id: 's-homebrew',
+        scene: [{
+          id: 'scena-homebrew',
+          incontro: { nemici: [{ creaturaId: id, quantita: 1 }] },
+        }],
+      }],
+    }
+    valori.set(chiave('regressione-homebrew'), JSON.stringify(originale))
+    assert.equal(apriDatiCampagna('regressione-homebrew'), true)
+    const voce = datiCampagna.value.sessioni[0].scene[0].incontro.nemici[0]
+    assert.equal(voce.creaturaId, id)
+    assert.equal(voce.istantanea.nome, 'Guardiano homebrew')
+    assert.equal(voce.istantanea.pfMax, 25)
+    assert.equal(chiudiDatiCampagna(), true)
+  } finally {
+    assert.equal(eliminaCreatura(id), true)
+  }
+})
