@@ -36,3 +36,6 @@ jobs:
 
       - name: Build di produzione
         run: npm run build
+
+      - name: Analisi dimensioni JavaScript per rotta
+        run: npm run analyze:bundle
