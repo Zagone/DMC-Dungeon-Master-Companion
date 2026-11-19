@@ -540,3 +540,17 @@ L'asserzione è stata allineata al nome accessibile effettivo senza modificare i
 Dopo il ripristino del terminale Git su Windows (`git version 2.46.0.windows.1`), l'utente ha aggiornato il branch di sviluppo da `55e1233` a `6af68bc` tramite `git pull` in fast-forward. L'esecuzione locale di `node --test tests/*.test.js` ha restituito **163 test eseguiti, 163 superati, 0 falliti** (durata riportata: circa 2,57 secondi). Risultano quindi superati anche i controlli statici riguardanti la distinzione tra panoramica e navigazione operativa e la barra della battaglia sui dispositivi touch.
 
 Gli output «Quota simulata» sono prodotti intenzionalmente dagli scenari di test sulla persistenza e non rappresentano errori di esecuzione della suite. L'avviso sperimentale su `localStorage` in Node non ha determinato fallimenti. La build Vite era stata eseguita con esito positivo nella verifica precedente, **non rieseguita nell'ultimo log**. Rimangono da svolgere verifiche visive e di interazione su browser desktop, tablet e smartphone: il superamento dei test statici non costituisce un collaudo empirico su dispositivi reali.
+
+## 19 novembre 2026 — Audit preliminare delle prestazioni del Bestiario SRD
+
+### Segnalazione tecnica e origine del peso
+
+Le build locali recenti completano correttamente la compilazione Vite, ma mostrano un avviso relativo al chunk `statoBestiario-*.js`: **986,73 kB minificati e circa 102,83 kB compressi con gzip**. L'ispezione dei sorgenti mostra che `src/stato/statoBestiario.js` importa staticamente `catalogoSRD.js`, un archivio di grandi dimensioni che contiene le schede SRD. Il modulo del Bestiario è a sua volta importato da `GestioneSessioni.vue` e `GestioneBattaglia.vue`. Inoltre `src/stato/statoDatiCampagna.js` importa `fissaIncontri` da `statoBestiario.js`: all'apertura della campagna questa funzione completa le eventuali istantanee degli incontri risolvendo le creature senza istantanea già salvata.
+
+### Vincoli di progettazione
+
+L'uso di import dinamici soltanto nella vista Bestiario non eliminerebbe queste dipendenze statiche condivise. Spostare direttamente il catalogo SRD dietro una richiesta asincrona, senza cambiare prima il contratto di `fissaIncontri`, potrebbe rendere indisponibili le schede durante la migrazione/apertura delle campagne. L'ottimizzazione deve quindi preservare: istantanee degli incontri; creature homebrew; risoluzione di identificativi legacy; salvataggio locale; caricamento delle scene; compatibilità dei backup.
+
+### Decisione e prossimi controlli
+
+In questa fase è stato eseguito **solo un audit statico** delle dipendenze; non sono stati modificati i moduli applicativi. Il miglioramento proposto consiste nel separare il livello di persistenza e le API del Bestiario dal caricamento del catalogo statico, definendo esplicitamente quando il catalogo deve essere disponibile e come risolvere le voci legacy. Prima di qualsiasi implementazione sono necessari test per campagne con incontri che contengono e non contengono istantanee, importazioni e vecchie versioni dei dati. Solo dopo potranno essere misurate la rete di moduli caricati all'apertura della dashboard, le dimensioni dei chunk e l'effettiva riduzione del payload iniziale. L'avviso di Vite **non è un errore funzionale** e non giustifica un cambiamento immediato ad alto rischio.
