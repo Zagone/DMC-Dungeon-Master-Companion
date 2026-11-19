@@ -518,3 +518,11 @@ L'intervento è stato circoscritto a `src/views/CampagnaView.vue`: la barra usa 
 ### Stato delle verifiche
 
 La modifica è stata salvata nel repository sul branch `feature/r4-2-gestione-dati-integrazione` (commit `70d323f`). **Al momento della registrazione non sono stati eseguiti build o test browser sulla nuova navigazione**. Sono da verificare il passaggio Panoramica → Sessioni → Battaglia, il ritorno alla panoramica, il comportamento della barra sticky dopo i cambi di rotta e l'esperienza su dispositivi touch. Il precedente caricamento non bloccante degli incontri è stato invece confermato funzionante durante una verifica manuale dell'utente il 19 novembre 2026.
+
+### 19 novembre 2026 — Secondo passaggio: coerenza operativa e test di regressione
+
+La revisione della navigazione è stata approfondita con un ulteriore controllo del ciclo di vita della barra sticky. In `CampagnaView.vue` è stato aggiunto un osservatore `watch(sezione)` che azzera lo stato compatto quando si torna alla panoramica e, dopo `nextTick`, aggiorna le misure della navigazione. La scelta preserva il riferimento DOM utilizzato dal `ResizeObserver` e punta a evitare misure obsolete dopo un passaggio tra pagine con barra nascosta e visibile.
+
+Durante l'ispezione è emersa anche un'incoerenza con la precedente correzione degli incontri: `GestioneSessioni.vue` accettava incontri senza nemici disponibili, ma in `ConduzioneSessione.vue` il pulsante «Carica in Battaglia» era ancora disabilitato quando il numero dei nemici era zero. Il vincolo è stato rimosso per gli incontri già rappresentati nella sezione della scena. Sono stati aggiornati i test `tests/promemoria-incontro-non-bloccante.test.js` per evitare di imporre il comportamento superato e aggiunti `tests/navigazione-campagna.test.js` per controllare staticamente la separazione della panoramica dalle schede, il pulsante di ritorno, i collegamenti operativi e il ricalcolo delle misure.
+
+**Limiti delle verifiche:** le nuove asserzioni sui componenti Vue sono controlli statici sul codice sorgente e non sostituiscono test end-to-end o verifiche con assistive technology. Non sono state ancora eseguite in questa sessione la suite Node, la build Vite o la prova sul browser locale dopo questi ulteriori commit. La validazione funzionale della navigazione rimane aperta.
