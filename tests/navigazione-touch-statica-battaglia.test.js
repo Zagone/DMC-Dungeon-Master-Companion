@@ -18,7 +18,7 @@ test('Su tablet e smartphone la navigazione della campagna è statica in tutte l
   assert.match(regoleTouch, /\.campagna-view \.navigazione-persistente \.tabs\s*\{\s*display: flex;/)
   assert.match(pagina, /window\.matchMedia\([\s\S]*?'\(max-width: 1024px\), \(max-width: 1440px\) and \(any-pointer: coarse\)'/)
   assert.match(pagina, /if \(!elemento \|\| navigazioneTouch\) \{\s*navigazioneCompatta\.value = false/)
-  assert.match(pagina, /<nav class="tabs" aria-label="Sezioni della campagna">/)
+  assert.match(pagina, /<nav class="tabs" aria-label="Strumenti della campagna">/)
   assert.doesNotMatch(pagina, /navigazioneConduzioneMini|navigazione-conduzione-mobile|selezionaSezioneMobile/)
 })
 
