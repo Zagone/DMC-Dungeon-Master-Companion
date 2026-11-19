@@ -1,5 +1,5 @@
 import { readFileSync, existsSync } from 'node:fs'
-import { join } from 'node:path'
+import { join, resolve } from 'node:path'
 import { gzipSync } from 'node:zlib'
 import { fileURLToPath } from 'node:url'
 
@@ -43,8 +43,8 @@ function visualizza(label, risultato) {
   )
 }
 
-const invocatoComeScript = process.argv[1] &&
-  fileURLToPath(import.meta.url) === fileURLToPath(new URL(`file://${process.argv[1].replaceAll('\\', '/')}`))
+const invocatoComeScript = Boolean(process.argv[1]) &&
+  resolve(process.argv[1]) === fileURLToPath(import.meta.url)
 
 if (invocatoComeScript) {
   const dist = fileURLToPath(new URL('../dist/', import.meta.url))
