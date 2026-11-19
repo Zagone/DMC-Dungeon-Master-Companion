@@ -1,10 +1,10 @@
 
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, defineAsyncComponent, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { usaModale } from '../stato/usaModale.js'
 
-import GestioneArchivioDMC from '../components/GestioneArchivioDMC.vue'
+const GestioneArchivioDMC = defineAsyncComponent(() => import('../components/GestioneArchivioDMC.vue'))
 import CreazioneAssistitaCampagna from '../components/CreazioneAssistitaCampagna.vue'
 import CardAvventura from '../components/ui/CardAvventura.vue'
 import IconaDirezione from '../components/ui/IconaDirezione.vue'
@@ -20,6 +20,9 @@ import {
 } from '../stato/statoCampagne.js'
 
 const router = useRouter()
+
+// Il backup viene caricato soltanto quando il pannello è aperto.
+const gestioneDatiAperta = ref(false)
 
 const CHIAVE_RECENTI = 'dmc_campagne_recenti_v1'
 
@@ -233,7 +236,7 @@ function nuovaCampagna() {
       </section>
 
       <section class="dv-gestione-dati" aria-labelledby="dv-gestione-dati-titolo">
-        <details class="dv-gestione-dati-dettagli">
+        <details class="dv-gestione-dati-dettagli" @toggle="gestioneDatiAperta = $event.target.open">
           <summary class="dv-gestione-dati-attivatore">
             <span class="dv-gestione-dati-icona" aria-hidden="true">⇄</span>
             <span class="dv-gestione-dati-testo">
@@ -243,7 +246,7 @@ function nuovaCampagna() {
             <span class="dv-gestione-dati-freccia" aria-hidden="true">⌄</span>
           </summary>
           <div class="dv-gestione-dati-contenuto">
-            <GestioneArchivioDMC />
+            <GestioneArchivioDMC v-if="gestioneDatiAperta" />
           </div>
         </details>
       </section>
