@@ -417,7 +417,7 @@ function eliminaCampagnaAttiva() {
 
           <nav class="tabs" aria-label="Strumenti della campagna">
             <button
-              v-for="s in sezioni.filter((voce) => voce.id !== 'panoramica')"
+              v-for="s in sezioni.filter((voce) => !['panoramica', 'bestiario'].includes(voce.id))"
               :key="s.id"
               type="button"
               class="tab-dmc"
