@@ -260,7 +260,8 @@ function consultaScena(sessione, id) {
 
   if (!scena) return
 
-  // Consultare una scena non modifica quella dei PG.
+  // La scena scelta diventa automaticamente quella corrente.
+  sessione.scenaAttivaId = id
   scenaConsultataId.value = id
 
   focalizzaGuida(scena)
@@ -275,15 +276,6 @@ function cambiaScena(sessione, direzione) {
   if (indice >= 0 && indice < sessione.scene.length) {
     consultaScena(sessione, sessione.scene[indice].id)
   }
-}
-
-function impostaScenaCorrente(sessione, id) {
-  if (!sessione.scene.some((scena) => scena.id === id)) {
-    return
-  }
-
-  sessione.scenaAttivaId = id
-  consultaScena(sessione, id)
 }
 
 function impostaVisitata(sessione, id, visitata) {
@@ -552,7 +544,7 @@ function caricaIncontro(scena) {
       :indice-consultato="indiceConsultato"
       :consulta-scena="consultaScena"
       :cambia-scena="cambiaScena"
-      :imposta-scena-corrente="impostaScenaCorrente"
+      
       :imposta-visitata="impostaVisitata"
       :toggle-supporto="toggleSupporto"
       :elementi-scena="elementiScena"
