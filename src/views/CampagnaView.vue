@@ -401,20 +401,6 @@ function eliminaCampagnaAttiva() {
           class="navigazione-persistente"
           :class="{ compatta: navigazioneCompatta }"
         >
-          <div v-if="navigazioneCompatta" class="navigazione-contesto">
-            <span class="nome-campagna-compatto" :title="campagna.nome">
-              {{ campagna.nome }}
-            </span>
-
-            <button
-              type="button"
-              class="bottone neutro uscita-campagna dmc-btn dmc-btn--secondary"
-              @click="tornaDashboard"
-            >
-              Esci dalla campagna
-            </button>
-          </div>
-
           <nav class="tabs" aria-label="Strumenti della campagna">
             <button
               v-for="s in sezioni.filter((voce) => !['panoramica', 'bestiario'].includes(voce.id))"
@@ -429,7 +415,6 @@ function eliminaCampagnaAttiva() {
             </button>
 
             <button
-              v-if="!navigazioneCompatta"
               type="button"
               class="bottone neutro uscita-campagna uscita-normale dmc-btn dmc-btn--secondary"
               @click="tornaDashboard"
