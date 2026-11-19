@@ -54,6 +54,6 @@ Il superamento della pipeline di test, lint e build GitHub non sostituisce quest
 
 La predisposizione Cloudflare Pages ha prodotto due tentativi con build riuscita ma errore finale del provider (`Failed to publish your Function — Unknown internal error occurred`) e un successivo deployment interrotto dopo un'attesa prolungata. Senza una diagnosi certa del problema, per non bloccare i test multipiattaforma è stata preferita una soluzione alternativa compatibile con lo stesso artefatto di build.
 
-Il risultato è documentato nel [diario di progettazione](DIARIO_TESI.md). La guida [Cloudflare Pages](PUBBLICAZIONE_CLOUDFLARE_PAGES.md) è mantenuta come documentazione storica dell'alternativa valutata.
+La valutazione dell'alternativa precedente e la decisione di adottare Netlify restano documentate nel [diario di progettazione](DIARIO_TESI.md). La guida di configurazione non più utilizzata è stata rimossa per evitare procedure operative obsolete.
 
 **Riferimenti:** https://docs.netlify.com/start/quickstarts/deploy-from-repository/ e https://docs.netlify.com/manage/security/secure-access-to-sites/project-visibility/

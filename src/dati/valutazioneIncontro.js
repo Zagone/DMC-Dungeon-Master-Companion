@@ -10,14 +10,12 @@ export function valutaIncontro({
   livello,
   nemici,
   risolviCreatura,
-  collegamentiMancanti = false,
 }) {
   const numeroPG = Number(pg)
   const livelloPG = Number(livello)
   if (!Number.isInteger(numeroPG) || numeroPG < 1 || numeroPG > 20 || !sogliePerPG[livelloPG]) {
     return 'Imposta numero e livello dei PG.'
   }
-  if (collegamentiMancanti) return 'Collega le creature mancanti prima di valutare lo scontro.'
   if (!Array.isArray(nemici) || !nemici.length || !nemici.some((v) => Number(v?.quantita) > 0)) {
     return 'Nessun nemico preparato.'
   }

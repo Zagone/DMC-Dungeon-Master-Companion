@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue'
 import { datiCampagna, idUnivoco, salvaDatiCampagna } from '../stato/statoDatiCampagna.js'
 import { verificaArchivioSessioniChatGPT } from '../dati/validazioneSessioniChatGPT.js'
+import { leggiJsonDaChatGPT } from '../dati/jsonDaChatGPT.js'
 
 const fileInput = ref(null)
 const anteprima = ref(null)
@@ -10,6 +11,8 @@ const messaggio = ref('')
 const confermato = ref(false)
 const occupato = ref(false)
 const selezionate = ref([])
+const jsonIncollato = ref('')
+const anteprimaDaTesto = ref(false)
 const sessioni = computed(() => anteprima.value?.sessioni || [])
 const MAX_FILE = 2 * 1024 * 1024
 
@@ -17,6 +20,7 @@ function testo(v) {
   return typeof v === 'string'
 }
 function azzera() {
+  anteprimaDaTesto.value = false
   anteprima.value = null
   selezionate.value = []
   confermato.value = false
@@ -37,6 +41,7 @@ async function leggiFile(e) {
     const contenuto = JSON.parse(await file.text())
     verificaArchivioSessioniChatGPT(contenuto)
     anteprima.value = contenuto
+    anteprimaDaTesto.value = false
     selezionate.value = contenuto.sessioni.map((_, i) => i)
   } catch (e) {
     errore.value =
@@ -46,6 +51,38 @@ async function leggiFile(e) {
   } finally {
     occupato.value = false
   }
+}
+function verificaTestoIncollato() {
+  azzera()
+  occupato.value = true
+  try {
+    const contenuto = leggiJsonDaChatGPT(jsonIncollato.value, MAX_FILE)
+    verificaArchivioSessioniChatGPT(contenuto)
+    anteprima.value = contenuto
+    anteprimaDaTesto.value = true
+    selezionate.value = contenuto.sessioni.map((_, i) => i)
+  } catch (e) {
+    errore.value = e.message || 'Il JSON incollato non è valido.'
+  } finally {
+    occupato.value = false
+  }
+}
+function scaricaJsonSessioni() {
+  if (!anteprima.value || !anteprimaDaTesto.value) return
+  const blob = new Blob([JSON.stringify(anteprima.value, null, 2)], { type: 'application/json' })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = 'DMC_Sessioni_Generate.json'
+  document.body.appendChild(link)
+  link.click()
+  link.remove()
+  setTimeout(() => URL.revokeObjectURL(url), 1000)
+  messaggio.value = 'JSON delle sessioni salvato sul dispositivo.'
+}
+function annulla() {
+  azzera()
+  jsonIncollato.value = ''
 }
 function preparaSessione(s) {
   const scene = s.scene.map((sc) => {
@@ -105,7 +142,7 @@ function importa() {
       'Salvataggio non riuscito. Nessuna sessione è stata aggiunta; verifica lo spazio disponibile.'
     return
   }
-  azzera()
+  annulla()
   messaggio.value = `${nuove.length} sessioni aggiunte alla campagna corrente.`
 }
 </script>
@@ -115,10 +152,28 @@ function importa() {
     <summary>Importa sessioni da ChatGPT <span aria-hidden="true">⌄</span></summary>
     <div class="importa-sessioni-contenuto">
       <p>
-        Carica un file JSON nel formato <code>dmc-sessioni</code> (versione 1). Le nuove sessioni
-        saranno aggiunte alla campagna aperta. I riferimenti a creature e PNG non vengono importati
-        in questa versione.
+        Importa un file JSON <code>dmc-sessioni</code> (versione 1) oppure incolla il JSON copiato
+        da ChatGPT. Le sessioni vengono aggiunte alla campagna aperta; creature e PNG si collegano in DMC.
       </p>
+      <label class="importa-sessioni-file">
+        Incolla JSON completo da ChatGPT
+        <textarea
+          v-model="jsonIncollato"
+          @input="azzera"
+          class="dmc-campo"
+          rows="5"
+          spellcheck="false"
+          placeholder="Incolla un oggetto JSON completo, con o senza delimitatori Markdown..."
+        ></textarea>
+      </label>
+      <button
+        type="button"
+        class="dmc-btn dmc-btn--secondary"
+        :disabled="!jsonIncollato.trim() || occupato"
+        @click="verificaTestoIncollato"
+      >
+        Verifica JSON incollato
+      </button>
       <label class="importa-sessioni-file">
         File JSON
         <input
@@ -130,7 +185,15 @@ function importa() {
         />
       </label>
       <div v-if="anteprima" class="importa-sessioni-anteprima">
-        <strong>Anteprima: {{ sessioni.length }} sessioni</strong>
+        <strong>Anteprima verificata: {{ sessioni.length }} sessioni</strong>
+        <button
+          v-if="anteprimaDaTesto"
+          type="button"
+          class="dmc-btn dmc-btn--secondary"
+          @click="scaricaJsonSessioni"
+        >
+          Scarica JSON sul dispositivo
+        </button>
         <label v-for="(s, i) in sessioni" :key="i">
           <input v-model="selezionate" type="checkbox" :value="i" />
           {{ s.titolo }} · {{ s.scene.length }} scene
@@ -152,7 +215,7 @@ function importa() {
           >
             Importa {{ selezionate.length }} sessioni
           </button>
-          <button type="button" class="dmc-btn dmc-btn--secondary" @click="azzera">Annulla</button>
+          <button type="button" class="dmc-btn dmc-btn--secondary" @click="annulla">Annulla</button>
         </div>
       </div>
       <p v-if="errore" role="alert" class="importa-sessioni-errore">{{ errore }}</p>
@@ -190,6 +253,17 @@ function importa() {
 .importa-sessioni-anteprima {
   display: grid;
   gap: 10px;
+}
+.importa-sessioni-file textarea {
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid var(--dmc-border);
+  border-radius: var(--dmc-radius-sm);
+  background: var(--dmc-ink);
+  color: var(--dmc-cream);
+  padding: 10px;
+  font: inherit;
 }
 .importa-sessioni-anteprima label {
   display: flex;

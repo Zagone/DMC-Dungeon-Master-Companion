@@ -16,7 +16,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Node.js (stessa versione del deploy Cloudflare)
+      - name: Node.js (versione fissata dal progetto)
         uses: actions/setup-node@v4
         with:
           node-version-file: '.node-version'

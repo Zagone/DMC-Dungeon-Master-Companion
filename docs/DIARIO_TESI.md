@@ -396,3 +396,109 @@ La modifica interessa solo il livello di presentazione: **non altera i dati del 
 ### Collaudo residuo
 
 Da verificare su iPadOS e telefono: scheda senza dati extra, scheda con immunità o resistenze, scheda con sole abilità o lingue, disponibilità del menu completo su desktop, assenza di duplicazioni indesiderate e corretta accessibilità tramite tastiera e lettori di schermo. I test automatici coprono la logica dei dati e la presenza delle regole CSS, ma non sostituiscono la verifica visiva su browser reali.
+
+## 14 novembre 2026 — R4.14: ricostruzione homebrew di Aldren e note contestuali dei capitelli
+
+### Contesto
+
+Durante la verifica del personaggio homebrew **Aldren**, antagonista finale de *Il Sesto Rintocco*, è emerso che la vecchia voce `custom-aldren` conservata in `modelliLegacy.js` conteneva solo l'attacco base e un segnaposto generico per i poteri. Non rappresentava più la configurazione narrativa della plancia storica.
+
+Sono stati recuperati i testi dei tre poteri speciali dai materiali originali della campagna: Campana dell'Oblio (TS Costituzione CD 12, 1d6 tuono entro 6 m), Catene del Rimorso (TS Forza CD 12, velocità 0 entro 9 m), Voce del Giudizio (TS Saggezza CD 12, Spaventato entro 9 m), e le interazioni di **Memoria**, **Compassione**, **Coraggio**, **Verità** e **Sacrificio**.
+
+### Decisione e realizzazione
+
+Su richiesta del progettista, l'homebrew completo esportato come `DMC_Creatura_Aldren.json` utilizza **55 PF massimi direttamente nella scheda**, con CA 13 e attacco normale +4, danni 1d8+2. Questo valore è una scelta applicativa attuale e non una correzione del vecchio prototipo, che riportava 40 PF.
+
+Per separare la descrizione del potere dal relativo contesto della campagna, le regole conservano la proprietà `descrizione` e acquistano la proprietà opzionale `notaCapitello`. Le note non sono aggiunte indiscriminatamente alla fine della scheda: vengono associate agli elementi corrispondenti:
+
+- attacco normale: Coraggio e Compassione;
+- Campana dell'Oblio: Memoria;
+- Voce del Giudizio: Verità;
+- capacità narrativa di redenzione: Sacrificio.
+
+Catene del Rimorso rimane senza una nota di contrasto diretto. Le note si applicano **solo dopo il ripristino del capitello corrispondente**; costituiscono promemoria per il DM, non automazioni garantite dal motore Battaglia.
+
+I componenti `SchedaTatticaCreatura.vue` e `SchedaCreatura.vue` mostrano `notaCapitello` **immediatamente sotto la regola interessata**, in testo di dimensioni inferiori (0,74 rem), corsivo e colore secondario. Il campo è modificabile nell'editor homebrew, sia per tratti sia per azioni. La formattazione con `white-space: pre-line` conserva la separazione tra più capitelli nella stessa nota. Il modello dati e gli archivi JSON già preservano i campi aggiuntivi, senza richiedere migrazioni.
+
+### Verifiche e limiti
+
+Sono aggiunti test dedicati a visualizzazione contestuale, stile grafico, editabilità e conservazione delle annotazioni nella normalizzazione/creazione di istanze, verificando anche i 55 PF. La correttezza visiva richiede verifica in browser dopo il prossimo rilascio: le build automatiche Netlify sono attualmente sospese per contenere il consumo dei crediti. L'esportazione JSON creata in questa attività resta scaricabile indipendentemente dalla pubblicazione web.
+
+La ricostruzione mantiene le abilità documentate dalla vecchia plancia ma non inventa nuove statistiche mancanti (caratteristiche, tiri salvezza, GS e simili). Questo costituisce un limite dichiarato della scheda recuperata.
+
+## 14 novembre 2026 — R4.15: suggerimenti del copione non vincolanti in TUTTE le campagne
+
+### Problema ricorrente
+
+Durante il collaudo di *Il Sesto Rintocco* si è ripresentato un blocco della funzione **Carica in Battaglia** in una scena che aveva già dei nemici associati. Un testo narrativo come «Carica Aldren nell'incontro», conservato nel campo legacy `incontro.richiedeCreature`, veniva erroneamente interpretato come un prerequisito tecnico e confrontato con i nomi dei mostri mediante ricerca testuale. Quando le stringhe non coincidevano esattamente, il pulsante veniva disabilitato nonostante fosse presente una creatura collegata.
+
+L'utente ha esplicitamente richiesto che la correzione valga **globalmente per tutte le campagne**, esistenti, importate, homebrew e generate, e non solo per Aldren.
+
+### Decisione generale di architettura UX
+
+Il sistema distingue ora:
+- **Nemici effettivi** (`incontro.nemici`): unica fonte delle creature da istanziare per la Battaglia. Se non esiste alcun nemico l'avvio è disabilitato; gli elementi selezionati devono avere schede valide e quantità ammesse.
+- **Promemoria narrativi** (`incontro.richiedeCreature`): consigli o call to action facoltative. Restano consultabili nella Preparazione e nella Conduzione, ma **non possono mai bloccare il pulsante, l'apertura della conferma, il caricamento effettivo o la valutazione della difficoltà**.
+
+Sono state rimosse le verifiche bloccanti da `GestioneSessioni.vue`, `ConduzioneSessione.vue` e dalla funzione condivisa `valutaIncontro()`; il testo dei promemoria nei componenti di preparazione e conduzione è stato reso esplicitamente facoltativo. Il campo `richiedeCreature` è conservato per retrocompatibilità con le campagne già salvate: **nessuna migrazione distruttiva o modifica dei salvataggi esistenti**.
+
+La funzione pura `suggerimentiCreatureNonCollegate()` controlla esclusivamente quali suggerimenti mostrare, riconoscendo nomi, alias e call to action come «Carica Aldren». Le eventuali differenze di nome non cambiano l'elenco effettivo dei combattenti: il caricamento usa sempre gli ID e le istantanee delle creature collegate. Anche il prompt della Creazione assistita esplicita che `richiedeCreature` non rappresenta una precondizione.
+
+### Verifica e significato per la tesi
+
+I nuovi test di regressione valutano scenari generici con nomi e creature diversi, compresi suggerimenti mancanti e già soddisfatti. Un ulteriore test verifica che i tre punti storici di blocco (disabilitazione del pulsante, conferma e caricamento) non consultino `richiedeCreature`. Questo costituisce una verifica delle regole di interazione indipendente dalla singola campagna; non dimostra ancora il corretto comportamento visivo su Safari iPadOS.
+
+**Pubblicazione:** le build Netlify rimangono intenzionalmente sospese per controllare il consumo di crediti; il comportamento corretto sarà disponibile sul sito al successivo deployment cumulativo, dopo validazione.
+
+## 16 novembre 2026 — R4.16: protocollo di progettazione assistita e accessibilità del feedback di copia
+
+### Problema individuato nell'uso reale
+
+Un collaudo da smartphone ha evidenziato la mancanza di un feedback **immediatamente visibile** dopo il comando «Copia prompt». Nel componente `CreazioneAssistitaCampagna.vue` la conferma veniva mostrata alla fine della pagina; nel componente di creazione creature la notifica compariva in fondo alla finestra modale. Entrambi utilizzavano soltanto `navigator.clipboard.writeText`, che può essere rifiutato da alcuni contesti browser.
+
+Un secondo collaudo della generazione di campagne, effettuato tramite un differente account ChatGPT, ha individuato due difetti del protocollo di scambio:
+1. Le risposte dell'assistente erano troppo lunghe e ridondanti, con ricapitolazioni dell'intero progetto a ogni modifica.
+2. L'esportazione veniva subordinata alla stringa **esattamente maiuscola** `ESPORTA DMC`. Inoltre, su alcuni account non era possibile ottenere un vero file scaricabile da ChatGPT.
+
+Queste criticità riguardano la **continuità del workflow** tra DMC e un sistema esterno, non la qualità narrativa della campagna in sé.
+
+### Soluzioni implementate
+
+**Feedback della copia:** `src/dati/copiaNegliAppunti.js` incapsula la Clipboard API con fallback basato su `document.execCommand('copy')`, controllando realmente l'esito. In assenza di permessi, il testo dell'anteprima viene selezionato per la copia manuale, senza mostrare un successo non verificato. In `CreazioneAssistitaCampagna.vue` e `SceltaCreazioneCreatura.vue`, un messaggio `role="status"` con `aria-live="polite"` compare accanto al pulsante, che cambia visivamente in «Prompt copiato». Gli errori sono annunciati con `role="alert"`. È prevista la disabilitazione del pulsante durante la copia.
+
+**Protocollo conversazionale standardizzato:** il prompt è stato estratto in `src/dati/protocolloCreazioneDMC.js`, applicato alla generazione di campagne e sessioni. Ogni risposta ordinaria deve contenere quattro parti sintetiche — «In esame», «Proposta», «Da decidere», «Prossimo passo» — con un limite suggerito di 180 parole, una sola decisione per volta e nessun riepilogo cumulativo. La prima proposta presenta una scaletta tabellare e un numero limitato di domande; le sessioni vengono sviluppate in modo incrementale. Questi vincoli descrivono il comportamento atteso **a prescindere dalle preferenze stilistiche dell'account esterno**, ma non costituiscono una garanzia tecnica di obbedienza del modello.
+
+**Esportazione senza formule rigide:** il nuovo protocollo riconosce richieste di esportazione equivalenti, indipendentemente dalle maiuscole, come `esporta`, `esporta dmc`, `genera il JSON`. Il documento di scambio richiede un singolo JSON valido, in formato `dmc-archivio-campagne` versione 2 o `dmc-sessioni` versione 1; l'esportazione è distinta dalle fasi di progettazione. Il prompt non impone a ChatGPT di dichiarare inesistenti allegati scaricabili: se un file non può essere prodotto, richiede un blocco JSON copiabile.
+
+**Indipendenza dai file allegati:** `src/dati/jsonDaChatGPT.js` accetta un oggetto JSON completo con o senza delimitatori Markdown `\`\`\`json`, senza estrarre arbitrariamente frammenti da risposte discorsive. I componenti `CreazioneAssistitaCampagna.vue` e `ImportaSessioniJSON.vue` permettono di **incollare il JSON direttamente in DMC**, sottoporlo alle stesse verifiche già usate per l'importazione da file, visualizzare l'anteprima e confermare l'importazione. Il browser può anche scaricare localmente il JSON verificato, senza richiedere la generazione di un allegato sul profilo ChatGPT. Il formato dei dati e i salvataggi non sono stati modificati.
+
+### Implicazioni metodologiche e verifica
+
+Questa modifica separa la **standardizzazione dell'interazione** (prompt e UI DMC) dal comportamento del servizio ChatGPT esterno: le preferenze di altri account possono influenzare il risultato, ma il flusso non impone più una singola frase in maiuscolo o la disponibilità di una funzione di esportazione file.
+
+I test automatici coprono la generazione del prompt, gli esempi di comandi in minuscolo e maiuscolo, il fallback di copia, la verifica del suo esito, i contenuti JSON grezzi o recintati e l'uso degli stessi validatori di importazione. Restano da collaudare su browser reali: Chrome Android, Safari iPhone e iPadOS, browser desktop, contenuti di lunghezza elevata e compatibilità con almeno due account ChatGPT di preferenze diverse. **Non confondere i test automatici con verifiche empiriche effettuate sui dispositivi.**
+
+Le build Netlify restano intenzionalmente sospese per controllare i crediti. La modifica sarà visibile sul sito soltanto dopo il successivo rilascio cumulativo.
+
+## 16 novembre 2026 — R4.17: rimozione della configurazione editoriale Cloudflare dismessa
+
+### Audit e decisione
+
+Dopo la migrazione a Netlify è stata richiesta l'eliminazione dei residui della precedente soluzione di pubblicazione. La verifica del repository `feature/r4-2-gestione-dati-integrazione` non ha individuato dipendenze Cloudflare/Workers/Wrangler in `package.json` o `package-lock.json`, né componenti Cloudflare necessari a Vite o alla web app Vue. Non è dunque necessaria alcuna modifica al package manager, al bundle, ai dati o agli script di build.
+
+Sono invece stati individuati residui **documentali e di configurazione CI**:
+- `.github/workflows/verifiche-r4-2.yml` conteneva il nome del provider precedente nell'etichetta dello step Node.js; il file `.node-version` continua a definire la versione Node senza vincoli sul fornitore di hosting.
+- `README.md` collegava la guida di pubblicazione non più attiva.
+- La guida `docs/PUBBLICAZIONE_CLOUDFLARE_PAGES.md` rimaneva nel progetto, ma riportava istruzioni operative superate.
+
+Questi elementi sono stati aggiornati e la vecchia guida eliminata. È stato aggiunto il test `tests/hosting-netlify-senza-provider-legacy.test.js` per verificare l'assenza di riferimenti Cloudflare o Wrangler negli **sorgenti**, nei **workflow GitHub**, nel **README**, nelle **dipendenze** e nei file di configurazione principali. La documentazione storica del tentativo Cloudflare resta conservata **in questo diario della tesi**, per assicurare la tracciabilità delle decisioni e dei problemi incontrati.
+
+### Integrazione esterna da disattivare nel servizio
+
+La verifica della GitHub API sul commit `010226aa` ha rivelato un check denominato **Cloudflare Pages** gestito dall'app GitHub `cloudflare-workers-and-pages`, concluso con esito positivo. Questo check non dipende da package, plugin Vite o GitHub Actions presenti nel repository: deriva da un collegamento GitHub–Cloudflare ancora attivo.
+
+Per completare la dismissione, il proprietario degli account deve rimuovere il progetto Pages da Cloudflare e revocare o restringere l'accesso della GitHub App al solo repository DMC. **Queste azioni non sono state eseguite dal codice**. Evitare la disinstallazione generale della GitHub App se viene utilizzata da altri repository. La sola revoca GitHub non elimina i deployment già ospitati: per eliminarli occorre intervenire sul progetto Pages.
+
+### Verifiche e pubblicazione
+
+Il deployment Netlify resta sospeso per risparmiare crediti, come scelta operativa attuale. Nessuna modifica di questa iterazione richiede la pubblicazione della web app; la revisione riguarda manutenzione tecnica, documentazione e verifica automatizzata. Dati e interfaccia DMC restano invariati.

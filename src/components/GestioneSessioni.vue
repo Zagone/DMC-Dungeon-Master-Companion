@@ -8,6 +8,7 @@ import EditorDettagliScena from './EditorDettagliScena.vue'
 import ConduzioneSessione from './ConduzioneSessione.vue'
 import { preparaSessione as normalizzaSessione } from '../dati/preparazioneSessioni.js'
 import { valutaIncontro } from '../dati/valutazioneIncontro.js'
+import { suggerimentiCreatureNonCollegate } from '../dati/promemoriaIncontro.js'
 
 import {
   datiCampagna,
@@ -401,17 +402,9 @@ const totaleNemici = (scena) =>
     0,
   )
 
+// Solo promemoria: richiedeCreature non deve bloccare il combattimento.
 function creatureDaCollegare(scena) {
-  return (scena?.incontro?.richiedeCreature || []).filter(
-    (nome) =>
-      !(scena.incontro.nemici || []).some((voce) => {
-        const scheda = risolviVoceIncontro(voce)
-
-        return [nomeCreatura(voce), ...(scheda?.aliases || [])].some((alias) =>
-          normalizza(alias).includes(normalizza(nome)),
-        )
-      }),
-  )
+  return suggerimentiCreatureNonCollegate(scena, risolviVoceIncontro)
 }
 
 function difficolta(scena, sessione) {
@@ -420,7 +413,6 @@ function difficolta(scena, sessione) {
     livello: sessione.livelloPrevisto,
     nemici: scena?.incontro?.nemici,
     risolviCreatura: risolviVoceIncontro,
-    collegamentiMancanti: creatureDaCollegare(scena).length > 0,
   })
 }
 
@@ -462,29 +454,26 @@ function aggiungiCreatura(scena) {
 }
 
 function richiediCaricamento(scena) {
-  if (creatureDaCollegare(scena).length || !totaleNemici(scena)) {
-    messaggio.value = 'Prima completa l’incontro e collega le creature richieste.'
-
-    return
-  }
-
+  // Le creature suggerite e quelle non disponibili non impediscono il caricamento.
+  messaggio.value = ''
   conferma.value = `carica-${scena.id}`
 }
 
 function caricaIncontro(scena) {
-  if (creatureDaCollegare(scena).length) return
+  // La lista narrativa richiedeCreature non è un vincolo.
+  // Controlliamo solo le creature realmente associate alla scena.
 
   const istanze = []
   const nomi = new Set()
+  let vociNonDisponibili = 0
 
   for (const voce of scena.incontro.nemici) {
     const creatura = risolviVoceIncontro(voce)
     const quantita = Number(voce.quantita)
 
     if (!utilizzabile(creatura) || !Number.isInteger(quantita) || quantita < 1 || quantita > 30) {
-      messaggio.value = 'Una o più creature non sono utilizzabili.'
-
-      return
+      vociNonDisponibili++
+      continue
     }
 
     for (let i = 0; i < quantita; i++) {
@@ -514,8 +503,8 @@ function caricaIncontro(scena) {
     }
   }
 
-  if (!istanze.length) return
-
+  // Anche un incontro senza creature disponibili può essere caricato:
+  // i nemici del combattimento precedente vengono rimossi.
   // Sostituiamo solo i nemici.
   // PG e partecipanti alle attività monitorate
   // non vengono modificati.
@@ -535,7 +524,7 @@ function caricaIncontro(scena) {
 
   conferma.value = null
 
-  messaggio.value = `${istanze.length} nemici caricati.`
+  messaggio.value = `${istanze.length} nemici caricati.${vociNonDisponibili ? ` ${vociNonDisponibili} voci non disponibili: aggiungile dal bestiario quando vuoi.` : ''}`
 
   emit('vai-battaglia')
 }
