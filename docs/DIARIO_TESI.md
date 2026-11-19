@@ -634,3 +634,11 @@ La funzione **«Visitata» è stata mantenuta per il momento**, in un gruppo vis
 ### Verifiche e limiti
 
 Sono stati aggiornati i test statici della navigazione e aggiunti tre controlli in `tests/selezione-scena-corrente.test.js`, relativi all'aggiornamento di `scenaAttivaId`, alla rimozione del comando ridondante e alla conservazione indipendente della visita. **I commit sono stati salvati sul branch di sviluppo, ma i nuovi controlli e il comportamento browser non sono ancora stati confermati in questa annotazione.** Occorre verificare con GitHub Actions e mediante un breve collaudo la sequenza: scena 1 → scena 2 → ritorno alla preparazione → ripresa conduzione, compreso lo stato «Visitata».
+
+### 19 novembre 2026 — Riduzione verticale della barra sticky di conduzione
+
+Durante la verifica dell'interfaccia, è stato osservato che la versione compatta della navigazione persistente ripeteva il **nome della campagna** all'interno di un'intestazione supplementare sopra le schede. L'informazione è già disponibile nell'intestazione globale e nel contesto della sessione, e la sua duplicazione aumentava l'ingombro verticale della barra mentre il Dungeon Master scorreva il contenuto operativo.
+
+In `src/views/CampagnaView.vue` è stato rimosso il blocco condizionale `navigazione-contesto` (contenente nome campagna e uscita) e il comando **«Esci dalla campagna»** è stato mantenuto come unica azione all'estremità destra della stessa riga delle schede **Sessioni, Battaglia e Note**, anche nello stato compatto. In `src/stili/navigazione-campagna.css` sono stati eliminati i selettori non più utilizzati relativi al titolo compatto; sono rimaste intatte la logica sticky desktop, la navigazione statica touch, le rotte e le funzioni delle sezioni. È stato introdotto un test statico in `tests/navigazione-campagna.test.js` per impedire la ricomparsa dell'intestazione duplicata e verificare la presenza dell'uscita nella navigazione.
+
+**Verifica:** i file sono stati pubblicati sul branch di sviluppo. I test, la build e il comportamento nel browser dopo questa modifica non sono ancora stati confermati alla data della registrazione. Da controllare il passaggio a barra compatta su desktop, la posizione del tasto uscita quando la larghezza è ridotta e il mantenimento degli offset della Battaglia.
