@@ -1,9 +1,9 @@
 <script setup>
-import { ref } from 'vue'
+import { defineAsyncComponent, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { usaModale } from '../stato/usaModale.js'
 
-import GestioneArchivioDMC from '../components/GestioneArchivioDMC.vue'
+const GestioneArchivioDMC = defineAsyncComponent(() => import('../components/GestioneArchivioDMC.vue'))
 
 import { campagneOrdinate, creaCampagna } from '../stato/statoCampagne.js'
 
