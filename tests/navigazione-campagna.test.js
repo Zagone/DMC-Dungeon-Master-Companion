@@ -15,10 +15,10 @@ test('La panoramica è una rotta distinta dagli strumenti di conduzione', () => 
 
 test('La barra operativa è nascosta nella panoramica e non contiene la scheda Panoramica', () => {
   assert.match(vista, /v-show="sezione !== 'panoramica'"/)
-  assert.match(vista, /sezioni\.filter\(\(voce\) => voce\.id !== 'panoramica'\)/)
+  assert.match(vista, /sezioni\.filter\(\(voce\) => !\['panoramica', 'bestiario'\]\.includes\(voce\.id\)\)/)
   assert.deepEqual(
-    sezioniCampagna.filter((s) => s.id !== 'panoramica').map((s) => s.id),
-    ['sessioni', 'battaglia', 'bestiario', 'note'],
+    sezioniCampagna.filter((s) => !['panoramica', 'bestiario'].includes(s.id)).map((s) => s.id),
+    ['sessioni', 'battaglia', 'note'],
   )
 })
 
