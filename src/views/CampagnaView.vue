@@ -128,6 +128,17 @@ const sezione = computed(() => {
   return sezioni.some((s) => s.id === valore) ? valore : 'panoramica'
 })
 
+// La navigazione resta montata ma viene nascosta nella panoramica.
+// Al cambio di contesto aggiorniamo la misura della barra sticky.
+watch(sezione, async (nuovaSezione) => {
+  if (nuovaSezione === 'panoramica') {
+    navigazioneCompatta.value = false
+  }
+
+  await nextTick()
+  aggiornaMisure()
+})
+
 // La testata mostra il contesto della sessione soltanto quando è in Conduzione.
 const intestazioneInConduzione = computed(
   () => sezione.value === 'sessioni' && Boolean(conduzioneAttiva.value),
