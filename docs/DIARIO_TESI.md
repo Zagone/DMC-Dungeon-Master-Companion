@@ -618,3 +618,19 @@ L'ispezione diretta dei job e dei log del workflow GitHub Actions **#288**, asso
 Il nuovo report, calcolato sui file prodotti dalla build e sul grafo degli import statici nel manifest, restituisce: **ingresso app: 1 chunk, 109,3 KiB minificati / 41,6 KiB gzip stimati**; **Home inclusivo dell'ingresso: 3 chunk, 119,7 KiB minificati / 46,1 KiB gzip stimati**. Per il modulo Gestione backup (calcolato isolatamente come radice) risultano **2 chunk, 119,1 KiB minificati / 45,3 KiB gzip stimati**; tale cifra non va sommata meccanicamente alla Home perché potrebbero esserci file condivisi. Il report segnala inoltre che il modulo `CreazioneAssistitaCampagna.vue` **non è stato individuato con la chiave attesa del manifest**: questo dato specifico non può ancora essere considerato misurato e richiederà ispezione delle chiavi generate.
 
 **Limiti:** queste sono dimensioni dei file di output, non metriche di traffico HTTP, cache, tempo di rendering o Core Web Vitals. Non esiste ancora una misurazione precedente prodotta con la stessa metodologia che permetta di quantificare il miglioramento percentuale. Il chunk completo del Bestiario resta una questione distinta: non è dimostrato che esso venga richiesto all'apertura della Home. Il collaudo empirico con DevTools e le verifiche delle modali restano da effettuare.
+
+## 19 novembre 2026 — Revisione UX della conduzione: riduzione dei controlli ridondanti
+
+### Osservazione dal test d'uso
+
+Durante il collaudo locale della campagna «Il Sesto Rintocco», l'utente ha segnalato la presenza del pulsante **Bestiario** nella barra persistente delle sezioni, nonostante il Bestiario fosse già raggiungibile dalla navigazione globale. Ha inoltre ritenuto ridondante il comando **«Imposta come corrente»** posto sulla destra dell'intestazione della scena, proponendo che la scelta di una scena nel menu laterale la rendesse automaticamente corrente. La checkbox **«Visitata»** è stata identificata come elemento da valutare perché contribuisce all'affollamento della testata.
+
+### Decisioni implementate
+
+La barra operativa della campagna mostra ora **Sessioni, Battaglia e Note**: «Panoramica» rimane raggiungibile mediante comando distinto, mentre «Bestiario» resta accessibile dal menu globale e dalle sue rotte esistenti. In `GestioneSessioni.vue` la funzione `consultaScena(sessione, id)` aggiorna anche `sessione.scenaAttivaId`, il riferimento già persistito della scena corrente: di conseguenza sia il clic su una scena laterale sia la selezione mobile sincronizzano immediatamente contenuto mostrato e scena corrente. Il comando `impostaScenaCorrente` e il suo pulsante sono stati eliminati dal componente `ConduzioneSessione.vue`.
+
+La funzione **«Visitata» è stata mantenuta per il momento**, in un gruppo visivamente meno prominente nell'intestazione. La scelta è motivata dalla distinzione semantica tra **selezionare una scena** e **averla effettivamente giocata o completata**: una semplice selezione non modifica `sceneVisitateIds`. Gli stati salvati in precedenza rimangono compatibili. L'eliminazione definitiva della checkbox richiederebbe di riconsiderare anche il contatore «scene visitate» e il suo significato per il Dungeon Master.
+
+### Verifiche e limiti
+
+Sono stati aggiornati i test statici della navigazione e aggiunti tre controlli in `tests/selezione-scena-corrente.test.js`, relativi all'aggiornamento di `scenaAttivaId`, alla rimozione del comando ridondante e alla conservazione indipendente della visita. **I commit sono stati salvati sul branch di sviluppo, ma i nuovi controlli e il comportamento browser non sono ancora stati confermati in questa annotazione.** Occorre verificare con GitHub Actions e mediante un breve collaudo la sequenza: scena 1 → scena 2 → ritorno alla preparazione → ripresa conduzione, compreso lo stato «Visitata».
