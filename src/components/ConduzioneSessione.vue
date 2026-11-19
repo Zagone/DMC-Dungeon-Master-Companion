@@ -15,7 +15,6 @@ const props = defineProps({
   indiceConsultato: { type: Function, required: true },
   consultaScena: { type: Function, required: true },
   cambiaScena: { type: Function, required: true },
-  impostaScenaCorrente: { type: Function, required: true },
   impostaVisitata: { type: Function, required: true },
   toggleSupporto: { type: Function, required: true },
   elementiScena: { type: Function, required: true },
@@ -48,7 +47,6 @@ const scenaConsultata = props.scenaConsultata
 const indiceConsultato = props.indiceConsultato
 const consultaScena = props.consultaScena
 const cambiaScena = props.cambiaScena
-const impostaScenaCorrente = props.impostaScenaCorrente
 const impostaVisitata = props.impostaVisitata
 const toggleSupporto = props.toggleSupporto
 const elementiScena = props.elementiScena
@@ -190,7 +188,7 @@ const messaggio = computed(() => props.messaggio)
               </h3>
             </div>
 
-            <div class="azioni-scena">
+            <div class="stato-visita-scena">
               <label class="check-inline">
                 <input
                   type="checkbox"
@@ -209,21 +207,6 @@ const messaggio = computed(() => props.messaggio)
                 Visitata
               </label>
 
-              <button
-                type="button"
-                class="dmc-btn dmc-btn--secondary"
-                :disabled="
-                  sessioneInConduzione.scenaAttivaId === scenaConsultata(sessioneInConduzione).id
-                "
-                @click="
-                  impostaScenaCorrente(
-                    sessioneInConduzione,
-                    scenaConsultata(sessioneInConduzione).id,
-                  )
-                "
-              >
-                Imposta come corrente
-              </button>
             </div>
           </div>
 
