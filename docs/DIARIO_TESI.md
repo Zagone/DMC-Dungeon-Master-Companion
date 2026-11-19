@@ -502,3 +502,19 @@ Per completare la dismissione, il proprietario degli account deve rimuovere il p
 ### Verifiche e pubblicazione
 
 Il deployment Netlify resta sospeso per risparmiare crediti, come scelta operativa attuale. Nessuna modifica di questa iterazione richiede la pubblicazione della web app; la revisione riguarda manutenzione tecnica, documentazione e verifica automatizzata. Dati e interfaccia DMC restano invariati.
+
+## 19 novembre 2026 — Navigazione della campagna: separazione tra panoramica e conduzione
+
+### Problema UX osservato
+
+Durante una sessione reale di DMC, il pulsante «Panoramica» nella barra delle sezioni risultava troppo vicino ai comandi utilizzati per passare tra Sessioni e Battaglia. La possibilità di attivarlo accidentalmente interrompeva la continuità della conduzione. La panoramica svolge inoltre una funzione differente rispetto agli strumenti operativi: introduce e organizza la campagna, mentre le sezioni servono a condurla.
+
+### Scelta progettuale e implementazione
+
+È stata definita una gerarchia di navigazione in due livelli: **Home/Libreria → Panoramica campagna → Strumenti di conduzione**. Nella pagina panoramica la barra interna delle sezioni non viene mostrata. Nelle sezioni operative (Sessioni, Battaglia, Bestiario e Note) la barra continua a consentire il passaggio rapido tra strumenti, ma non include più «Panoramica». Il ritorno alla panoramica è disponibile attraverso un pulsante distinto nell'intestazione della campagna, riconoscibile come navigazione di livello superiore.
+
+L'intervento è stato circoscritto a `src/views/CampagnaView.vue`: la barra usa `v-show` per conservarne l'elemento DOM e i riferimenti usati dal sistema di misurazione della navigazione sticky; il ciclo delle schede esclude soltanto `panoramica`; il collegamento dedicato utilizza la funzione di navigazione e le rotte già esistenti. Nessuna variazione è stata apportata ai formati di esportazione, alla persistenza delle campagne o alla logica degli incontri e della battaglia.
+
+### Stato delle verifiche
+
+La modifica è stata salvata nel repository sul branch `feature/r4-2-gestione-dati-integrazione` (commit `70d323f`). **Al momento della registrazione non sono stati eseguiti build o test browser sulla nuova navigazione**. Sono da verificare il passaggio Panoramica → Sessioni → Battaglia, il ritorno alla panoramica, il comportamento della barra sticky dopo i cambi di rotta e l'esperienza su dispositivi touch. Il precedente caricamento non bloccante degli incontri è stato invece confermato funzionante durante una verifica manuale dell'utente il 19 novembre 2026.
