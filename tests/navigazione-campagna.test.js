@@ -34,3 +34,10 @@ test('L\'altezza della navigazione sticky viene ricalcolata dopo il cambio di se
   assert.match(vista, /await nextTick\(\)\s+aggiornaMisure\(\)/)
   assert.match(vista, /ref="navigazione"/)
 })
+
+test('La barra sticky compatta contiene solo navigazione e uscita su una riga', () => {
+  assert.doesNotMatch(vista, /navigazione-contesto|nome-campagna-compatto/)
+  assert.doesNotMatch(vista, /v-if="!navigazioneCompatta"/)
+  assert.match(vista, /<nav class="tabs" aria-label="Strumenti della campagna">/)
+  assert.match(vista, /class="bottone neutro uscita-campagna uscita-normale dmc-btn dmc-btn--secondary"/)
+})
