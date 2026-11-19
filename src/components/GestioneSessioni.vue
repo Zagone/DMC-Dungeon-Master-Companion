@@ -454,11 +454,7 @@ function aggiungiCreatura(scena) {
 }
 
 function richiediCaricamento(scena) {
-  if (!totaleNemici(scena)) {
-    messaggio.value = 'Aggiungi almeno un nemico all’incontro prima di caricarlo.'
-    return
-  }
-
+  // Le creature suggerite e quelle non disponibili non impediscono il caricamento.
   messaggio.value = ''
   conferma.value = `carica-${scena.id}`
 }
@@ -469,15 +465,15 @@ function caricaIncontro(scena) {
 
   const istanze = []
   const nomi = new Set()
+  let vociNonDisponibili = 0
 
   for (const voce of scena.incontro.nemici) {
     const creatura = risolviVoceIncontro(voce)
     const quantita = Number(voce.quantita)
 
     if (!utilizzabile(creatura) || !Number.isInteger(quantita) || quantita < 1 || quantita > 30) {
-      messaggio.value = 'Una o più creature non sono utilizzabili.'
-
-      return
+      vociNonDisponibili++
+      continue
     }
 
     for (let i = 0; i < quantita; i++) {
@@ -507,8 +503,8 @@ function caricaIncontro(scena) {
     }
   }
 
-  if (!istanze.length) return
-
+  // Anche un incontro senza creature disponibili può essere caricato:
+  // i nemici del combattimento precedente vengono rimossi.
   // Sostituiamo solo i nemici.
   // PG e partecipanti alle attività monitorate
   // non vengono modificati.
@@ -528,7 +524,7 @@ function caricaIncontro(scena) {
 
   conferma.value = null
 
-  messaggio.value = `${istanze.length} nemici caricati.`
+  messaggio.value = `${istanze.length} nemici caricati.${vociNonDisponibili ? ` ${vociNonDisponibili} voci non disponibili: aggiungile dal bestiario quando vuoi.` : ''}`
 
   emit('vai-battaglia')
 }
