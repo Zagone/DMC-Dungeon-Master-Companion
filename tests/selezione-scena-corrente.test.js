@@ -23,3 +23,11 @@ test('Visitata resta un indicatore esplicito, distinto dalla scena corrente', ()
   assert.match(gestione, /sessione\.sceneVisitateIds = visitata/)
   assert.doesNotMatch(gestione.match(/function consultaScena\(sessione, id\) \{[\s\S]*?\n\}/)?.[0] || '', /impostaVisitata|sceneVisitateIds/)
 })
+
+test('La scena corrente è annunciata e individuabile anche su mobile', () => {
+  assert.match(conduzione, /Scena corrente:/)
+  assert.match(conduzione, /aria-live="polite" aria-atomic="true"/)
+  assert.match(conduzione, /\? 'step' : undefined/)
+  assert.match(conduzione, /Vai alla scena/)
+  assert.doesNotMatch(conduzione, /Consulta scena/)
+})
