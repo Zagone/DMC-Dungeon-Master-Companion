@@ -1,3 +1,4 @@
+import process from 'node:process'
 import { readFileSync, existsSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { gzipSync } from 'node:zlib'
