@@ -72,7 +72,7 @@ const messaggio = computed(() => props.messaggio)
          Qui rimangono solo i controlli operativi, senza un secondo titolo. -->
     <div class="stato-sessione" aria-label="Stato della conduzione">
       <div class="stato-sessione__dati">
-        <span>
+        <span aria-live="polite" aria-atomic="true">
           Scena corrente:
           <strong>
             {{ titoloScenaId(sessioneInConduzione, sessioneInConduzione.scenaAttivaId) }}
@@ -117,7 +117,7 @@ const messaggio = computed(() => props.messaggio)
                 corrente: sessioneInConduzione.scenaAttivaId === scena.id,
               }"
               :aria-current="
-                scenaConsultata(sessioneInConduzione)?.id === scena.id ? 'page' : undefined
+                scenaConsultata(sessioneInConduzione)?.id === scena.id ? 'step' : undefined
               "
               @click="consultaScena(sessioneInConduzione, scena.id)"
             >
@@ -143,7 +143,7 @@ const messaggio = computed(() => props.messaggio)
           </nav>
 
           <label class="selettore-mobile">
-            Consulta scena
+            Vai alla scena
 
             <select
               class="dmc-campo"
